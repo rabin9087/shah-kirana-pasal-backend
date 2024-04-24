@@ -10,3 +10,10 @@ export const getUserByEmail = (email: string) => {
 export const UpdateUserByEmail = (email: string, data: Object) => {
   return userSchema.findOneAndUpdate({ email }, { $set: data }, { new: true });
 };
+
+export const getUserByEmailAndJWT = (obj: {
+  email: string;
+  refreshJWT: string;
+}) => {
+  return userSchema.findOne(obj);
+};
