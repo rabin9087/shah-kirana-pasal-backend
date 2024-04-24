@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, getUserByEmail } from "../model/user/user.model";
 import { hashPassword, validatePassword } from "../utils/bcrypt";
-import { createAccessJWT, createRefreshJWT } from "../utils/jwt";
+import { createAccessJWT, createRefreshJWT, verifyAccessJWT } from "../utils/jwt";
 
 export const createNewUser = async (
   req: Request,
@@ -9,12 +9,19 @@ export const createNewUser = async (
   next: NextFunction
 ) => {
   try {
+      
+    if (req.userInfo?.role==='ADMIN') {
+      req.body.role='ADMIN'
+    }
     const { password } = req.body;
     req.body.password = hashPassword(password);
     const newUser = await createUser(req.body);
+    newUser.password=undefined
     newUser?._id
       ? res.json({
-          user: req.body,
+        status:'success',
+        message:'Please check your email to verify your account',
+         newUser
         })
       : res.json({
           status: "error",
@@ -53,12 +60,41 @@ export const loginUser = async (
     // todo send jwt tokens to the user
     return res.json({
       status: "success",
+      message:`Welcome back ${user.fName}`,
       tokens: {
-        accessJWT: createAccessJWT(user.email),
-        refreshJWT: createRefreshJWT(user.email),
+        accessJWT:await createAccessJWT(user.email),
+        refreshJWT: await createRefreshJWT(user.email),
       },
     });
   } catch (error) {
     next(error);
   }
 };
+export const getUser=async(  req: Request,
+  res: Response,
+  next: NextFunction)=>{
+    res.json({
+      user:req.userInfo
+    })
+
+}
+
+export const createTokenForAdmin=async( req: Request,
+  res: Response,
+  next: NextFunction)=>{
+  try {
+    const email=req.params.email
+    const token=await createAccessJWT(email)
+   const link=`http://${process.env.WEB_DOMAIN}/sign-up?email=${email}&&token=${token}`
+
+  //  todo send this link to the user email address
+  // if email is sent i.e nodemailer gives you id
+  res.json({
+    status:'success',
+    message:'Link has been sent'
+  })
+  } catch (error) {
+    next(error)
+  }
+}
+

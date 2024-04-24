@@ -20,7 +20,7 @@ export const verifyAccessJWT = (token: string): jwtReturnType => {
   return jwt.verify(
     token,
     process.env.JWT_ACCESS_SECRET as string
-  ) as jwtReturnType;
+  ) as jwtReturnType
 };
 //// create refreshJWT and store with user data in user table: long live 30d
 
@@ -30,7 +30,7 @@ export const createRefreshJWT = async (email: string): Promise<string> => {
     { email },
     process.env.JWT_REFRESH_SECRET as string,
     {
-      expiresIn: "10d",
+      expiresIn: "15d",
     }
   );
 

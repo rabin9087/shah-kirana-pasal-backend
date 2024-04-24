@@ -18,10 +18,45 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (decoded?.email) {
       // check if the user is active
       const user = await getUserByEmail(decoded.email);
-      if (user?._id && user?.status === "active") {
+      if (user?._id ) {
         user.refreshJWT = undefined;
+        user.password=undefined
         req.userInfo = user;
+        return next();
+      }
+    }
 
+    res.status(401).json({
+      status: "error",
+      message: "Unauthorized access",
+    });
+  } catch (error: CustomError | any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login Again";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = error.message;
+    }
+    next(error);
+  }
+};
+export const adminAccess = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // get access jwt key form the fornt end
+    const { authorization } = req.headers;
+    // decode the JWT which tell key is valid and expired or not
+    const decoded = verifyAccessJWT(authorization as string);
+    //decoded have three properties one of them being user email expiry data
+    // extrat email and get get user by email
+    if (decoded?.email) {
+      // check if the user is active
+      const user = await getUserByEmail(decoded.email);
+      if (user?._id && user.role==='ADMIN' ) {
+        user.refreshJWT = undefined;
+        user.password=undefined
+        req.userInfo = user;
         return next();
       }
     }

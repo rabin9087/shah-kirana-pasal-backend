@@ -3,7 +3,7 @@ import { Role } from "../../../types";
 
 export interface IUser extends Document {
   _id: string;
-  role: string;
+  role: 'ADMIN'|'USER';
   status: string;
   fName: string;
   lName: string;
@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema<IUser>(
 
     phone: {
       type: String,
-      required: false,
+      required: true,
+      uniqure:true
     },
 
     email: {
