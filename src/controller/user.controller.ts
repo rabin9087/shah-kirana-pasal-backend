@@ -14,9 +14,6 @@ export const createNewUser = async (
   next: NextFunction
 ) => {
   try {
-    if (req.userInfo?.role === "ADMIN") {
-      req.body.role = "ADMIN";
-    }
     const { password } = req.body;
     req.body.password = hashPassword(password);
     const newUser = await createUser(req.body);
@@ -84,27 +81,6 @@ export const getUser = async (
     message: `Welcome back ${req.userInfo?.fName}`,
     user: req.userInfo,
   });
-};
-
-export const createTokenForAdmin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const email = req.params.email;
-    const token = await createAccessJWT(email);
-    const link = `http://${process.env.WEB_DOMAIN}/sign-up?email=${email}&&token=${token}`;
-
-    //  todo send this link to the user email address
-    // if email is sent i.e nodemailer gives you id
-    res.json({
-      status: "success",
-      message: "Link has been sent",
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
 export const sendLinkController = async (

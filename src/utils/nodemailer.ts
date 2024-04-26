@@ -18,7 +18,6 @@ export async function sendEmail(email: string) {
   };
 
   const info = await transporter.sendMail(options);
-  console.log(info);
 }
 
 export async function sendRegisterationLink(userEmail: string, token: string) {
