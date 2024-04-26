@@ -11,9 +11,12 @@ import morgan from "morgan";
 import { CustomError } from "./types";
 import userRouter from "./src/router/user.router";
 import { connectMongo } from "./src/config/mongo.connect";
+import { envVariables } from "./src/utils/env";
 //For env File
 dotenv.config();
-connectMongo()
+envVariables.parse(process.env);
+
+connectMongo();
 const app: Application = express();
 const port = process.env.PORT || 8000;
 app.use(cors());
@@ -30,7 +33,6 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/user", userRouter);
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
-
     const status = error.statusCode || 500;
     const message = error.message || "Internal server Error";
     console.log(`${status}: ${message}`);

@@ -1,4 +1,6 @@
+import { z } from "zod";
 import { IUser } from "../src/model/user/user.schema";
+import { envVariables } from "../src/utils/env";
 
 export interface CustomError extends Error {
   statusCode: number;
@@ -12,6 +14,11 @@ declare global {
     interface Request {
       userInfo?: IUser;
     }
+  }
+}
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends z.infer<typeof envVariables> {}
   }
 }
 export enum Role {
