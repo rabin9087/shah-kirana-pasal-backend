@@ -16,11 +16,13 @@ declare global {
     }
   }
 }
+
 declare global {
   namespace NodeJS {
     interface ProcessEnv extends z.infer<typeof envVariables> {}
   }
 }
+
 export enum Role {
   ADMIN = "ADMIN",
   USER = "USER",

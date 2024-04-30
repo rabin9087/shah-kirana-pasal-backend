@@ -7,7 +7,7 @@ export interface IUser extends Document {
   status: string;
   fName: string;
   lName: string;
-  phone?: string;
+  phone: string;
   email: string;
   password: string | undefined;
   isVerified: boolean;

@@ -39,10 +39,12 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    
+    const { email , password } = req.body;
     if (!email || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email address
     const user = await getUserByEmail(email);
+    console.log(user)
     if (!user) {
       return res
         .status(401)
