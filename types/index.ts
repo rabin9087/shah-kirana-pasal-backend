@@ -6,7 +6,7 @@ export interface CustomError extends Error {
   statusCode: number;
 }
 export type jwtReturnType =
-  | { email: string; iat: number; exp: number }
+  | { phone: string; iat: number; exp: number }
   | undefined;
 
 declare global {
@@ -31,7 +31,8 @@ export enum Role {
 export type createUserParams = {
   fName: string;
   lName: string;
-  email: string;
+  email?: string;
+  phone: string;
   password: string;
   address?: string;
 };

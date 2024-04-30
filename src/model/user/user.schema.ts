@@ -8,7 +8,7 @@ export interface IUser extends Document {
   fName: string;
   lName: string;
   phone: string;
-  email: string;
+  email?: string;
   password: string | undefined;
   isVerified: boolean;
   verificationCode: string | null;
@@ -43,12 +43,11 @@ const userSchema = new mongoose.Schema<IUser>(
     phone: {
       type: String,
       required: true,
-      uniqure:true
+      unique:true
     },
 
     email: {
       type: String,
-      required: true,
       unique: true,
       index: 1,
     },

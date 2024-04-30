@@ -1,15 +1,15 @@
 // import
 import jwt from "jsonwebtoken";
 import { insertNewSession } from "../model/session/session.model";
-import { UpdateUserByEmail } from "../model/user/user.model";
+import { UpdateUserByPhone } from "../model/user/user.model";
 import { jwtReturnType } from "../../types";
 
-export const createAccessJWT = async (email: string) => {
+export const createAccessJWT = async (phone: string) => {
   try {
-    const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET as string, {
+    const token = jwt.sign({ phone }, process.env.JWT_ACCESS_SECRET as string, {
       expiresIn: "1d",
     });
-    await insertNewSession({ token, associate: email });
+    await insertNewSession({ token, associate: phone });
     return token;
   } catch (error: Error | any) {
     throw new Error(error.message);
@@ -24,17 +24,17 @@ export const verifyAccessJWT = (token: string): jwtReturnType => {
 };
 //// create refreshJWT and store with user data in user table: long live 30d
 
-export const createRefreshJWT = async (email: string): Promise<string> => {
+export const createRefreshJWT = async (phone: string): Promise<string> => {
   ///expires every 30days
   const refreshJWT = jwt.sign(
-    { email },
+    { phone },
     process.env.JWT_REFRESH_SECRET as string,
     {
       expiresIn: "15d",
     }
   );
 
-  await UpdateUserByEmail(email, { refreshJWT });
+  await UpdateUserByPhone(phone, { refreshJWT });
   return refreshJWT;
 };
 

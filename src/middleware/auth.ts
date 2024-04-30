@@ -15,11 +15,11 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     console.log(authorization);
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
-    //decoded have three properties one of them being user email expiry data
-    // extrat email and get get user by email
-    if (decoded?.email) {
+    //decoded have three properties one of them being user phone expiry data
+    // extrat phone and get get user by email
+    if (decoded?.phone) {
       // check if the user is active
-      const user = await getUserByEmail(decoded.email);
+      const user = await getUserByEmail(decoded.phone);
       if (user?._id) {
         user.refreshJWT = undefined;
         user.password = undefined;
@@ -59,7 +59,7 @@ export const newAdminSignUpAuth = async (
       });
     }
     const decoded = verifyAccessJWT(authorization as string);
-    if (!decoded?.email) {
+    if (!decoded?.phone) {
       return res.status(401).json({
         status: "error",
         message: "Unauthorized access",
@@ -67,7 +67,7 @@ export const newAdminSignUpAuth = async (
       });
     }
     const session = await findOneByFilterAndDelete({
-      associate: decoded.email!,
+      associate: decoded.phone!,
       token: authorization!,
     });
 
@@ -101,11 +101,11 @@ export const adminAccess = async (
     const { authorization } = req.headers;
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
-    //decoded have three properties one of them being user email expiry data
-    // extrat email and get get user by email
-    if (decoded?.email) {
+    //decoded have three properties one of them being user phone expiry data
+    // extrat phone and get get user by phone
+    if (decoded?.phone) {
       // check if the user is active
-      const user = await getUserByEmail(decoded.email);
+      const user = await getUserByEmail(decoded.phone);
       if (user?._id && user.role === "ADMIN") {
         user.refreshJWT = undefined;
         user.password = undefined;
@@ -144,17 +144,17 @@ export const refreshAuth = async (
     }
     // 2.decode the jwt
     const decoded = verifyRefreshJWT(authorization as string);
-    // 3. extract email and get user by email
-    if (decoded?.email) {
+    // 3. extract phone and get user by phone
+    if (decoded?.phone) {
       // 4. check fif the user is active
       const user = await getUserByEmailAndJWT({
-        email: decoded.email,
+        email: decoded.phone,
         refreshJWT: authorization,
       });
 
       if (user?._id) {
         // create new accessJWT
-        const accessJWT = await createAccessJWT(decoded.email);
+        const accessJWT = await createAccessJWT(decoded.phone);
         return res.json({
           status: "success",
           message: "Session expired!!.Please login Again.",

@@ -35,16 +35,15 @@ export const createNewUser = async (
 
 export const loginUser = async (
   req: Request,
-  res: Response,
+  res: Response, 
   next: NextFunction
 ) => {
   try {
     
-    const { email , password } = req.body;
-    if (!email || !password) throw new Error("Missing credentials.");
+    const { email_phone, password } = req.body;
+    if (!email_phone || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email address
-    const user = await getUserByEmail(email);
-    console.log(user)
+    const user = await getUserByEmail(email_phone);
     if (!user) {
       return res
         .status(401)
@@ -65,8 +64,8 @@ export const loginUser = async (
       status: "success",
       message: `Welcome back ${user.fName}`,
       tokens: {
-        accessJWT: await createAccessJWT(user.email),
-        refreshJWT: await createRefreshJWT(user.email),
+        accessJWT: await createAccessJWT(user.phone),
+        refreshJWT: await createRefreshJWT(user.phone),
       },
     });
   } catch (error) {
