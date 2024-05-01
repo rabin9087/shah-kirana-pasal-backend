@@ -5,7 +5,7 @@ import {
   verifyRefreshJWT,
 } from "../utils/jwt";
 import { CustomError } from "../../types";
-import { getUserByEmail, getUserByEmailAndJWT } from "../model/user/user.model";
+import { getUserByPhoneOrEmail, getUserByPhoneAndJWT } from "../model/user/user.model";
 import { findOneByFilterAndDelete } from "../model/session/session.model";
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +19,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     // extrat phone and get get user by email
     if (decoded?.phone) {
       // check if the user is active
-      const user = await getUserByEmail(decoded.phone);
+      const user = await getUserByPhoneOrEmail(decoded.phone);
       if (user?._id) {
         user.refreshJWT = undefined;
         user.password = undefined;
@@ -105,7 +105,7 @@ export const adminAccess = async (
     // extrat phone and get get user by phone
     if (decoded?.phone) {
       // check if the user is active
-      const user = await getUserByEmail(decoded.phone);
+      const user = await getUserByPhoneOrEmail(decoded.phone);
       if (user?._id && user.role === "ADMIN") {
         user.refreshJWT = undefined;
         user.password = undefined;
@@ -147,8 +147,8 @@ export const refreshAuth = async (
     // 3. extract phone and get user by phone
     if (decoded?.phone) {
       // 4. check fif the user is active
-      const user = await getUserByEmailAndJWT({
-        email: decoded.phone,
+      const user = await getUserByPhoneAndJWT({
+        phone: decoded.phone,
         refreshJWT: authorization,
       });
 

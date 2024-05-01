@@ -1,5 +1,6 @@
+import twilio from 'twilio'
 import { NextFunction, Request, Response } from "express";
-import { createUser, getUserByEmail } from "../model/user/user.model";
+import { UpdateUserByPhone, createUser, getUserByPhoneOrEmail } from "../model/user/user.model";
 import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
@@ -7,6 +8,7 @@ import {
   verifyAccessJWT,
 } from "../utils/jwt";
 import { sendRegisterationLink } from "../utils/nodemailer";
+import { randomOTPGenerator } from "../utils/randomGenerator";
 
 export const createNewUser = async (
   req: Request,
@@ -42,8 +44,8 @@ export const loginUser = async (
     
     const { email_phone, password } = req.body;
     if (!email_phone || !password) throw new Error("Missing credentials.");
-    // Find a user with the provided email address
-    const user = await getUserByEmail(email_phone);
+    // Find a user with the provided email  address or phone number
+    const user = await getUserByPhoneOrEmail(email_phone);
     if (!user) {
       return res
         .status(401)
@@ -64,14 +66,50 @@ export const loginUser = async (
       status: "success",
       message: `Welcome back ${user.fName}`,
       tokens: {
-        accessJWT: await createAccessJWT(user.phone),
-        refreshJWT: await createRefreshJWT(user.phone),
+        accessJWT: await createAccessJWT(user.phone!),
+        refreshJWT: await createRefreshJWT(user.phone!),
       },
     });
   } catch (error) {
     next(error);
   }
 };
+
+export const OTPRequest = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {email_phone} = req.body
+    //find user with provided email or phone 
+    if(!email_phone) throw new Error("Email or Phone number required!")
+      const user = await getUserByPhoneOrEmail(email_phone)
+    if(user?._id){
+      //generate otp and update user's
+      const otp = randomOTPGenerator()
+     const update = await UpdateUserByPhone(user?.phone!, {verificationCode: otp})
+     if(update?._id){
+      console.log(update)
+
+      return res.json({
+        status: "success",
+        message: `OTP has been sent to ${email_phone}`,
+        data: email_phone
+      });
+     }
+     return res.json({
+      status: "error",
+      message: `Failed to Send OPT`,
+      
+    })
+    }
+    return res.json({
+      status: "error",
+      message: `${email_phone} account doesn't exist in our system`,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export const getUser = async (
   req: Request,
   res: Response,

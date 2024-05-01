@@ -4,6 +4,7 @@ import {
   loginUser,
   getUser,
   sendLinkController,
+  OTPRequest,
 } from "../controller/user.controller";
 import { adminAccess, auth, newAdminSignUpAuth } from "../middleware/auth";
 const router = Router();
@@ -11,6 +12,8 @@ const router = Router();
 router.post("/sign-up", createNewUser);
 router.post("/sign-up/admin", newAdminSignUpAuth, createNewUser);
 router.post("/login", loginUser);
+router.post("/forget-password", OTPRequest);
+router.post("/otp-Verify", OTPRequest);
 router.get("/", auth, getUser);
 router.delete("/:_id");
 router.put("/");
