@@ -109,7 +109,7 @@ export const OTPRequest = async(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export const OTPVerifyAndUpdatePassword = async(req: Request, res: Response, next: NextFunction) => {
+export const OTPVerification = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const {email_phone, otp, password} = req.body
     //find user with provided email or phone 
@@ -118,6 +118,36 @@ export const OTPVerifyAndUpdatePassword = async(req: Request, res: Response, nex
     if(user?._id){
       //generate otp and update user's
       if(user?.verificationCode === otp){
+   
+         return res.json({
+           status: "success",
+           message: `OTP has been verified`,
+         });
+      }
+    
+     return res.json({
+      status: "error",
+      message: `OTP does not matched`,
+      
+    })
+    }
+    return res.json({
+      status: "error",
+      message: `${email_phone} account doesn't exist in our system`,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updatePassword = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {email_phone, password} = req.body
+    //find user with provided email or phone 
+    if(!email_phone) throw new Error("Email or Phone number required!")
+      const user = await getUserByPhoneOrEmail(email_phone)
+    if(user?._id){
+      // update user's password
         const hass = hashPassword(password)
         const update = await UpdateUserByPhone(user?.phone!, {password: hass})
         if(update?._id){
@@ -127,11 +157,9 @@ export const OTPVerifyAndUpdatePassword = async(req: Request, res: Response, nex
            message: `Password has been updated successfully`,
          });
         }
-      }
-    
      return res.json({
       status: "error",
-      message: `OTP does not matched`,
+      message: `Failed to update password, please try again later!`,
       
     })
     }
