@@ -15,7 +15,7 @@ router.post("/sign-up", createNewUser);
 router.post("/sign-up/admin", newAdminSignUpAuth, createNewUser);
 router.post("/login", loginUser);
 router.post("/forget-password", OTPRequest);
-router.post("/otp-Verify", OTPVerification);
+router.post("/otp-verify", OTPVerification);
 router.post("/new-password", updatePassword);
 router.get("/", auth, getUser);
 router.delete("/:_id");

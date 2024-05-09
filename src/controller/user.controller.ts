@@ -86,8 +86,6 @@ export const OTPRequest = async(req: Request, res: Response, next: NextFunction)
       const otp = randomOTPGenerator()
      const update = await UpdateUserByPhone(user?.phone!, {verificationCode: otp})
      if(update?._id){
-      console.log(update)
-
       return res.json({
         status: "success",
         message: `OTP has been sent to ${email_phone}`,
@@ -118,7 +116,7 @@ export const OTPVerification = async(req: Request, res: Response, next: NextFunc
     if(user?._id){
       //generate otp and update user's
       if(user?.verificationCode === otp){
-   
+      await UpdateUserByPhone(user?.phone!, {verificationCode: ""})
          return res.json({
            status: "success",
            message: `OTP has been verified`,
