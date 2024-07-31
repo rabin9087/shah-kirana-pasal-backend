@@ -1,5 +1,5 @@
 import express, {
-  Express,
+
   Request,
   Response,
   Application,
@@ -9,16 +9,16 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import { CustomError } from "./types";
-import userRouter from "./src/router/user.router";
+import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
-import { envVariables } from "./src/utils/env";
 //For env File
 dotenv.config();
-envVariables.parse(process.env);
+
+
 
 connectMongo();
 const app: Application = express();
-const port = process.env.PORT || 8000;
+const port =  Number(process.env.PORT) || 8080;
 app.use(cors());
 app.use(morgan("short"));
 app.use(express.json());
@@ -30,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1", router);
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
     const status = error.statusCode || 500;
@@ -42,6 +42,6 @@ app.use(
     });
   }
 );
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, '192.168.20.5', () => {
+  console.log(`Server is running at http://192.168.20.5:${port}`);
 });

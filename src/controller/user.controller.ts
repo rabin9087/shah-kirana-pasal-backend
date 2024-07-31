@@ -41,15 +41,16 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    
+    // 
     const { email_phone, password } = req.body;
     if (!email_phone || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email  address or phone number
     const user = await getUserByPhoneOrEmail(email_phone);
+    //if not user found, response not user found with requested email or phone
     if (!user) {
       return res
         .status(401)
-        .json({ status: "error", message: "No user found with such email" });
+        .json({ status: "error", message: `No user found with ${email_phone}` });
     }
 
     // Verify the password of the user with the one sent in the request body
@@ -64,7 +65,7 @@ export const loginUser = async (
     // todo send jwt tokens to the user
     return res.json({
       status: "success",
-      message: `Welcome back ${user.fName}`,
+      message: `Welcome back ${user.fName} !`,
       tokens: {
         accessJWT: await createAccessJWT(user.phone!),
         refreshJWT: await createRefreshJWT(user.phone!),

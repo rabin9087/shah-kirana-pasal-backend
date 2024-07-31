@@ -27,11 +27,10 @@ const userSchema = new mongoose_1.default.Schema({
     phone: {
         type: String,
         required: true,
-        uniqure: true
+        unique: true
     },
     email: {
         type: String,
-        required: true,
         unique: true,
         index: 1,
     },

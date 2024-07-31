@@ -4,6 +4,7 @@ import { insertNewSession } from "../model/session/session.model";
 import { UpdateUserByPhone } from "../model/user/user.model";
 import { jwtReturnType } from "../../types";
 
+
 export const createAccessJWT = async (phone: string) => {
   try {
     const token = jwt.sign({ phone }, process.env.JWT_ACCESS_SECRET as string, {

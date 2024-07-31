@@ -15,4 +15,4 @@ const sessionSchema = new mongoose_1.default.Schema({
         default: "",
     },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("session", sessionSchema); ///sessions
+exports.default = mongoose_1.default.model("session", sessionSchema);

@@ -9,8 +9,9 @@ const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const user_router_1 = __importDefault(require("./src/router/user.router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
-//For env File
+const env_1 = require("./src/utils/env");
 dotenv_1.default.config();
+env_1.envVariables.parse(process.env);
 (0, mongo_connect_1.connectMongo)();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8000;
