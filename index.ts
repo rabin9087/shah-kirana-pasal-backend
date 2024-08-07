@@ -1,5 +1,4 @@
 import express, {
-
   Request,
   Response,
   Application,
@@ -13,8 +12,6 @@ import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
 //For env File
 dotenv.config();
-
-
 
 connectMongo();
 const app: Application = express();
@@ -42,6 +39,11 @@ app.use(
     });
   }
 );
-app.listen(port, '192.168.20.5', () => {
-  console.log(`Server is running at http://192.168.20.5:${port}`);
-});
+
+process.env.ENVIRONMENT === "Development"
+  ? app.listen(port, "192.168.20.5", () => {
+      console.log(`Server is running on http://192.168.20.5:${port}`);
+    })
+  : app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
