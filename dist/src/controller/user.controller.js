@@ -46,7 +46,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         if (!user) {
             return res
                 .status(401)
-                .json({ status: "error", message: "No user found with such email" });
+                .json({ status: "error", message: `No user found with ${email_phone}` });
         }
         const isValidPassword = (0, bcrypt_1.validatePassword)(password, user.password);
         if (!isValidPassword)
@@ -55,7 +55,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 .send({ status: "error", message: "Wrong password." });
         return res.json({
             status: "success",
-            message: `Welcome back ${user.fName}`,
+            message: `Welcome back ${user.fName} !`,
             tokens: {
                 accessJWT: yield (0, jwt_1.createAccessJWT)(user.phone),
                 refreshJWT: yield (0, jwt_1.createRefreshJWT)(user.phone),

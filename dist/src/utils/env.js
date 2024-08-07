@@ -9,4 +9,8 @@ exports.envVariables = zod_1.z.object({
     GMAIL_APP_PASSWORD: zod_1.z.string(),
     GMAIL_USER: zod_1.z.string(),
     WEB_DOMAIN: zod_1.z.string(),
+    BUCKET_NAME: zod_1.z.string(),
+    REGION: zod_1.z.string(),
+    ACCESS_KEY: zod_1.z.string(),
+    SECRET_KEY: zod_1.z.string(),
 });

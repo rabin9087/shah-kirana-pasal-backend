@@ -7,14 +7,12 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
-const user_router_1 = __importDefault(require("./src/router/user.router"));
+const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
-const env_1 = require("./src/utils/env");
 dotenv_1.default.config();
-env_1.envVariables.parse(process.env);
 (0, mongo_connect_1.connectMongo)();
 const app = (0, express_1.default)();
-const port = process.env.PORT || 8000;
+const port = Number(process.env.PORT) || 8080;
 app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)("short"));
 app.use(express_1.default.json());
@@ -24,7 +22,7 @@ app.get("/", (req, res) => {
         message: "Welcome to Content Management System API",
     });
 });
-app.use("/api/v1/user", user_router_1.default);
+app.use("/api/v1", router_1.default);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message || "Internal server Error";
@@ -34,6 +32,6 @@ app.use((error, req, res, next) => {
         message,
     });
 });
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, '192.168.20.5', () => {
+    console.log(`Server is running at http://192.168.20.5:${port}`);
 });
