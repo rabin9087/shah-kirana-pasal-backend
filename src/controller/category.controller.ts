@@ -122,11 +122,12 @@ export const createNewCategory = async (
     try {
         const {_id, ...categoryObj} = req.body
         console.log(req.body)
-        const updateACategory = await updateCategoryByID(_id, categoryObj)
-        updateACategory?._id
+        const category = await updateCategoryByID(_id, categoryObj)
+        category?._id
         ? res.json({
             status: "success",
-            message: "Catery has been updated successfully",
+          message: "Catery has been updated successfully",
+            category
           })
         : res.json({
             status: "error",

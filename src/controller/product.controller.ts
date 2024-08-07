@@ -114,7 +114,7 @@ export const createNewProduct = async (
           })
         : res.json({
             status: "error",
-            message: "Product Not Found1",
+            message: "Product Not Found!",
           })
     } catch (error) {
       next(error);
@@ -166,6 +166,30 @@ export const createNewProduct = async (
             status: "success",
             message: "Product has been Updated successfully!",
             product
+          })
+        : res.json({
+            status: "error",
+            message: "Error updating product.",
+          })
+    } catch (error) {
+      next(error);
+    }
+  };
+
+   export const updateAProductStatusController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { _id } = req.params
+      const {status} = req.body
+      const product = await getAProductByFilter({_id, status})
+   
+        product?._id
+         ? res.json({
+            status: "success",
+            message: "Product has been Updated successfully!",
           })
         : res.json({
             status: "error",
