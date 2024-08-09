@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, updateAProduct, updateAProductByID } from "../model/product/product.model";
+import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID } from "../model/product/product.model";
 import slugify from 'slugify'
+import { getACategoryBySlug } from "../model/category/category.model";
 
 export const createNewProduct = async (
     req: Request,
@@ -69,6 +70,38 @@ export const createNewProduct = async (
             status: "error",
             message: "Error fetching product.",
           })
+    } catch (error) {
+      next(error);
+    }
+  };
+
+   export const getAllProductListByCategory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { slug } = req.params
+      const cat = await getACategoryBySlug(slug)
+      if (cat?._id) {
+        const products = await getProductListByCategory(cat._id)
+        products?.length
+         ? res.json({
+            status: "success",
+            message: "Here is list of all products!",
+            products
+          })
+        : res.json({
+            status: "error",
+            message: "Error fetching product.",
+          })
+      } else {
+        res.json({
+            status: "error",
+            message: "No products available for " + `${slug}`,
+          })
+      }
+      
     } catch (error) {
       next(error);
     }

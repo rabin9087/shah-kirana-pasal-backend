@@ -12,7 +12,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // get access jwt key form the fornt end
     const { authorization } = req.headers;
-    console.log(authorization);
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
     //decoded have three properties one of them being user phone expiry data
