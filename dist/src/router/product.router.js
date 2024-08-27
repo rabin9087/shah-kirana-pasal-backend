@@ -7,6 +7,7 @@ router.post("/", product_controller_1.createNewProduct);
 router.get("/q", product_controller_1.fetchAProductByFilter);
 router.get("/q=:code", product_controller_1.fetchAProductByQRCode);
 router.get("/:_id", product_controller_1.fetchAProductByID);
+router.get("/category/:slug", product_controller_1.getAllProductListByCategory);
 router.get("/", product_controller_1.getAllProductList);
 router.delete("/:_id", product_controller_1.deleteProductByID);
 router.put("/:_id", product_controller_1.updateAProductController);

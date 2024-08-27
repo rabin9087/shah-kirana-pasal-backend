@@ -33,7 +33,7 @@ app.use((error, req, res, next) => {
     });
 });
 process.env.ENVIRONMENT === "Development"
-    ? app.listen(port, "192.168.20.5", () => {
+    ? app.listen(port, "192.168.20.4", () => {
         console.log(`Server is running on http://192.168.20.5:${port}`);
     })
     : app.listen(port, () => {

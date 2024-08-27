@@ -14,7 +14,18 @@ export const createNewProduct = async (
         lower: true,
       trim: true
     })
-      const {sku, qrCodeNumber, slug} = req.body
+    const { sku, qrCodeNumber, slug, productLocation } = req.body
+    const parts = productLocation.split('.')
+    // Define the prefixes
+    const prefixes = ['A', 'B', 'S', 'L'];
+    const formattedParts = parts.map((part: string, index:number) => {
+    const paddedNumber = part.padStart(2, '0');
+    return `${prefixes[index]}${paddedNumber}`;
+    });
+    
+    // Join the formatted parts with ' - ' separator
+    req.body.productLocation = formattedParts.join('-');
+
       const skuValue = await getAProductBySKU(sku)
       const qrCode  = await getAProductByQRCodeNumber(qrCodeNumber)
       const slugValue  = await getAProductByQRCodeNumber(slug)
@@ -45,7 +56,6 @@ export const createNewProduct = async (
             status: "error",
             message: "Error creating new product.",
           });}
-
 
     } catch (error) {
       next(error);
@@ -173,7 +183,7 @@ export const createNewProduct = async (
           })
         : res.json({
             status: "error",
-            message: "Product Not Found1",
+            message: "Product Not Found!",
           })
     } catch (error) {
       next(error);
@@ -190,7 +200,20 @@ export const createNewProduct = async (
       replacement: '-', 
         lower: true,
       trim: true
-    })
+       })
+      
+      const {productLocation} = req.body
+      const parts = productLocation.split('.')
+    // Define the prefixes
+    const prefixes = ['A', 'B', 'S', 'L'];
+    const formattedParts = parts.map((part: string, index:number) => {
+    const paddedNumber = part.padStart(2, '0');
+    return `${prefixes[index]}${paddedNumber}`;
+    });
+    
+    // Join the formatted parts with ' - ' separator
+    req.body.productLocation = formattedParts.join(' - ');
+
       const {_id} = req.params
       const product = await updateAProductByID(_id, req.body)
    

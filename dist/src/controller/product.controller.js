@@ -23,9 +23,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductList = exports.createNewProduct = void 0;
+exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.createNewProduct = void 0;
 const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
+const category_model_1 = require("../model/category/category.model");
 const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.body.slug = (0, slugify_1.default)(req.body.name, {
@@ -33,7 +34,14 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             lower: true,
             trim: true
         });
-        const { sku, qrCodeNumber, slug } = req.body;
+        const { sku, qrCodeNumber, slug, productLocation } = req.body;
+        const parts = productLocation.split('.');
+        const prefixes = ['A', 'B', 'S', 'L'];
+        const formattedParts = parts.map((part, index) => {
+            const paddedNumber = part.padStart(2, '0');
+            return `${prefixes[index]}${paddedNumber}`;
+        });
+        req.body.productLocation = formattedParts.join('-');
         const skuValue = yield (0, product_model_1.getAProductBySKU)(sku);
         const qrCode = yield (0, product_model_1.getAProductByQRCodeNumber)(qrCodeNumber);
         const slugValue = yield (0, product_model_1.getAProductByQRCodeNumber)(slug);
@@ -92,6 +100,35 @@ const getAllProductList = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.getAllProductList = getAllProductList;
+const getAllProductListByCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { slug } = req.params;
+        const cat = yield (0, category_model_1.getACategoryBySlug)(slug);
+        if (cat === null || cat === void 0 ? void 0 : cat._id) {
+            const products = yield (0, product_model_1.getProductListByCategory)(cat._id);
+            (products === null || products === void 0 ? void 0 : products.length)
+                ? res.json({
+                    status: "success",
+                    message: "Here is list of all products!",
+                    products
+                })
+                : res.json({
+                    status: "error",
+                    message: "Error fetching product.",
+                });
+        }
+        else {
+            res.json({
+                status: "error",
+                message: "No products available for " + `${slug}`,
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAllProductListByCategory = getAllProductListByCategory;
 const fetchAProductByID = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { _id } = req.params;
@@ -144,7 +181,7 @@ const fetchAProductByQRCode = (req, res, next) => __awaiter(void 0, void 0, void
             })
             : res.json({
                 status: "error",
-                message: "Product Not Found1",
+                message: "Product Not Found!",
             });
     }
     catch (error) {
@@ -159,6 +196,14 @@ const updateAProductController = (req, res, next) => __awaiter(void 0, void 0, v
             lower: true,
             trim: true
         });
+        const { productLocation } = req.body;
+        const parts = productLocation.split('.');
+        const prefixes = ['A', 'B', 'S', 'L'];
+        const formattedParts = parts.map((part, index) => {
+            const paddedNumber = part.padStart(2, '0');
+            return `${prefixes[index]}${paddedNumber}`;
+        });
+        req.body.productLocation = formattedParts.join(' - ');
         const { _id } = req.params;
         const product = yield (0, product_model_1.updateAProductByID)(_id, req.body);
         (product === null || product === void 0 ? void 0 : product._id)

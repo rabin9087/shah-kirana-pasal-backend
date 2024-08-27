@@ -13,4 +13,5 @@ exports.envVariables = zod_1.z.object({
     REGION: zod_1.z.string(),
     ACCESS_KEY: zod_1.z.string(),
     SECRET_KEY: zod_1.z.string(),
+    STRIP_SECRET: zod_1.z.string()
 });

@@ -11,5 +11,6 @@ export const envVariables = z.object({
   REGION: z.string(),
   ACCESS_KEY: z.string(),
   SECRET_KEY: z.string(),
+  STRIP_SECRET: z.string()
 });
 
