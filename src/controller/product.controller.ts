@@ -9,6 +9,18 @@ export const createNewProduct = async (
     next: NextFunction
   ) => {
   try {
+  
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.MulterS3.File[] }
+      if (files["images"]) {
+        req.body.images = files["images"].map(item => item.location)
+      }
+
+      if (files["thumbnail"]) {
+        req.body.thumbnail = files["thumbnail"][0].location
+      }
+    }
+
       req.body.slug = slugify(req.body.name, {
       replacement: '-', 
         lower: true,
@@ -196,25 +208,56 @@ export const createNewProduct = async (
     next: NextFunction
   ) => {
     try {
-       req.body.slug = slugify(req.body.name, {
-      replacement: '-', 
-        lower: true,
-      trim: true
-       })
-      
-      const {productLocation} = req.body
-      const parts = productLocation.split('.')
-    // Define the prefixes
-    const prefixes = ['A', 'B', 'S', 'L'];
-    const formattedParts = parts.map((part: string, index:number) => {
-    const paddedNumber = part.padStart(2, '0');
-    return `${prefixes[index]}${paddedNumber}`;
-    });
-    
-    // Join the formatted parts with ' - ' separator
-    req.body.productLocation = formattedParts.join(' - ');
+     const { images } = req.body;
+      let oldImages = [];
 
-      const {_id} = req.params
+    try {
+    oldImages = JSON.parse(images); // Parse JSON string
+    console.log("oldImages:", oldImages);
+  
+      if (req.files) {
+        const files = req.files as { [fieldname: string]: Express.MulterS3.File[] }
+        
+      if (files["addImages"]) {
+        const newImages = files["addImages"].map(item => item.location)
+        req.body.images = [...newImages, ...oldImages]
+      }
+        
+      if (files["newThumbnail"]) {
+        req.body.thumbnail = files["newThumbnail"][0].location
+      }
+      } else {
+        req.body.images = JSON.parse(images);
+      }
+
+      console.log("REQ.BODY:",req.body.images)
+} catch (error) {
+    console.error("Error parsing images:", error);
+  }
+    
+
+      // console.log('Incoming req.body:', req.body);
+      // return
+      
+      //  req.body.slug = slugify(req.body.name, {
+      // replacement: '-', 
+      //   lower: true,
+      // trim: true
+      //  })
+      
+      // const {productLocation} = req.body
+      // const parts = productLocation.split('.')
+    // Define the prefixes
+    // const prefixes = ['A', 'B', 'S', 'L'];
+    // const formattedParts = parts.map((part: string, index:number) => {
+    // const paddedNumber = part.padStart(2, '0');
+    // return `${prefixes[index]}${paddedNumber}`;
+    // });
+    
+    // // Join the formatted parts with ' - ' separator
+    // req.body.productLocation = formattedParts.join(' - ');
+
+      const { _id } = req.body
       const product = await updateAProductByID(_id, req.body)
    
         product?._id
@@ -256,7 +299,6 @@ export const createNewProduct = async (
     }
   };
 
-
   export const deleteProductByID = async (
     req: Request,
     res: Response,
@@ -270,7 +312,6 @@ export const createNewProduct = async (
          ? res.json({
             status: "success",
             message: "Product has been deleted successfully!",
-            product
           })
         : res.json({
             status: "error",

@@ -60,7 +60,7 @@ export const getAProductByStoredAT = (storedAt: string) => {
 }
 
 
-export const updateAProductByID = (_id: string, productObj: createProductParams ) => {
+export const updateAProductByID = (_id: string, productObj: createProductParams) => {
     return productSchema.findByIdAndUpdate(_id, productObj)
 }
 

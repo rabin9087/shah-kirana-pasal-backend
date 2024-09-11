@@ -1,20 +1,27 @@
-import { S3Client } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import multerS3 from 'multer-s3'
 import multer from 'multer'
+import AWS from 'aws-sdk'
+import { v4 as uuidv4 } from 'uuid'
+import { Request, Response, NextFunction } from "express";
 
-export const s3bucketUpload = () => {
+    const BUCKET_NAME = process.env.BUCKET_NAME as string
+    const REGION = process.env.REGION as string
+    const ACCESS_KEY = process.env.ACCESS_KEY as string
+const SECRET_KEY = process.env.SECRET_KEY as string
+    
 
-    const BUCKET_NAME = process.env.BUCKET_NAME
-    const REGION = process.env.REGION
-    const ACCESS_KEY = process.env.ACCESS_KEY
-    const SECRET_KEY = process.env.SECRET_KEY
 
-    // s3 bucket upload config
-    const client = new S3Client({
+
+const client = new S3Client({
         region: REGION, credentials: { accessKeyId: ACCESS_KEY, secretAccessKey: SECRET_KEY }
-    });
+});
 
-    const upload = multer({
+const storage = multer.memoryStorage()
+
+export const uploatImageS3 = multer({storage})
+
+ export const upload = multer({
         storage: multerS3({
             s3: client,
             bucket: BUCKET_NAME,
@@ -26,6 +33,8 @@ export const s3bucketUpload = () => {
                 cb(null, Date.now() + "-" + file.originalname)
             }
         })
-    })
-    return upload
-}
+ })
+
+
+
+    

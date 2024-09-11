@@ -4,14 +4,14 @@ import express, {
   Application,
   NextFunction,
 } from "express";
-import dotenv from "dotenv";
+import "dotenv/config";
 import cors from "cors";
 import morgan from "morgan";
 import { CustomError } from "./types";
 import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
 //For env File
-dotenv.config();
+// dotenv.config();
 
 connectMongo();
 const app: Application = express();
@@ -42,7 +42,7 @@ app.use(
 
 process.env.ENVIRONMENT === "Development"
   ? app.listen(port, "192.168.20.4", () => {
-      console.log(`Server is running on http://192.168.20.5:${port}`);
+      console.log(`Server is running on http://192.168.20.4:${port}`);
     })
   : app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);

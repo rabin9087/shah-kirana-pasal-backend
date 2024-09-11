@@ -20,10 +20,29 @@ declare global {
   }
 }
 
+interface ImportMetaEnv {
+  readonly JWT_ACCESS_SECRET: string;
+  readonly JWT_REFRESH_SECRET: string;
+  readonly WEB_DOMAIN: string;
+  readonly GMAIL_APP_NAME: string;
+  readonly GMAIL_APP_PASSWORD: string;
+  readonly GMAIL_USER: string;
+  readonly BUCKET_NAME: string;
+  readonly REGION: string;
+  readonly ACCESS_KEY: string;
+  readonly SECRET_KEY: string;
+  readonly STRIP_SECRET: string;
+  readonly MONGO_URI: string;
+  // Add other environment variables here...
+}
+
+
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof envVariables> {}
+    interface ProcessEnv extends z.infer<typeof envVariables> {
+      readonly env: ImportMetaEnv;
+    }
   }
 }
 
@@ -75,7 +94,7 @@ export type createProductParams = {
   salesPrice?: number,
   slug: string,
   description: string,
-  image?: string,
+  images?: Array<string>,
   brand?: string,
   price: number,
   quantity: number,

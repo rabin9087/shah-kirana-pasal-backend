@@ -29,6 +29,15 @@ const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
 const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (req.files) {
+            const files = req.files;
+            if (files["images"]) {
+                req.body.images = files["images"].map(item => item.location);
+            }
+            if (files["thumbnail"]) {
+                req.body.thumbnail = files["thumbnail"][0].location;
+            }
+        }
         req.body.slug = (0, slugify_1.default)(req.body.name, {
             replacement: '-',
             lower: true,
@@ -191,20 +200,30 @@ const fetchAProductByQRCode = (req, res, next) => __awaiter(void 0, void 0, void
 exports.fetchAProductByQRCode = fetchAProductByQRCode;
 const updateAProductController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        req.body.slug = (0, slugify_1.default)(req.body.name, {
-            replacement: '-',
-            lower: true,
-            trim: true
-        });
-        const { productLocation } = req.body;
-        const parts = productLocation.split('.');
-        const prefixes = ['A', 'B', 'S', 'L'];
-        const formattedParts = parts.map((part, index) => {
-            const paddedNumber = part.padStart(2, '0');
-            return `${prefixes[index]}${paddedNumber}`;
-        });
-        req.body.productLocation = formattedParts.join(' - ');
-        const { _id } = req.params;
+        const { images } = req.body;
+        let oldImages = [];
+        try {
+            oldImages = JSON.parse(images);
+            console.log("oldImages:", oldImages);
+            if (req.files) {
+                const files = req.files;
+                if (files["addImages"]) {
+                    const newImages = files["addImages"].map(item => item.location);
+                    req.body.images = [...newImages, ...oldImages];
+                }
+                if (files["newThumbnail"]) {
+                    req.body.thumbnail = files["newThumbnail"][0].location;
+                }
+            }
+            else {
+                req.body.images = JSON.parse(images);
+            }
+            console.log("REQ.BODY:", req.body.images);
+        }
+        catch (error) {
+            console.error("Error parsing images:", error);
+        }
+        const { _id } = req.body;
         const product = yield (0, product_model_1.updateAProductByID)(_id, req.body);
         (product === null || product === void 0 ? void 0 : product._id)
             ? res.json({
@@ -250,7 +269,6 @@ const deleteProductByID = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             ? res.json({
                 status: "success",
                 message: "Product has been deleted successfully!",
-                product
             })
             : res.json({
                 status: "error",

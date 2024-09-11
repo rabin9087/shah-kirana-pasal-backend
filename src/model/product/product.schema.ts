@@ -1,6 +1,5 @@
 import mongose, { Document } from 'mongoose'
 import { IReviews, IStoredAt } from '../../../types';
-import { string } from 'zod';
 
 export interface IProduct extends Document {
     _id: string,
@@ -12,7 +11,7 @@ export interface IProduct extends Document {
     slug: string,
     productWeight?: string,
     description: string,
-    image?: string,
+    images?: string,
     brand?: string,
     price: number,
     quantity: number,
@@ -77,7 +76,7 @@ const productSchema = new mongose.Schema<IProduct>(
             index: 1,
             required: true,
         },
-        image: [{
+        images: [{
             type: String,
         }],
         thumbnail: {
@@ -121,4 +120,4 @@ const productSchema = new mongose.Schema<IProduct>(
      { timestamps: true })
 
 
-export default mongose.model("product", productSchema)
+export default mongose.model<IProduct>("product", productSchema)

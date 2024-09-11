@@ -4,12 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
+require("dotenv/config");
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
-dotenv_1.default.config();
 (0, mongo_connect_1.connectMongo)();
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 8080;
@@ -34,7 +33,7 @@ app.use((error, req, res, next) => {
 });
 process.env.ENVIRONMENT === "Development"
     ? app.listen(port, "192.168.20.4", () => {
-        console.log(`Server is running on http://192.168.20.5:${port}`);
+        console.log(`Server is running on http://192.168.20.4:${port}`);
     })
     : app.listen(port, () => {
         console.log(`Server is running on http://localhost:${port}`);
