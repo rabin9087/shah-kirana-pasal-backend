@@ -9,12 +9,19 @@ const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
+const helmet_1 = __importDefault(require("helmet"));
 (0, mongo_connect_1.connectMongo)();
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 8080;
 app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)("short"));
 app.use(express_1.default.json());
+app.use(helmet_1.default.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+    },
+}));
 app.get("/", (req, res) => {
     res.json({
         status: "success",
@@ -32,7 +39,7 @@ app.use((error, req, res, next) => {
     });
 });
 process.env.ENVIRONMENT === "Development"
-    ? app.listen(port, "192.168.20.4", () => {
+    ? app.listen(port, () => {
         console.log(`Server is running on http://192.168.20.4:${port}`);
     })
     : app.listen(port, () => {

@@ -4,12 +4,14 @@ import express, {
   Application,
   NextFunction,
 } from "express";
+import { WebSocketServer } from 'ws';
 import "dotenv/config";
 import cors from "cors";
 import morgan from "morgan";
 import { CustomError } from "./types";
 import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
+import helmet from 'helmet'
 //For env File
 // dotenv.config();
 
@@ -19,6 +21,14 @@ const port =  Number(process.env.PORT) || 8080;
 app.use(cors());
 app.use(morgan("short"));
 app.use(express.json());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+    },
+  })
+);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({
@@ -40,10 +50,18 @@ app.use(
   }
 );
 
-process.env.ENVIRONMENT === "Development"
-  ? app.listen(port, "192.168.20.4", () => {
+process.env.ENVIRONMENT === "Development"  
+  ? app.listen(port, () => {
       console.log(`Server is running on http://192.168.20.4:${port}`);
     })
   : app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
+
+// process.env.ENVIRONMENT === "Development"
+//   ? app.listen(port, "192.168.20.4", () => {
+//       console.log(`Server is running on http://192.168.20.4:${port}`);
+//     })
+//   : app.listen(port, () => {
+//       console.log(`Server is running on http://localhost:${port}`);
+//     });

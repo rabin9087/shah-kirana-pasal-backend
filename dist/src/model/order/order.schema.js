@@ -37,6 +37,9 @@ const orderSchema = new mongoose_1.default.Schema({
                     type: Number,
                     required: true,
                 },
+                note: {
+                    type: String,
+                },
             },],
         required: true
     },
@@ -46,8 +49,30 @@ const orderSchema = new mongoose_1.default.Schema({
         unique: true,
         index: 1,
     },
+    deliverStatus: {
+        type: String,
+        required: true
+    },
+    deliveryDate: {
+        date: {
+            type: String,
+            required: true
+        },
+        time: {
+            type: String,
+            required: true
+        }
+    },
+    requestDeliveryDate: {
+        type: String,
+        required: true
+    },
     payment: {
         type: String,
+        required: true
+    },
+    amount: {
+        type: Number,
         required: true
     }
 }, { timestamps: true });

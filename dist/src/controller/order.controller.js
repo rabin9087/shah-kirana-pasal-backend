@@ -9,26 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createNewOrder = void 0;
+exports.getOrders = exports.createNewOrder = void 0;
 const order_model_1 = require("../model/order/order.model");
 const randomGenerator_1 = require("../utils/randomGenerator");
 const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(req.body);
         const orderNumber = (0, randomGenerator_1.randomOTPGenerator)();
         const order = yield (0, order_model_1.createOrder)(Object.assign({ orderNumber }, req.body));
         if (!(order === null || order === void 0 ? void 0 : order.orderNumber)) {
             const orderNumber = (0, randomGenerator_1.randomOTPGenerator)();
-            const order = yield (0, order_model_1.createOrder)(Object.assign({ orderNumber }, req.body));
+            yield (0, order_model_1.createOrder)(Object.assign({ orderNumber }, req.body));
         }
         (order === null || order === void 0 ? void 0 : order._id)
             ? res.json({
                 status: "success",
-                message: "Please check your email to verify your account",
+                message: "New order has been created successfully!",
                 order
             })
             : res.json({
                 status: "error",
-                message: "Error creating the account.",
+                message: "Error creating new order. \n Try again!.",
             });
     }
     catch (error) {
@@ -36,3 +37,24 @@ const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.createNewOrder = createNewOrder;
+const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(req.body);
+        const orderNumber = (0, randomGenerator_1.randomOTPGenerator)();
+        const order = yield (0, order_model_1.getAllOrders)();
+        (order === null || order === void 0 ? void 0 : order.length)
+            ? res.json({
+                status: "success",
+                message: "All orders has been return successfully!",
+                order
+            })
+            : res.json({
+                status: "error",
+                message: "Error creating new order. \n Try again!.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getOrders = getOrders;
