@@ -11,6 +11,10 @@ export const getAllProducts = () => {
     return productSchema.find()
 }
 
+export const getAllActiveProducts = () => {
+    return productSchema.find({status: "ACTIVE"})
+}
+
 
 export const getProductListByName = (name: string) => {
     return productSchema.find({name})
@@ -43,6 +47,10 @@ export const getAProductBySKU = (sku: string) => {
 
 export const getAProductByFilter = (filter: object) => {
     return productSchema.findOne(filter)
+}
+
+export const updateAProductStatusByID = ({_id, status}: { _id: string, status: string }) => {
+    return productSchema.findOneAndUpdate({_id}, {status}, {new: true})
 }
 
 export const getAProductByQRCodeNumber = ({...qrCodeNumber}) => {

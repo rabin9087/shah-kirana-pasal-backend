@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID } from "../model/product/product.model";
+import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID, updateAProductStatusByID } from "../model/product/product.model";
 import slugify from 'slugify'
 import { getACategoryBySlug } from "../model/category/category.model";
 
@@ -82,6 +82,7 @@ export const createNewProduct = async (
     try {
 
       const products = await getAllProducts()
+      
         products?.length
          ? res.json({
             status: "success",
@@ -283,7 +284,7 @@ export const createNewProduct = async (
     try {
       const { _id } = req.params
       const {status} = req.body
-      const product = await getAProductByFilter({_id, status})
+      const product = await updateAProductStatusByID({_id, status})
    
         product?._id
          ? res.json({

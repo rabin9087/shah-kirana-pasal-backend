@@ -4,6 +4,10 @@ import userSchema from "./user.schema";
 export const createUser = (userObj: createUserParams) => {
   return new userSchema(userObj).save();
 };
+
+export const getAllUser = () => {
+  return userSchema.find();
+};
 export const getUserByPhoneOrEmail = (email_phone: string) => {
   return userSchema.findOne({$or: [{ email: email_phone }, {phone: email_phone}]});
 };

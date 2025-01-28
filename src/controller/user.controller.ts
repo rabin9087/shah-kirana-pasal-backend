@@ -1,14 +1,16 @@
 import twilio from 'twilio'
 import { NextFunction, Request, Response } from "express";
-import { UpdateUserByPhone, createUser, getUserByPhoneOrEmail } from "../model/user/user.model";
+import { UpdateUserByPhone, createUser, getUserByPhoneAndJWT, getUserByPhoneOrEmail } from "../model/user/user.model";
 import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
   createRefreshJWT,
   verifyAccessJWT,
+  verifyRefreshJWT,
 } from "../utils/jwt";
 import { sendRegisterationLink } from "../utils/nodemailer";
 import { randomOTPGenerator } from "../utils/randomGenerator";
+import { IUser } from '../model/user/user.schema';
 
 export const createNewUser = async (
   req: Request,
@@ -30,6 +32,34 @@ export const createNewUser = async (
           status: "error",
           message: "Error creating the account.",
         });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+      if (files["profile"]) {
+        req.body.profile = files["profile"][0].location; // Save the image URL
+      }
+    }
+
+    // Update the user profile
+    const updatedUser = await UpdateUserByPhone(req.body.phone, { profile: req.body.profile });
+    if (updatedUser?._id) {
+      res.json({
+        status: "success",
+        message: "Profile updated successfully!",
+        data: updatedUser,
+      });
+    } else {
+      res.status(400).json({
+        status: "error",
+        message: "Failed to update profile.",
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -63,6 +93,7 @@ export const loginUser = async (
     // If everything goes well, send the token to the client
 
     // todo send jwt tokens to the user
+    
     return res.json({
       status: "success",
       message: `Welcome back ${user.fName} !`,
@@ -76,6 +107,37 @@ export const loginUser = async (
   }
 };
 
+export const signOutUser = async (
+  req: Request,
+  res: Response, 
+  next: NextFunction
+) => {
+  try {
+    const { authorization } = req.headers;
+       const decoded = verifyRefreshJWT(authorization as string);
+    // 3. extract phone and get user by phone
+    if (!authorization) {
+      throw new Error("No Authorization provided");
+    }
+    if (authorization) {
+      if (decoded?.phone) {
+        // 4. check fif the user is active
+        await getUserByPhoneAndJWT({
+          phone: decoded.phone,
+          refreshJWT: authorization,
+        });
+        await UpdateUserByPhone(decoded.phone, { refreshJWT: "" })
+        res.json({
+          status: "success",
+          message: "User signed out successfully",
+        })
+      }
+    }
+  } catch (error) {
+     next(error);
+  }
+}
+  
 export const OTPRequest = async(req: Request, res: Response, next: NextFunction) => {
   try {
     const {email_phone} = req.body
@@ -171,18 +233,48 @@ export const updatePassword = async(req: Request, res: Response, next: NextFunct
   }
 }
 
-
-export const getUser = async (
+export const getUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   res.json({
     status: "success",
-    message: `Welcome back ${req.userInfo?.fName}`,
+    message: `Welcome back ${req.userInfo}`,
     user: req.userInfo,
   });
 };
+
+export const getAllUsersController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Ensure req.userInfo is defined and is an array of IUser
+    const users: IUser[] =  Array.isArray(req.userInfo) ? req.userInfo : [];
+    // console.log("USers:", users.map(({ password, refreshJWT, ...user }) => user))
+            console.log("Users: :",users)
+    // If no users are found, return an appropriate response
+    if (users.length === 0) {
+      return res.json({
+        status: "success",
+        message: "No users found",
+        user: [],
+      });
+    }
+
+    // Send the response with the users
+    res.json({
+      status: "success",
+      message: "All Users",
+      user: users
+    });
+  } catch (error) {
+    next(error); // Pass error to the next middleware
+  }
+};
+
 
 export const sendLinkController = async (
   req: Request,

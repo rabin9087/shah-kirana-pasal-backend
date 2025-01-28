@@ -2,22 +2,34 @@ import { Router } from "express";
 import {
   createNewUser,
   loginUser,
-  getUser,
+  getUserController,
   sendLinkController,
   OTPRequest,
   OTPVerification,
   updatePassword,
+  signOutUser,
+  updateUserProfile,
+  getAllUsersController,
 } from "../controller/user.controller";
-import { adminAccess, auth, newAdminSignUpAuth } from "../middleware/auth";
+import { adminAccess, auth, newAdminSignUpAuth, refreshAuth } from "../middleware/auth";
+import { upload } from "../utils/awsUpload";
 const router = Router();
 
+const updateUploadMiddleware = upload.fields([
+  { name: "profile", maxCount: 10 },
+]);
+
 router.post("/sign-up", createNewUser);
+router.patch("/profile", updateUploadMiddleware, updateUserProfile);
 router.post("/sign-up/admin", newAdminSignUpAuth, createNewUser);
 router.post("/login", loginUser);
+router.get("/logout", signOutUser);
+router.get("/get-accessjwt", refreshAuth)
 router.post("/forget-password", OTPRequest);
 router.post("/otp-verify", OTPVerification);
 router.post("/new-password", updatePassword);
-router.get("/", auth, getUser);
+router.get("/", auth, getUserController);
+router.get("/all", adminAccess, getAllUsersController);
 router.delete("/:_id");
 router.put("/");
 router.post("/send-registeration-link", adminAccess, sendLinkController);

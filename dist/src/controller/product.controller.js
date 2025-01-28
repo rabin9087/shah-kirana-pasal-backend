@@ -245,7 +245,7 @@ const updateAProductStatusController = (req, res, next) => __awaiter(void 0, voi
     try {
         const { _id } = req.params;
         const { status } = req.body;
-        const product = yield (0, product_model_1.getAProductByFilter)({ _id, status });
+        const product = yield (0, product_model_1.updateAProductStatusByID)({ _id, status });
         (product === null || product === void 0 ? void 0 : product._id)
             ? res.json({
                 status: "success",

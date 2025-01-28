@@ -20,7 +20,6 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if (user === null || user === void 0 ? void 0 : user._id) {
-                user.refreshJWT = undefined;
                 user.password = undefined;
                 req.userInfo = user;
                 return next();
@@ -90,13 +89,13 @@ exports.newAdminSignUpAuth = newAdminSignUpAuth;
 const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
+        console.log(authorization);
         const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
-            if ((user === null || user === void 0 ? void 0 : user._id) && user.role === "ADMIN") {
-                user.refreshJWT = undefined;
-                user.password = undefined;
-                req.userInfo = user;
+            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN") {
+                const users = yield (0, user_model_1.getAllUser)();
+                req.userInfo = users;
                 return next();
             }
         }
@@ -136,6 +135,7 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     status: "success",
                     message: "Session expired!!.Please login Again.",
                     accessJWT,
+                    user
                 });
             }
         }

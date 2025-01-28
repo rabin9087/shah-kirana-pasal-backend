@@ -56,7 +56,7 @@ const userSchema = new mongoose_1.default.Schema({
     },
     profile: {
         type: String,
-        default: "https://cfw-image-bucket.s3.ap-southeast-2.amazonaws.com/default.jpg",
+        default: "",
     },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("user", userSchema);

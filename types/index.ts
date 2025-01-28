@@ -15,7 +15,7 @@ export type jwtReturnType =
 declare global {
   namespace Express {
     interface Request {
-      userInfo?: IUser;
+      userInfo?: IUser | IUser[];
     }
   }
 }

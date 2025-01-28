@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkController = exports.getUser = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.loginUser = exports.createNewUser = void 0;
+exports.sendLinkController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
 const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
@@ -37,6 +37,34 @@ const createNewUser = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.createNewUser = createNewUser;
+const updateUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.files) {
+            const files = req.files;
+            if (files["profile"]) {
+                req.body.profile = files["profile"][0].location;
+            }
+        }
+        const updatedUser = yield (0, user_model_1.UpdateUserByPhone)(req.body.phone, { profile: req.body.profile });
+        if (updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id) {
+            res.json({
+                status: "success",
+                message: "Profile updated successfully!",
+                data: updatedUser,
+            });
+        }
+        else {
+            res.status(400).json({
+                status: "error",
+                message: "Failed to update profile.",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateUserProfile = updateUserProfile;
 const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email_phone, password } = req.body;
@@ -67,6 +95,32 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.loginUser = loginUser;
+const signOutUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { authorization } = req.headers;
+        const decoded = (0, jwt_1.verifyRefreshJWT)(authorization);
+        if (!authorization) {
+            throw new Error("No Authorization provided");
+        }
+        if (authorization) {
+            if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
+                yield (0, user_model_1.getUserByPhoneAndJWT)({
+                    phone: decoded.phone,
+                    refreshJWT: authorization,
+                });
+                yield (0, user_model_1.UpdateUserByPhone)(decoded.phone, { refreshJWT: "" });
+                res.json({
+                    status: "success",
+                    message: "User signed out successfully",
+                });
+            }
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.signOutUser = signOutUser;
 const OTPRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email_phone } = req.body;
@@ -157,15 +211,36 @@ const updatePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.updatePassword = updatePassword;
-const getUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const getUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({
         status: "success",
-        message: `Welcome back ${(_a = req.userInfo) === null || _a === void 0 ? void 0 : _a.fName}`,
+        message: `Welcome back ${req.userInfo}`,
         user: req.userInfo,
     });
 });
-exports.getUser = getUser;
+exports.getUserController = getUserController;
+const getAllUsersController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = Array.isArray(req.userInfo) ? req.userInfo : [];
+        console.log("Users: :", users);
+        if (users.length === 0) {
+            return res.json({
+                status: "success",
+                message: "No users found",
+                user: [],
+            });
+        }
+        res.json({
+            status: "success",
+            message: "All Users",
+            user: users
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAllUsersController = getAllUsersController;
 const sendLinkController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email } = req.body;

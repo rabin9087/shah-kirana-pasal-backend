@@ -5,8 +5,11 @@ import {
   verifyRefreshJWT,
 } from "../utils/jwt";
 import { CustomError } from "../../types";
-import { getUserByPhoneOrEmail, getUserByPhoneAndJWT } from "../model/user/user.model";
+import { getUserByPhoneOrEmail, getUserByPhoneAndJWT, getAllUser } from "../model/user/user.model";
 import { findOneByFilterAndDelete } from "../model/session/session.model";
+import { IUser } from "../model/user/user.schema";
+
+type UserWithoutSensitiveData = Omit<IUser, 'password' | 'refreshJWT'>;
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -20,9 +23,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       // check if the user is active
       const user = await getUserByPhoneOrEmail(decoded.phone);
       if (user?._id) {
-        user.refreshJWT = undefined;
+        // user.refreshJWT = undefined;
         user.password = undefined;
-        req.userInfo = user;
+        req.userInfo = user as IUser;
         return next();
       }
     }
@@ -90,6 +93,8 @@ export const newAdminSignUpAuth = async (
     next(error);
   }
 };
+
+
 export const adminAccess = async (
   req: Request,
   res: Response,
@@ -98,6 +103,7 @@ export const adminAccess = async (
   try {
     // get access jwt key form the fornt end
     const { authorization } = req.headers;
+    console.log(authorization)
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
     //decoded have three properties one of them being user phone expiry data
@@ -105,14 +111,19 @@ export const adminAccess = async (
     if (decoded?.phone) {
       // check if the user is active
       const user = await getUserByPhoneOrEmail(decoded.phone);
-      if (user?._id && user.role === "ADMIN") {
-        user.refreshJWT = undefined;
-        user.password = undefined;
-        req.userInfo = user;
+
+      if (user?.role === "ADMIN") {
+         const users: ( IUser & Required<{ _id: string }>)[] = await getAllUser();
+    // Transform the users to remove sensitive information (password and refreshJWT)
+       req.userInfo = users as IUser[]
+        // return res.status(403).json({
+        //   status: 'fail',
+        //   message: 'Forbidden: Only admin can access all users.',
+        // })
         return next();
       }
+          
     }
-
     res.status(401).json({
       status: "error",
       message: "Unauthorized access",
@@ -158,6 +169,7 @@ export const refreshAuth = async (
           status: "success",
           message: "Session expired!!.Please login Again.",
           accessJWT,
+          user
         });
       }
     }

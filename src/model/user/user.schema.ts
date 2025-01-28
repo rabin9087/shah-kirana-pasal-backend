@@ -75,8 +75,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     profile: {
       type: String,
-      default:
-        "https://cfw-image-bucket.s3.ap-southeast-2.amazonaws.com/default.jpg",
+      default:"",
     },
   },
   { timestamps: true }
