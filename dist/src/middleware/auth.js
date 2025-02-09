@@ -16,7 +16,7 @@ const session_model_1 = require("../model/session/session.model");
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        const decoded = (0, jwt_1.verifyRefreshJWT)(authorization);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if (user === null || user === void 0 ? void 0 : user._id) {
@@ -89,8 +89,8 @@ exports.newAdminSignUpAuth = newAdminSignUpAuth;
 const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        console.log(authorization);
         const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        console.log(decoded);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN") {
@@ -130,10 +130,11 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 refreshJWT: authorization,
             });
             if (user === null || user === void 0 ? void 0 : user._id) {
+                user.password = undefined;
                 const accessJWT = yield (0, jwt_1.createAccessJWT)(decoded.phone);
                 return res.json({
                     status: "success",
-                    message: "Session expired!!.Please login Again.",
+                    message: "Authorized",
                     accessJWT,
                     user
                 });

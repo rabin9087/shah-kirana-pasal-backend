@@ -5,6 +5,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const types_1 = require("../../../types");
+const CartItemSchema = new mongoose_1.default.Schema({
+    productId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "product",
+    },
+    price: String,
+    orderQuantity: Number,
+    note: String,
+});
+const CartHistorySchema = new mongoose_1.default.Schema({
+    items: [CartItemSchema],
+    amount: Number,
+    purchasedAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
 const userSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
@@ -57,6 +74,15 @@ const userSchema = new mongoose_1.default.Schema({
     profile: {
         type: String,
         default: "",
+    },
+    cart: {
+        type: [CartItemSchema,
+        ],
+        default: [],
+    },
+    cartHistory: {
+        type: [CartHistorySchema],
+        default: [],
     },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("user", userSchema);

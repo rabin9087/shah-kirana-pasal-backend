@@ -10,6 +10,8 @@ const updateUploadMiddleware = awsUpload_1.upload.fields([
 ]);
 router.post("/sign-up", user_controller_1.createNewUser);
 router.patch("/profile", updateUploadMiddleware, user_controller_1.updateUserProfile);
+router.patch("/cart", user_controller_1.updateUserCartController);
+router.patch("/cartHistory", user_controller_1.updateUserCartHistoryController);
 router.post("/sign-up/admin", auth_1.newAdminSignUpAuth, user_controller_1.createNewUser);
 router.post("/login", user_controller_1.loginUser);
 router.get("/logout", user_controller_1.signOutUser);

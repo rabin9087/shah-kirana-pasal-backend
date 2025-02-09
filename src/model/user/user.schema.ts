@@ -1,5 +1,6 @@
 import mongoose, { Document } from "mongoose";
 import { Role } from "../../../types";
+import product from "../product/product.schema"; 
 
 export interface IUser extends Document {
   _id: string;
@@ -15,9 +16,48 @@ export interface IUser extends Document {
   refreshJWT: string | undefined;
   address?: string;
   profile: string | null;
+  cart: IAddToCartTypes[]; // Current active cart
+  cartHistory: ICartHistory[]; 
   createdAt?: Date;
   updatedAt?: Date;
+
 }
+
+export interface IProductTypes {
+  productId: mongoose.ObjectId;
+  price: string;
+}
+
+export interface IAddToCartTypes extends IProductTypes {
+  orderQuantity: number;
+  note?: string;
+}
+
+export interface ICartHistory {
+  items: IAddToCartTypes[]; // Store previous cart data
+  purchasedAt?: Date; // Store timestamp of purchase
+}
+
+const CartItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "product", // Reference the Product model
+  },
+  price: String,
+  orderQuantity: Number,
+  note: String,
+});
+
+const CartHistorySchema = new mongoose.Schema({
+  items: [CartItemSchema],
+  amount: Number,
+  purchasedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+
 const userSchema = new mongoose.Schema<IUser>(
   {
     status: {
@@ -76,6 +116,15 @@ const userSchema = new mongoose.Schema<IUser>(
     profile: {
       type: String,
       default:"",
+    },
+    cart: {
+      type: [ CartItemSchema,
+      ],
+      default: [],
+    },
+    cartHistory: {
+      type: [CartHistorySchema],
+      default: [],
     },
   },
   { timestamps: true }

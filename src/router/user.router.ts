@@ -10,6 +10,8 @@ import {
   signOutUser,
   updateUserProfile,
   getAllUsersController,
+  updateUserCartController,
+  updateUserCartHistoryController,
 } from "../controller/user.controller";
 import { adminAccess, auth, newAdminSignUpAuth, refreshAuth } from "../middleware/auth";
 import { upload } from "../utils/awsUpload";
@@ -21,6 +23,8 @@ const updateUploadMiddleware = upload.fields([
 
 router.post("/sign-up", createNewUser);
 router.patch("/profile", updateUploadMiddleware, updateUserProfile);
+router.patch("/cart", updateUserCartController);
+router.patch("/cartHistory", updateUserCartHistoryController);
 router.post("/sign-up/admin", newAdminSignUpAuth, createNewUser);
 router.post("/login", loginUser);
 router.get("/logout", signOutUser);

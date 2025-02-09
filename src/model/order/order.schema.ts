@@ -17,11 +17,11 @@ export interface IOrder extends Document {
     items: IItemTypes[];
     orderNumber: number,
     deliverStatus: string,
-    deliveryDate: {
+    deliveryDate?: {
                     date: string,
                     time: string
     },
-    requestDeliveryDate: string,
+    requestDeliveryDate?: string,
     payment: string,
     amount: number,
 }
@@ -77,19 +77,19 @@ const orderSchema = new mongose.Schema<IOrder>(
             type: String,
             required: true
         },
-    deliveryDate: {
+        deliveryDate: {
                     date: {
             type: String,
-            required: true
+            
         },
                     time: {
             type: String,
-            required: true
+            
         }
         },
     requestDeliveryDate: {
             type: String,
-            required: true
+            
         },
         payment: {
             type: String,

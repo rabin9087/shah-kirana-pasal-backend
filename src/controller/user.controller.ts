@@ -1,6 +1,6 @@
 import twilio from 'twilio'
 import { NextFunction, Request, Response } from "express";
-import { UpdateUserByPhone, createUser, getUserByPhoneAndJWT, getUserByPhoneOrEmail } from "../model/user/user.model";
+import { UpdateUserByPhone, UpdateUserCartHistoryByPhone, createUser, getUserByPhoneAndJWT, getUserByPhoneOrEmail } from "../model/user/user.model";
 import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
@@ -65,6 +65,47 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
   }
 };
 
+export const updateUserCartController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const updatedUserCart = await UpdateUserByPhone(req.body.phone, { cart: req.body.cart });
+    if (updatedUserCart?._id) {
+      res.json({
+        status: "success",
+        message: "Cart updated successfully!",
+        data: updatedUserCart,
+      });
+    } else {
+      res.status(400).json({
+        status: "error",
+        message: "Failed to update profile.",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserCartHistoryController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {phone, cartHistory, amount} = req.body;
+    const updatedUserCartHistory = await UpdateUserCartHistoryByPhone(phone, cartHistory, amount );
+    if (updatedUserCartHistory?._id) {
+      res.json({
+        status: "success",
+        message: "Cart updated successfully!",
+        data: updatedUserCartHistory,
+      });
+    } else {
+      res.status(400).json({
+        status: "error",
+        message: "Failed to update profile.",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const loginUser = async (
   req: Request,
   res: Response, 
@@ -73,9 +114,11 @@ export const loginUser = async (
   try {
     // 
     const { email_phone, password } = req.body;
+   
     if (!email_phone || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email  address or phone number
     const user = await getUserByPhoneOrEmail(email_phone);
+    
     //if not user found, response not user found with requested email or phone
     if (!user) {
       return res
@@ -93,7 +136,7 @@ export const loginUser = async (
     // If everything goes well, send the token to the client
 
     // todo send jwt tokens to the user
-    
+     console.log(user)
     return res.json({
       status: "success",
       message: `Welcome back ${user.fName} !`,
@@ -101,6 +144,7 @@ export const loginUser = async (
         accessJWT: await createAccessJWT(user.phone!),
         refreshJWT: await createRefreshJWT(user.phone!),
       },
+      
     });
   } catch (error) {
     next(error);
@@ -240,7 +284,6 @@ export const getUserController = async (
 ) => {
   res.json({
     status: "success",
-    message: `Welcome back ${req.userInfo}`,
     user: req.userInfo,
   });
 };
@@ -253,8 +296,6 @@ export const getAllUsersController = async (
   try {
     // Ensure req.userInfo is defined and is an array of IUser
     const users: IUser[] =  Array.isArray(req.userInfo) ? req.userInfo : [];
-    // console.log("USers:", users.map(({ password, refreshJWT, ...user }) => user))
-            console.log("Users: :",users)
     // If no users are found, return an appropriate response
     if (users.length === 0) {
       return res.json({
@@ -268,7 +309,7 @@ export const getAllUsersController = async (
     res.json({
       status: "success",
       message: "All Users",
-      user: users
+      users: users
     });
   } catch (error) {
     next(error); // Pass error to the next middleware

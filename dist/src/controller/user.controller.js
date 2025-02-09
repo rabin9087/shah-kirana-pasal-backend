@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserProfile = exports.createNewUser = void 0;
+exports.sendLinkController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
 const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
@@ -65,6 +65,51 @@ const updateUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.updateUserProfile = updateUserProfile;
+const updateUserCartController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedUserCart = yield (0, user_model_1.UpdateUserByPhone)(req.body.phone, { cart: req.body.cart });
+        if (updatedUserCart === null || updatedUserCart === void 0 ? void 0 : updatedUserCart._id) {
+            res.json({
+                status: "success",
+                message: "Cart updated successfully!",
+                data: updatedUserCart,
+            });
+        }
+        else {
+            res.status(400).json({
+                status: "error",
+                message: "Failed to update profile.",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateUserCartController = updateUserCartController;
+const updateUserCartHistoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { phone, cartHistory, amount } = req.body;
+        const updatedUserCartHistory = yield (0, user_model_1.UpdateUserCartHistoryByPhone)(phone, cartHistory, amount);
+        if (updatedUserCartHistory === null || updatedUserCartHistory === void 0 ? void 0 : updatedUserCartHistory._id) {
+            res.json({
+                status: "success",
+                message: "Cart updated successfully!",
+                data: updatedUserCartHistory,
+            });
+        }
+        else {
+            res.status(400).json({
+                status: "error",
+                message: "Failed to update profile.",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateUserCartHistoryController = updateUserCartHistoryController;
 const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email_phone, password } = req.body;
@@ -81,6 +126,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             return res
                 .status(401)
                 .send({ status: "error", message: "Wrong password." });
+        console.log(user);
         return res.json({
             status: "success",
             message: `Welcome back ${user.fName} !`,
@@ -214,7 +260,6 @@ exports.updatePassword = updatePassword;
 const getUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     res.json({
         status: "success",
-        message: `Welcome back ${req.userInfo}`,
         user: req.userInfo,
     });
 });
@@ -222,7 +267,6 @@ exports.getUserController = getUserController;
 const getAllUsersController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = Array.isArray(req.userInfo) ? req.userInfo : [];
-        console.log("Users: :", users);
         if (users.length === 0) {
             return res.json({
                 status: "success",
@@ -233,7 +277,7 @@ const getAllUsersController = (req, res, next) => __awaiter(void 0, void 0, void
         res.json({
             status: "success",
             message: "All Users",
-            user: users
+            users: users
         });
     }
     catch (error) {

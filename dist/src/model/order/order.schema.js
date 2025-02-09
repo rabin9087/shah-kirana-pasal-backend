@@ -56,16 +56,13 @@ const orderSchema = new mongoose_1.default.Schema({
     deliveryDate: {
         date: {
             type: String,
-            required: true
         },
         time: {
             type: String,
-            required: true
         }
     },
     requestDeliveryDate: {
         type: String,
-        required: true
     },
     payment: {
         type: String,
