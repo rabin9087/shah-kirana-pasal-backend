@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrders = exports.createNewOrder = void 0;
+exports.updateAOrderController = exports.getOrdersByDateController = exports.getOrders = exports.createNewOrder = void 0;
 const order_model_1 = require("../model/order/order.model");
 const randomGenerator_1 = require("../utils/randomGenerator");
 const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,13 +40,12 @@ exports.createNewOrder = createNewOrder;
 const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log(req.body);
-        const orderNumber = (0, randomGenerator_1.randomOTPGenerator)();
-        const order = yield (0, order_model_1.getAllOrders)();
-        (order === null || order === void 0 ? void 0 : order.length)
+        const orders = yield (0, order_model_1.getAllOrders)();
+        (orders === null || orders === void 0 ? void 0 : orders.length)
             ? res.json({
                 status: "success",
                 message: "All orders has been return successfully!",
-                order
+                orders
             })
             : res.json({
                 status: "error",
@@ -58,3 +57,43 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getOrders = getOrders;
+const getOrdersByDateController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { date } = req.params;
+        const orders = yield (0, order_model_1.getAOrdersByDate)(date);
+        (orders === null || orders === void 0 ? void 0 : orders.length)
+            ? res.json({
+                status: "success",
+                message: "All orders has been return successfully!",
+                orders
+            })
+            : res.json({
+                status: "Error",
+                message: `Orders not available for ${date}. \n Try again!.`,
+                orders
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getOrdersByDateController = getOrdersByDateController;
+const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { _id } = req.params;
+        const order = yield (0, order_model_1.updateAOrder)(_id, req.body);
+        order.matchedCount > 0
+            ? res.json({
+                status: "success",
+                message: "Orders Updated successfully!",
+            })
+            : res.json({
+                status: "error",
+                message: "Error creating new order. \n Try again!.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateAOrderController = updateAOrderController;

@@ -14,14 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAOrderByID = exports.updateAOrder = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrderByQRCodeNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
+exports.deleteAOrderByID = exports.updateAOrder = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrdersByDate = exports.getAOrderByQRCodeNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
 const order_schema_1 = __importDefault(require("./order.schema"));
 const createOrder = (OrderObj) => {
     return new order_schema_1.default(OrderObj).save();
 };
 exports.createOrder = createOrder;
 const getAllOrders = () => {
-    return order_schema_1.default.find();
+    return order_schema_1.default.find().populate('items.productId');
 };
 exports.getAllOrders = getAllOrders;
 const getOrderListByName = (name) => {
@@ -57,6 +57,10 @@ const getAOrderByQRCodeNumber = (_a) => {
     return order_schema_1.default.findOne(qrCodeNumber);
 };
 exports.getAOrderByQRCodeNumber = getAOrderByQRCodeNumber;
+const getAOrdersByDate = (requestDeliveryDate) => {
+    return order_schema_1.default.find({ requestDeliveryDate }).populate('items.productId');
+};
+exports.getAOrdersByDate = getAOrdersByDate;
 const getAOrderBySlug = (slug) => {
     return order_schema_1.default.findOne({ slug });
 };
@@ -69,9 +73,8 @@ const updateAOrderByID = (_id, OrderObj) => {
     return order_schema_1.default.findByIdAndUpdate(_id, OrderObj);
 };
 exports.updateAOrderByID = updateAOrderByID;
-const updateAOrder = (_id, _a) => {
-    var OrderObj = __rest(_a, []);
-    return order_schema_1.default.updateOne({ _id }, Object.assign({}, OrderObj));
+const updateAOrder = (_id, data) => {
+    return order_schema_1.default.updateOne({ _id }, { $set: data }, { new: true });
 };
 exports.updateAOrder = updateAOrder;
 const deleteAOrderByID = (_id) => {

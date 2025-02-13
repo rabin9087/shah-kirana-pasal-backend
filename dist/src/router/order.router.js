@@ -2,10 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const order_controller_1 = require("../controller/order.controller");
+const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 router.post("/new-order", order_controller_1.createNewOrder);
 router.get("/:_id");
-router.get("/", order_controller_1.getOrders);
+router.get("/all-orders", auth_1.adminAccess, order_controller_1.getOrders);
+router.get("/orders/:date", auth_1.adminAccess, order_controller_1.getOrdersByDateController);
+router.patch("/update/:_id", auth_1.adminAccess, order_controller_1.updateAOrderController);
 router.delete("/:_id");
 router.put("/");
 exports.default = router;

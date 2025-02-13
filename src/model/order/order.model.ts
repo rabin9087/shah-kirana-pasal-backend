@@ -8,8 +8,8 @@ export const createOrder = (OrderObj: IOrder) => {
 
 
 export const getAllOrders = () => {
-    return orderSchema.find()
-}
+    return orderSchema.find().populate('items.productId');
+};
 
 
 export const getOrderListByName = (name: string) => {
@@ -49,6 +49,11 @@ export const getAOrderByQRCodeNumber = ({...qrCodeNumber}) => {
     return orderSchema.findOne(qrCodeNumber)
 }
 
+export const getAOrdersByDate = (requestDeliveryDate: string) => {
+    return orderSchema.find({requestDeliveryDate}).populate('items.productId')
+}
+
+
 
 export const getAOrderBySlug = (slug: string) => {
     return orderSchema.findOne({slug})
@@ -65,8 +70,8 @@ export const updateAOrderByID = (_id: string, OrderObj: IOrder) => {
 }
 
 
-export const updateAOrder = (_id: string, {...OrderObj}  ) => {
-    return orderSchema.updateOne({_id}, {...OrderObj})
+export const updateAOrder = (_id: string, data: object  ) => {
+    return orderSchema.updateOne({_id}, { $set: data }, { new: true })
 }
 
 

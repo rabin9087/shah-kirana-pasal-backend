@@ -24,8 +24,10 @@ export interface IOrder extends Document {
     requestDeliveryDate?: string,
     payment: string,
     amount: number,
+    createdAt: Date,
+    updatedAt: Date,
+    orderType: string,
 }
-
 
 const orderSchema = new mongose.Schema<IOrder>(
     {
@@ -49,7 +51,7 @@ const orderSchema = new mongose.Schema<IOrder>(
             type: [{
                 productId: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Product',
+                    ref: 'product',
                     required: true,
                 },
                 quantity: {

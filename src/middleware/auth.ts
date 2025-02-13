@@ -104,15 +104,14 @@ export const adminAccess = async (
   try {
     // get access jwt key form the fornt end
     const { authorization } = req.headers;
+    console.log("authorization: ", authorization)
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
     //decoded have three properties one of them being user phone expiry data
     // extrat phone and get get user by phone
-    console.log(decoded)
     if (decoded?.phone) {
       // check if the user is active
       const user = await getUserByPhoneOrEmail(decoded.phone);
-
       if (user?.role === "ADMIN") {
          const users: ( IUser & Required<{ _id: string }>)[] = await getAllUser();
     // Transform the users to remove sensitive information (password and refreshJWT)
@@ -123,7 +122,7 @@ export const adminAccess = async (
         // })
         return next();
       }
-          
+          // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA0ODE0NTI5MjAiLCJpYXQiOjE3Mzk0MjIzMTAsImV4cCI6MTc0MDcxODMxMH0.WVjuH0W979p3RpNb2JAXCXsZNtlH3Su2Eq3nuqTKmco
     }
     res.status(401).json({
       status: "error",
