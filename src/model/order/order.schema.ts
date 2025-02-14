@@ -17,7 +17,7 @@ export interface IOrder extends Document {
     email: string,
     items: IItemTypes[];
     orderNumber: number,
-    deliverStatus: string,
+    deliveryStatus: string,
     deliveryDate?: {
                     date: string,
                     time: string
@@ -81,7 +81,7 @@ const orderSchema = new mongose.Schema<IOrder>(
             unique: true,
             index: 1,
         },
-         deliverStatus: {
+         deliveryStatus: {
             type: String,
             required: true
         },

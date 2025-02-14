@@ -53,7 +53,7 @@ const orderSchema = new mongoose_1.default.Schema({
         unique: true,
         index: 1,
     },
-    deliverStatus: {
+    deliveryStatus: {
         type: String,
         required: true
     },
