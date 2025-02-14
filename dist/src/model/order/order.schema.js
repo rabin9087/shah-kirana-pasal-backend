@@ -37,6 +37,10 @@ const orderSchema = new mongoose_1.default.Schema({
                     type: Number,
                     required: true,
                 },
+                supplied: {
+                    type: Number,
+                    default: 0,
+                },
                 note: {
                     type: String,
                 },
@@ -64,7 +68,15 @@ const orderSchema = new mongoose_1.default.Schema({
     requestDeliveryDate: {
         type: String,
     },
-    payment: {
+    orderType: {
+        type: String,
+        required: true
+    },
+    paymentType: {
+        type: String,
+        required: true
+    },
+    paymentStatus: {
         type: String,
         required: true
     },

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createOrder, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
+import { createOrder, getAOrderByFilter, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
 import { randomOTPGenerator } from "../utils/randomGenerator";
 
 export const createNewOrder = async (
@@ -73,6 +73,30 @@ export const getOrdersByDateController = async (
           status: "Error",
         message: `Orders not available for ${date}. \n Try again!.`,
         orders
+        });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAOrderByFilterController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.log(req.params)
+    // const orderNumber = randomOTPGenerator()
+    const order = await getAOrderByFilter(req.params);
+    order?._id
+      ? res.json({
+          status: "success",
+          message: "A order has been return successfully!",
+          order
+        })
+      : res.json({
+          status: "error",
+          message: "Error creating new order. \n Try again!.",
         });
   } catch (error) {
     next(error);

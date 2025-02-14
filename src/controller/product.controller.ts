@@ -26,17 +26,17 @@ export const createNewProduct = async (
         lower: true,
       trim: true
     })
-    const { sku, qrCodeNumber, slug, productLocation } = req.body
-    const parts = productLocation.split('.')
-    // Define the prefixes
-    const prefixes = ['A', 'B', 'S', 'L'];
-    const formattedParts = parts.map((part: string, index:number) => {
-    const paddedNumber = part.padStart(2, '0');
-    return `${prefixes[index]}${paddedNumber}`;
-    });
+    const { sku, qrCodeNumber, slug } = req.body
+    // const parts = productLocation.split('.')
+    // // Define the prefixes
+    // const prefixes = ['A', 'B', 'S', 'L'];
+    // const formattedParts = parts.map((part: string, index:number) => {
+    // const paddedNumber = part.padStart(2, '0');
+    // return `${prefixes[index]}${paddedNumber}`;
+    // });
     
-    // Join the formatted parts with ' - ' separator
-    req.body.productLocation = formattedParts.join('-');
+    // // Join the formatted parts with ' - ' separator
+    // req.body.productLocation = formattedParts.join('-');
 
       const skuValue = await getAProductBySKU(sku)
       const qrCode  = await getAProductByQRCodeNumber(qrCodeNumber)
@@ -214,7 +214,6 @@ export const createNewProduct = async (
 
     try {
     oldImages = JSON.parse(images); // Parse JSON string
-    console.log("oldImages:", oldImages);
   
       if (req.files) {
         const files = req.files as { [fieldname: string]: Express.MulterS3.File[] }
@@ -230,10 +229,7 @@ export const createNewProduct = async (
       } else {
         req.body.images = JSON.parse(images);
       }
-
-      console.log("REQ.BODY:",req.body.images)
 } catch (error) {
-    console.error("Error parsing images:", error);
   }
     
 

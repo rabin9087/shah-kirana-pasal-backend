@@ -49,7 +49,7 @@ const getAOrderBySKU = (sku) => {
 };
 exports.getAOrderBySKU = getAOrderBySKU;
 const getAOrderByFilter = (filter) => {
-    return order_schema_1.default.findOne(filter);
+    return order_schema_1.default.findOne(filter).populate('items.productId');
 };
 exports.getAOrderByFilter = getAOrderByFilter;
 const getAOrderByQRCodeNumber = (_a) => {

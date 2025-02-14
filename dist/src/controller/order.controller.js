@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAOrderController = exports.getOrdersByDateController = exports.getOrders = exports.createNewOrder = void 0;
+exports.updateAOrderController = exports.getAOrderByFilterController = exports.getOrdersByDateController = exports.getOrders = exports.createNewOrder = void 0;
 const order_model_1 = require("../model/order/order.model");
 const randomGenerator_1 = require("../utils/randomGenerator");
 const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -78,6 +78,26 @@ const getOrdersByDateController = (req, res, next) => __awaiter(void 0, void 0, 
     }
 });
 exports.getOrdersByDateController = getOrdersByDateController;
+const getAOrderByFilterController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(req.params);
+        const order = yield (0, order_model_1.getAOrderByFilter)(req.params);
+        (order === null || order === void 0 ? void 0 : order._id)
+            ? res.json({
+                status: "success",
+                message: "A order has been return successfully!",
+                order
+            })
+            : res.json({
+                status: "error",
+                message: "Error creating new order. \n Try again!.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAOrderByFilterController = getAOrderByFilterController;
 const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { _id } = req.params;

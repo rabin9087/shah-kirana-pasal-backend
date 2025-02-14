@@ -6,6 +6,7 @@ export interface IItemTypes {
     productId: mongose.Types.ObjectId,
     quantity: number,
     price: number,
+    supplied: number,
     note?: string,
 }
 
@@ -22,7 +23,8 @@ export interface IOrder extends Document {
                     time: string
     },
     requestDeliveryDate?: string,
-    payment: string,
+    paymentType: string,
+    paymentStatus: string,
     amount: number,
     createdAt: Date,
     updatedAt: Date,
@@ -62,6 +64,10 @@ const orderSchema = new mongose.Schema<IOrder>(
                     type: Number,
                     required: true,
                 },
+                supplied: {
+                    type: Number,
+                    default: 0,
+                },
                 note: {
                     type: String,
                     
@@ -89,11 +95,19 @@ const orderSchema = new mongose.Schema<IOrder>(
             
         }
         },
-    requestDeliveryDate: {
+        requestDeliveryDate: {
             type: String,
             
         },
-        payment: {
+        orderType: {
+            type: String,
+            required: true
+        },
+        paymentType: {
+            type: String,
+            required: true
+        },
+        paymentStatus: {
             type: String,
             required: true
         },

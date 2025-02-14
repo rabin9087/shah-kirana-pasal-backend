@@ -42,7 +42,7 @@ export const getAOrderBySKU = (sku: string) => {
 }
 
 export const getAOrderByFilter = (filter: object) => {
-    return orderSchema.findOne(filter)
+    return orderSchema.findOne(filter).populate('items.productId')
 }
 
 export const getAOrderByQRCodeNumber = ({...qrCodeNumber}) => {

@@ -43,14 +43,7 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             lower: true,
             trim: true
         });
-        const { sku, qrCodeNumber, slug, productLocation } = req.body;
-        const parts = productLocation.split('.');
-        const prefixes = ['A', 'B', 'S', 'L'];
-        const formattedParts = parts.map((part, index) => {
-            const paddedNumber = part.padStart(2, '0');
-            return `${prefixes[index]}${paddedNumber}`;
-        });
-        req.body.productLocation = formattedParts.join('-');
+        const { sku, qrCodeNumber, slug } = req.body;
         const skuValue = yield (0, product_model_1.getAProductBySKU)(sku);
         const qrCode = yield (0, product_model_1.getAProductByQRCodeNumber)(qrCodeNumber);
         const slugValue = yield (0, product_model_1.getAProductByQRCodeNumber)(slug);
@@ -204,7 +197,6 @@ const updateAProductController = (req, res, next) => __awaiter(void 0, void 0, v
         let oldImages = [];
         try {
             oldImages = JSON.parse(images);
-            console.log("oldImages:", oldImages);
             if (req.files) {
                 const files = req.files;
                 if (files["addImages"]) {
@@ -218,10 +210,8 @@ const updateAProductController = (req, res, next) => __awaiter(void 0, void 0, v
             else {
                 req.body.images = JSON.parse(images);
             }
-            console.log("REQ.BODY:", req.body.images);
         }
         catch (error) {
-            console.error("Error parsing images:", error);
         }
         const { _id } = req.body;
         const product = yield (0, product_model_1.updateAProductByID)(_id, req.body);
