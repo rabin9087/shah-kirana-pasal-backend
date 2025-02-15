@@ -67,6 +67,7 @@ const orderSchema = new mongoose_1.default.Schema({
     },
     requestDeliveryDate: {
         type: String,
+        index: true
     },
     orderType: {
         type: String,

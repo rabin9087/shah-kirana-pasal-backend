@@ -282,10 +282,16 @@ export const getUserController = async (
   res: Response,
   next: NextFunction
 ) => {
-  res.json({
+
+  try {
+     res.json({
     status: "success",
     user: req.userInfo,
   });
+  } catch (error) {
+    next(error)
+  }
+ 
 };
 
 export const getAllUsersController = async (
@@ -314,6 +320,33 @@ export const getAllUsersController = async (
   } catch (error) {
     next(error); // Pass error to the next middleware
   }
+};
+
+export const getAUserByPhoneController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+  const  {phone}  = req.params;
+  const user = await getUserByPhoneOrEmail(phone)
+    if (user?._id) {
+      user.password = undefined
+    return res.json({
+      status: "success",
+      message: "Here is a user",
+      user: user,
+    })
+  }
+     
+  return res.json({
+    status: "error",
+    message: "User not found",
+  })
+  } catch (error) {
+    next(error)
+  }
+
 };
 
 

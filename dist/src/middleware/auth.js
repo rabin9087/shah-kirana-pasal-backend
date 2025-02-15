@@ -89,7 +89,6 @@ exports.newAdminSignUpAuth = newAdminSignUpAuth;
 const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        console.log("authorization: ", authorization);
         const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);

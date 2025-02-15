@@ -185,7 +185,6 @@ export const createNewProduct = async (
   ) => {
     try {
       const {code} = req.params
-      console.log(code)
       const product = await getAProductByQRCodeNumber({qrCodeNumber: code})
    
         product?._id

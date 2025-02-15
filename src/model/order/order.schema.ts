@@ -97,7 +97,7 @@ const orderSchema = new mongose.Schema<IOrder>(
         },
         requestDeliveryDate: {
             type: String,
-            
+            index: true
         },
         orderType: {
             type: String,

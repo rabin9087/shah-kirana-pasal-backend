@@ -15,6 +15,7 @@ router.patch("/cartHistory", user_controller_1.updateUserCartHistoryController);
 router.post("/sign-up/admin", auth_1.newAdminSignUpAuth, user_controller_1.createNewUser);
 router.post("/login", user_controller_1.loginUser);
 router.get("/logout", user_controller_1.signOutUser);
+router.get("/userDetails/:phone", auth_1.adminAccess, user_controller_1.getAUserByPhoneController);
 router.get("/get-accessjwt", auth_1.refreshAuth);
 router.post("/forget-password", user_controller_1.OTPRequest);
 router.post("/otp-verify", user_controller_1.OTPVerification);

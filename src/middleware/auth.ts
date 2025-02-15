@@ -104,7 +104,6 @@ export const adminAccess = async (
   try {
     // get access jwt key form the fornt end
     const { authorization } = req.headers;
-    console.log("authorization: ", authorization)
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization as string);
     //decoded have three properties one of them being user phone expiry data

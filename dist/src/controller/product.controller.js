@@ -173,7 +173,6 @@ exports.fetchAProductByFilter = fetchAProductByFilter;
 const fetchAProductByQRCode = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { code } = req.params;
-        console.log(code);
         const product = yield (0, product_model_1.getAProductByQRCodeNumber)({ qrCodeNumber: code });
         (product === null || product === void 0 ? void 0 : product._id)
             ? res.json({

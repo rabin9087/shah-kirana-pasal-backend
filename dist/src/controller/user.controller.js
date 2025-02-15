@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateUserProfile = exports.createNewUser = void 0;
+exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
 const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
@@ -258,10 +258,15 @@ const updatePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.updatePassword = updatePassword;
 const getUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json({
-        status: "success",
-        user: req.userInfo,
-    });
+    try {
+        res.json({
+            status: "success",
+            user: req.userInfo,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
 });
 exports.getUserController = getUserController;
 const getAllUsersController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -285,6 +290,28 @@ const getAllUsersController = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.getAllUsersController = getAllUsersController;
+const getAUserByPhoneController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { phone } = req.params;
+        const user = yield (0, user_model_1.getUserByPhoneOrEmail)(phone);
+        if (user === null || user === void 0 ? void 0 : user._id) {
+            user.password = undefined;
+            return res.json({
+                status: "success",
+                message: "Here is a user",
+                user: user,
+            });
+        }
+        return res.json({
+            status: "error",
+            message: "User not found",
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAUserByPhoneController = getAUserByPhoneController;
 const sendLinkController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email } = req.body;
