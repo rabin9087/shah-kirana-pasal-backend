@@ -9,7 +9,6 @@ export const createNewCategory = async (
     next: NextFunction
   ) => {
   try {
-
       req.body.slug = slugify(req.body.name, {
       replacement: '-', 
         lower: true,
@@ -69,8 +68,6 @@ export const createNewCategory = async (
     next: NextFunction
   ) => {
     try {
-
-
         const {_id} = req.params
         const category = await getACategoryByID(_id)
         category?._id
@@ -131,7 +128,8 @@ export const createNewCategory = async (
           })
         : res.json({
             status: "error",
-            message: "Error updating a category.",
+          message: "Error updating a category.",
+          category
           });
     } catch (error) {
        

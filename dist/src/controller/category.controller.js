@@ -128,6 +128,7 @@ const updateACategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             : res.json({
                 status: "error",
                 message: "Error updating a category.",
+                category
             });
     }
     catch (error) {

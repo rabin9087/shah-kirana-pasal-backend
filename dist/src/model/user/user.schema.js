@@ -25,7 +25,7 @@ const CartHistorySchema = new mongoose_1.default.Schema({
 const userSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
-        default: "active",
+        default: "ACTIVE",
     },
     role: {
         type: String,

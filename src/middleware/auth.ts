@@ -95,7 +95,6 @@ export const newAdminSignUpAuth = async (
   }
 };
 
-
 export const adminAccess = async (
   req: Request,
   res: Response,

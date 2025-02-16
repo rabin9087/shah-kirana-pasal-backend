@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateUserProfile = exports.createNewUser = void 0;
+exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateAUserProfile = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
 const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
@@ -65,6 +65,30 @@ const updateUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.updateUserProfile = updateUserProfile;
+const updateAUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { phone } = req.params;
+        const updatedUser = yield (0, user_model_1.UpdateUserByPhone)(phone, req.body);
+        if (updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id) {
+            updatedUser.password = undefined;
+            res.json({
+                status: "success",
+                message: "Profile updated successfully!",
+                data: updatedUser,
+            });
+        }
+        else {
+            res.status(400).json({
+                status: "error",
+                message: "Failed to update profile.",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateAUserProfile = updateAUserProfile;
 const updateUserCartController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const updatedUserCart = yield (0, user_model_1.UpdateUserByPhone)(req.body.phone, { cart: req.body.cart });

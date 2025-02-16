@@ -13,6 +13,7 @@ import {
   updateUserCartController,
   updateUserCartHistoryController,
   getAUserByPhoneController,
+  updateAUserProfile,
 } from "../controller/user.controller";
 import { adminAccess, auth, newAdminSignUpAuth, refreshAuth } from "../middleware/auth";
 import { upload } from "../utils/awsUpload";
@@ -38,6 +39,6 @@ router.post("/new-password", updatePassword);
 router.get("/", auth, getUserController);
 router.get("/all", adminAccess, getAllUsersController);
 router.delete("/:_id");
-router.put("/");
+router.put("/:phone", auth, updateAUserProfile);
 router.post("/send-registeration-link", adminAccess, sendLinkController);
 export default router;

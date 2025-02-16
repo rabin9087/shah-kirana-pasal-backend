@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema<IUser>(
   {
     status: {
       type: String,
-      default: "active",
+      default: "ACTIVE",
     },
     role: {
       type: String,

@@ -23,6 +23,6 @@ router.post("/new-password", user_controller_1.updatePassword);
 router.get("/", auth_1.auth, user_controller_1.getUserController);
 router.get("/all", auth_1.adminAccess, user_controller_1.getAllUsersController);
 router.delete("/:_id");
-router.put("/");
+router.put("/:phone", auth_1.auth, user_controller_1.updateAUserProfile);
 router.post("/send-registeration-link", auth_1.adminAccess, user_controller_1.sendLinkController);
 exports.default = router;

@@ -5,7 +5,6 @@ import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
   createRefreshJWT,
-  verifyAccessJWT,
   verifyRefreshJWT,
 } from "../utils/jwt";
 import { sendRegisterationLink } from "../utils/nodemailer";
@@ -49,6 +48,30 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
     // Update the user profile
     const updatedUser = await UpdateUserByPhone(req.body.phone, { profile: req.body.profile });
     if (updatedUser?._id) {
+      res.json({
+        status: "success",
+        message: "Profile updated successfully!",
+        data: updatedUser,
+      });
+    } else {
+      res.status(400).json({
+        status: "error",
+        message: "Failed to update profile.",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { phone } = req.params;
+
+    // Update the user profile
+    const updatedUser = await UpdateUserByPhone(phone, req.body );
+    if (updatedUser?._id) {
+      updatedUser.password = undefined
       res.json({
         status: "success",
         message: "Profile updated successfully!",
