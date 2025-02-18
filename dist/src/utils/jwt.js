@@ -19,7 +19,7 @@ const user_model_1 = require("../model/user/user.model");
 const createAccessJWT = (phone) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = jsonwebtoken_1.default.sign({ phone }, process.env.JWT_ACCESS_SECRET, {
-            expiresIn: "1d",
+            expiresIn: "30d",
         });
         yield (0, session_model_1.insertNewSession)({ token, associate: phone });
         return token;
@@ -35,7 +35,7 @@ const verifyAccessJWT = (token) => {
 exports.verifyAccessJWT = verifyAccessJWT;
 const createRefreshJWT = (phone) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshJWT = jsonwebtoken_1.default.sign({ phone }, process.env.JWT_REFRESH_SECRET, {
-        expiresIn: "15d",
+        expiresIn: "30d",
     });
     yield (0, user_model_1.UpdateUserByPhone)(phone, { refreshJWT });
     return refreshJWT;

@@ -8,7 +8,7 @@ import { jwtReturnType } from "../../types";
 export const createAccessJWT = async (phone: string) => {
   try {
     const token = jwt.sign({ phone }, process.env.JWT_ACCESS_SECRET as string, {
-      expiresIn: "1d",
+      expiresIn: "30d",
     });
     await insertNewSession({ token, associate: phone });
     return token;
@@ -31,7 +31,7 @@ export const createRefreshJWT = async (phone: string): Promise<string> => {
     { phone },
     process.env.JWT_REFRESH_SECRET as string,
     {
-      expiresIn: "15d",
+      expiresIn: "30d",
     }
   );
 

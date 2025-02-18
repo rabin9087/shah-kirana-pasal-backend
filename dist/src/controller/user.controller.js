@@ -150,7 +150,6 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             return res
                 .status(401)
                 .send({ status: "error", message: "Wrong password." });
-        console.log(user);
         return res.json({
             status: "success",
             message: `Welcome back ${user.fName} !`,

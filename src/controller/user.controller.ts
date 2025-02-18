@@ -137,7 +137,6 @@ export const loginUser = async (
   try {
     // 
     const { email_phone, password } = req.body;
-   
     if (!email_phone || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email  address or phone number
     const user = await getUserByPhoneOrEmail(email_phone);
@@ -159,7 +158,6 @@ export const loginUser = async (
     // If everything goes well, send the token to the client
 
     // todo send jwt tokens to the user
-     console.log(user)
     return res.json({
       status: "success",
       message: `Welcome back ${user.fName} !`,
