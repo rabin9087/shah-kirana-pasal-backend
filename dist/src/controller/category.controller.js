@@ -117,8 +117,13 @@ exports.deleteACategory = deleteACategory;
 const updateACategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const _a = req.body, { _id } = _a, categoryObj = __rest(_a, ["_id"]);
+        req.body.slug = (0, slugify_1.default)(req.body.name, {
+            replacement: '-',
+            lower: true,
+            trim: true
+        });
         console.log(req.body);
-        const category = yield (0, category_model_1.updateCategoryByID)(_id, categoryObj);
+        const category = yield (0, category_model_1.updateCategoryByID)(_id, Object.assign(Object.assign({}, categoryObj), { slug: req.body.slug }));
         (category === null || category === void 0 ? void 0 : category._id)
             ? res.json({
                 status: "success",

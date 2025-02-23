@@ -117,9 +117,14 @@ export const createNewCategory = async (
     next: NextFunction
   ) => {
     try {
-        const {_id, ...categoryObj} = req.body
-        console.log(req.body)
-        const category = await updateCategoryByID(_id, categoryObj)
+      const { _id, ...categoryObj } = req.body
+       req.body.slug = slugify(req.body.name, {
+      replacement: '-', 
+        lower: true,
+      trim: true
+       })
+      console.log(req.body)
+        const category = await updateCategoryByID(_id, {...categoryObj, slug: req.body.slug})
         category?._id
         ? res.json({
             status: "success",
