@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, getAllProductList, getAllProductListByCategory, updateAProductController, updateAProductStatusController } from "../controller/product.controller";
+import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, fetchAProductBySKUController, getAllProductList, getAllProductListByCategory, updateAProductController, updateAProductStatusController } from "../controller/product.controller";
 import { upload } from "../utils/awsUpload";
 import multer from 'multer'
 import { getAllActiveProducts } from "../model/product/product.model";
+import { adminAccess } from "../middleware/auth";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ const updateUploadMiddleware = upload.fields([
 
 
 router.post("/", uploadMiddleware, createNewProduct);
+router.get("/sku_value/:sku", adminAccess, fetchAProductBySKUController);
 router.get("/q", fetchAProductByFilter);
 router.get("/q=:code", fetchAProductByQRCode);
 router.get("/:_id", fetchAProductByID);

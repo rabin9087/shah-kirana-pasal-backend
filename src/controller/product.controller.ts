@@ -202,6 +202,30 @@ export const createNewProduct = async (
     }
   };
 
+  export const fetchAProductBySKUController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const {sku} = req.params
+      const product = await getAProductBySKU(sku)
+   
+        product?._id
+         ? res.json({
+            status: "success",
+            message: "Here is a product!",
+            product
+          })
+        : res.json({
+            status: "error",
+            message: "Product Not Found!",
+          })
+    } catch (error) {
+      next(error);
+    }
+  };
+
   export const updateAProductController = async (
     req: Request,
     res: Response,

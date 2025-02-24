@@ -4,6 +4,7 @@ const express_1 = require("express");
 const product_controller_1 = require("../controller/product.controller");
 const awsUpload_1 = require("../utils/awsUpload");
 const product_model_1 = require("../model/product/product.model");
+const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 const uploadMiddleware = awsUpload_1.upload.fields([
     { name: "images", maxCount: 10 },
@@ -14,6 +15,7 @@ const updateUploadMiddleware = awsUpload_1.upload.fields([
     { name: "newThumbnail", maxCount: 1 },
 ]);
 router.post("/", uploadMiddleware, product_controller_1.createNewProduct);
+router.get("/sku_value/:sku", auth_1.adminAccess, product_controller_1.fetchAProductBySKUController);
 router.get("/q", product_controller_1.fetchAProductByFilter);
 router.get("/q=:code", product_controller_1.fetchAProductByQRCode);
 router.get("/:_id", product_controller_1.fetchAProductByID);

@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.createNewProduct = void 0;
+exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.createNewProduct = void 0;
 const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
@@ -190,6 +190,26 @@ const fetchAProductByQRCode = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.fetchAProductByQRCode = fetchAProductByQRCode;
+const fetchAProductBySKUController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { sku } = req.params;
+        const product = yield (0, product_model_1.getAProductBySKU)(sku);
+        (product === null || product === void 0 ? void 0 : product._id)
+            ? res.json({
+                status: "success",
+                message: "Here is a product!",
+                product
+            })
+            : res.json({
+                status: "error",
+                message: "Product Not Found!",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.fetchAProductBySKUController = fetchAProductBySKUController;
 const updateAProductController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { images } = req.body;
