@@ -110,8 +110,8 @@ export const updateUserCartController = async (req: Request, res: Response, next
 
 export const updateUserCartHistoryController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {phone, cartHistory, amount} = req.body;
-    const updatedUserCartHistory = await UpdateUserCartHistoryByPhone(phone, cartHistory, amount );
+    const {phone, cartHistory, amount, orderNumber} = req.body;
+    const updatedUserCartHistory = await UpdateUserCartHistoryByPhone(phone, cartHistory, amount, orderNumber );
     if (updatedUserCartHistory?._id) {
       res.json({
         status: "success",
@@ -165,7 +165,6 @@ export const loginUser = async (
         accessJWT: await createAccessJWT(user.phone!),
         refreshJWT: await createRefreshJWT(user.phone!),
       },
-      
     });
   } catch (error) {
     next(error);

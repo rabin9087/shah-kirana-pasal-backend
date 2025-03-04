@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAOrderByID = exports.updateAOrder = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrdersByDate = exports.getAOrderByQRCodeNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
+exports.deleteAOrderByID = exports.updateAOrder = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrdersByDate = exports.getAOrderByQRCodeNumber = exports.getAOrderByOrderNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
 const order_schema_1 = __importDefault(require("./order.schema"));
 const createOrder = (OrderObj) => {
     return new order_schema_1.default(OrderObj).save();
@@ -52,6 +52,10 @@ const getAOrderByFilter = (filter) => {
     return order_schema_1.default.findOne(filter).populate('items.productId');
 };
 exports.getAOrderByFilter = getAOrderByFilter;
+const getAOrderByOrderNumber = (filter) => {
+    return order_schema_1.default.find(filter);
+};
+exports.getAOrderByOrderNumber = getAOrderByOrderNumber;
 const getAOrderByQRCodeNumber = (_a) => {
     var qrCodeNumber = __rest(_a, []);
     return order_schema_1.default.findOne(qrCodeNumber);

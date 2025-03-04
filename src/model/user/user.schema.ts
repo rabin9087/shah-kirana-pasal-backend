@@ -55,6 +55,7 @@ const CartHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  orderNumber: String
 });
 
 
@@ -118,8 +119,7 @@ const userSchema = new mongoose.Schema<IUser>(
       default:"",
     },
     cart: {
-      type: [ CartItemSchema,
-      ],
+      type: [CartItemSchema],
       default: [],
     },
     cartHistory: {

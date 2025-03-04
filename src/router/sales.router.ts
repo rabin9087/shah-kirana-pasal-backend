@@ -4,6 +4,6 @@ import { getAllSalesController, getSaleAmountController } from "../controller/sa
 const router = Router();
 
 router.get("/", getSaleAmountController)
-router.get("/all", getAllSalesController)
+router.get("/allSales", getAllSalesController)
 
 export default router;

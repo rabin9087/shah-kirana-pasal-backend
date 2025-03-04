@@ -33,11 +33,11 @@ const UpdateUserByPhone = (phone, data) => {
     return user_schema_1.default.findOneAndUpdate({ phone }, { $set: data }, { new: true });
 };
 exports.UpdateUserByPhone = UpdateUserByPhone;
-const UpdateUserCartHistoryByPhone = (phone, data, amount) => {
+const UpdateUserCartHistoryByPhone = (phone, data, amount, orderNumber) => {
     return user_schema_1.default.findOneAndUpdate({ phone }, {
         $push: {
             cartHistory: {
-                $each: [{ items: data.items, amount, purchasedAt: new Date() }],
+                $each: [{ items: data.items, amount, purchasedAt: new Date(), orderNumber }],
                 $position: 0
             }
         }

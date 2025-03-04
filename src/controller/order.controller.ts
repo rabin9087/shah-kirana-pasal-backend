@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createOrder, getAOrderByFilter, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
+import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
 import { randomOTPGenerator } from "../utils/randomGenerator";
 
 export const createNewOrder = async (
@@ -8,23 +8,31 @@ export const createNewOrder = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body)
-    const orderNumber = randomOTPGenerator()
-    const order = await createOrder({ orderNumber, ...req.body });
-    if (!order?.orderNumber) {
-      const orderNumber = randomOTPGenerator()
-       await createOrder({ orderNumber, ...req.body });
+   let orderNumber: string | undefined;
+    let isUnique = false;
+    // Loop until a unique orderNumber is generated
+    while (!isUnique) {
+      orderNumber = randomOTPGenerator();
+      const existingOrder = await getAOrderByOrderNumber({ orderNumber });
+      if (existingOrder.length === 0) {
+        isUnique = true;
+      }
     }
-    order?._id
-      ? res.json({
-          status: "success",
-          message: "New order has been created successfully!",
-          order
-        })
-      : res.json({
-          status: "error",
-          message: "Error creating new order. \n Try again!.",
-        });
+    // Create the order with the unique orderNumber
+    const order = await createOrder({ orderNumber, ...req.body });
+
+    if (order?._id) {
+      res.json({
+        status: 'success',
+        message: 'New order has been created successfully!',
+        order,
+      });
+    } else {
+      res.json({
+        status: 'error',
+        message: 'Error creating new order. Please try again.',
+      });
+    }
   } catch (error) {
     next(error);
   }

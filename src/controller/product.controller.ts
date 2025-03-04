@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID, updateAProductStatusByID } from "../model/product/product.model";
+import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID, updateAProductStatusByID, updateAProductThumbnailByID } from "../model/product/product.model";
 import slugify from 'slugify'
 import { getACategoryBySlug } from "../model/category/category.model";
 
@@ -72,7 +72,43 @@ export const createNewProduct = async (
     } catch (error) {
       next(error);
     }
-  };
+};
+  
+
+export const updateProductThumbnail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => { 
+try {
+   if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.MulterS3.File[] }
+      // if (files["images"]) {
+      //   req.body.images = files["images"].map(item => item.location)
+      // }
+
+      if (files["thumbnail"]) {
+        req.body.thumbnail = files["thumbnail"][0].location
+      }
+      const { _id } = req.params
+      const product = await updateAProductThumbnailByID(_id, req.body)
+   
+        product?._id
+         ? res.json({
+            status: "success",
+            message: "Product thumbnail has been Updated successfully!",
+            product
+          })
+        : res.json({
+            status: "error",
+            message: "Error updating product's Thumbnail.",
+          })
+    }
+} catch (error) {
+  next(error)
+}
+
+}
 
   export const getAllProductList = async (
     req: Request,
@@ -252,31 +288,9 @@ export const createNewProduct = async (
       } else {
         req.body.images = JSON.parse(images);
       }
+      
 } catch (error) {
   }
-    
-
-      // console.log('Incoming req.body:', req.body);
-      // return
-      
-      //  req.body.slug = slugify(req.body.name, {
-      // replacement: '-', 
-      //   lower: true,
-      // trim: true
-      //  })
-      
-      // const {productLocation} = req.body
-      // const parts = productLocation.split('.')
-    // Define the prefixes
-    // const prefixes = ['A', 'B', 'S', 'L'];
-    // const formattedParts = parts.map((part: string, index:number) => {
-    // const paddedNumber = part.padStart(2, '0');
-    // return `${prefixes[index]}${paddedNumber}`;
-    // });
-    
-    // // Join the formatted parts with ' - ' separator
-    // req.body.productLocation = formattedParts.join(' - ');
-
       const { _id } = req.body
       const product = await updateAProductByID(_id, req.body)
    

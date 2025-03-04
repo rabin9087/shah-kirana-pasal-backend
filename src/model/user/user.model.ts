@@ -12,7 +12,7 @@ export const getUserByPhoneOrEmail = async (email_phone: string) => {
   return await userSchema
     .findOne({ $or: [{ email: email_phone }, { phone: email_phone }] })
     .populate("cart.productId") // Populate product in cart
-    .populate("cartHistory.items.productId"); // Corrected path to populate cartHistory items
+    .populate("cartHistory.items.productId"); // Path to populate cartHistory items
 };
 
 export const UpdateUserByPhone = (phone: string, data: object) => {
@@ -22,14 +22,15 @@ export const UpdateUserByPhone = (phone: string, data: object) => {
 export const UpdateUserCartHistoryByPhone = (
   phone: string,
   data: { items: any[] },
-  amount: number
+  amount: number,
+  orderNumber: number
 ) => {
   return userSchema.findOneAndUpdate(
     { phone },
     { 
       $push: { 
         cartHistory: { 
-          $each: [{ items: data.items, amount, purchasedAt: new Date() }], 
+          $each: [{ items: data.items, amount, purchasedAt: new Date() , orderNumber}], 
           $position: 0 // Inserts at index 0
         } 
       } 

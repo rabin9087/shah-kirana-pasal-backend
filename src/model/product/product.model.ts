@@ -72,6 +72,9 @@ export const updateAProductByID = (_id: string, productObj: createProductParams)
     return productSchema.findByIdAndUpdate(_id, productObj)
 }
 
+export const updateAProductThumbnailByID = (_id: string, productObj: object) => {
+    return productSchema.findByIdAndUpdate(_id, productObj)
+}
 
 export const updateAProduct = (_id: string, {...productObj}  ) => {
     return productSchema.updateOne({_id}, {...productObj})

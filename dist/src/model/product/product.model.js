@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAProductByID = exports.updateAProduct = exports.updateAProductByID = exports.getAProductByStoredAT = exports.getAProductBySlug = exports.getAProductByQRCodeNumber = exports.updateAProductStatusByID = exports.getAProductByFilter = exports.getAProductBySKU = exports.getProductListBystatus = exports.getProductListBySlug = exports.getProductListByCategory = exports.getAProductByID = exports.getProductListByName = exports.getAllActiveProducts = exports.getAllProducts = exports.createProduct = void 0;
+exports.deleteAProductByID = exports.updateAProduct = exports.updateAProductThumbnailByID = exports.updateAProductByID = exports.getAProductByStoredAT = exports.getAProductBySlug = exports.getAProductByQRCodeNumber = exports.updateAProductStatusByID = exports.getAProductByFilter = exports.getAProductBySKU = exports.getProductListBystatus = exports.getProductListBySlug = exports.getProductListByCategory = exports.getAProductByID = exports.getProductListByName = exports.getAllActiveProducts = exports.getAllProducts = exports.createProduct = void 0;
 const product_schema_1 = __importDefault(require("./product.schema"));
 const createProduct = (productObj) => {
     return new product_schema_1.default(productObj).save();
@@ -77,6 +77,10 @@ const updateAProductByID = (_id, productObj) => {
     return product_schema_1.default.findByIdAndUpdate(_id, productObj);
 };
 exports.updateAProductByID = updateAProductByID;
+const updateAProductThumbnailByID = (_id, productObj) => {
+    return product_schema_1.default.findByIdAndUpdate(_id, productObj);
+};
+exports.updateAProductThumbnailByID = updateAProductThumbnailByID;
 const updateAProduct = (_id, _a) => {
     var productObj = __rest(_a, []);
     return product_schema_1.default.updateOne({ _id }, Object.assign({}, productObj));

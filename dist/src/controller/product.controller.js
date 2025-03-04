@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.createNewProduct = void 0;
+exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.updateProductThumbnail = exports.createNewProduct = void 0;
 const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
@@ -83,6 +83,32 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.createNewProduct = createNewProduct;
+const updateProductThumbnail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.files) {
+            const files = req.files;
+            if (files["thumbnail"]) {
+                req.body.thumbnail = files["thumbnail"][0].location;
+            }
+            const { _id } = req.params;
+            const product = yield (0, product_model_1.updateAProductThumbnailByID)(_id, req.body);
+            (product === null || product === void 0 ? void 0 : product._id)
+                ? res.json({
+                    status: "success",
+                    message: "Product thumbnail has been Updated successfully!",
+                    product
+                })
+                : res.json({
+                    status: "error",
+                    message: "Error updating product's Thumbnail.",
+                });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateProductThumbnail = updateProductThumbnail;
 const getAllProductList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield (0, product_model_1.getAllProducts)();

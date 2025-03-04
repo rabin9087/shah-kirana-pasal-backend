@@ -14,8 +14,12 @@ const updateUploadMiddleware = awsUpload_1.upload.fields([
     { name: "addImages", maxCount: 10 },
     { name: "newThumbnail", maxCount: 1 },
 ]);
+const uploadMiddlewareImageThumbnail = awsUpload_1.upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+]);
 router.post("/", uploadMiddleware, product_controller_1.createNewProduct);
 router.get("/sku_value/:sku", auth_1.adminAccess, product_controller_1.fetchAProductBySKUController);
+router.patch("/thumbnail/:_id", uploadMiddlewareImageThumbnail, product_controller_1.updateProductThumbnail);
 router.get("/q", product_controller_1.fetchAProductByFilter);
 router.get("/q=:code", product_controller_1.fetchAProductByQRCode);
 router.get("/:_id", product_controller_1.fetchAProductByID);
