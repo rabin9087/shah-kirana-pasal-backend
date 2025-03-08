@@ -12,7 +12,6 @@ const orderSchema = new mongoose_1.default.Schema({
     },
     address: {
         type: String,
-        required: true
     },
     phone: {
         type: String,

@@ -12,7 +12,7 @@ export interface IItemTypes {
 
 export interface IOrder extends Document {
     name: string,
-    address: string,
+    address?: string,
     phone: string,
     email: string,
     items: IItemTypes[];
@@ -39,7 +39,6 @@ const orderSchema = new mongose.Schema<IOrder>(
         },
         address: {
             type: String,
-            required: true
         },
         phone: {
             type: String,
