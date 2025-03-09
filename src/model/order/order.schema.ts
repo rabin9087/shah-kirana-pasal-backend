@@ -29,6 +29,7 @@ export interface IOrder extends Document {
     createdAt: Date,
     updatedAt: Date,
     orderType: string,
+    picker?: {userId: mongose.Types.ObjectId, name: string},
 }
 
 const orderSchema = new mongose.Schema<IOrder>(
@@ -113,7 +114,16 @@ const orderSchema = new mongose.Schema<IOrder>(
         amount: {
             type: Number,
             required: true
-        }
+        },
+        picker: {
+            userId: {
+                type: String,
+                default: ""
+            },
+            name: {
+                type: String,
+                default: ""
+            } },
     },
      { timestamps: true })
 

@@ -86,7 +86,6 @@ const getOrdersByDateController = (req, res, next) => __awaiter(void 0, void 0, 
 exports.getOrdersByDateController = getOrdersByDateController;
 const getAOrderByFilterController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.params);
         const order = yield (0, order_model_1.getAOrderByFilter)(req.params);
         (order === null || order === void 0 ? void 0 : order._id)
             ? res.json({

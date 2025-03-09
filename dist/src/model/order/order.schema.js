@@ -83,6 +83,16 @@ const orderSchema = new mongoose_1.default.Schema({
     amount: {
         type: Number,
         required: true
-    }
+    },
+    picker: {
+        userId: {
+            type: String,
+            default: ""
+        },
+        name: {
+            type: String,
+            default: ""
+        }
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("order", orderSchema);

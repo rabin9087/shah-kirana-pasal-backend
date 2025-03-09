@@ -4,7 +4,7 @@ import product from "../product/product.schema";
 
 export interface IUser extends Document {
   _id: string;
-  role: 'ADMIN'|'USER';
+  role: 'ADMIN'| 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'PICKER';
   status: string;
   fName: string;
   lName: string;

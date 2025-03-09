@@ -93,8 +93,6 @@ export const getAOrderByFilterController = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.params)
-    // const orderNumber = randomOTPGenerator()
     const order = await getAOrderByFilter(req.params);
     order?._id
       ? res.json({
