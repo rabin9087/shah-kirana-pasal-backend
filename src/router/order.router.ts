@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { createNewOrder, getAOrderByFilterController, getOrders, getOrdersByDateController, updateAOrderController } from "../controller/order.controller";
-import { adminAccess, auth } from "../middleware/auth";
+import { PickerAccess, adminAccess, auth } from "../middleware/auth";
 
 const router = Router();
 
 router.post("/new-order", createNewOrder);
 router.get("/orderNumber=:orderNumber", getAOrderByFilterController);
 router.get("/all-orders",adminAccess, getOrders);
-router.get("/date=:date",adminAccess, getOrdersByDateController);
-router.patch("/update/:_id",adminAccess, updateAOrderController);
+router.get("/date=:date",PickerAccess, getOrdersByDateController);
+router.patch("/update/:_id",PickerAccess, updateAOrderController);
 router.delete("/:_id");
 router.put("/");
 export default router;

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshAuth = exports.adminAccess = exports.newAdminSignUpAuth = exports.auth = void 0;
+exports.refreshAuth = exports.PickerAccess = exports.adminAccess = exports.newAdminSignUpAuth = exports.auth = void 0;
 const jwt_1 = require("../utils/jwt");
 const user_model_1 = require("../model/user/user.model");
 const session_model_1 = require("../model/session/session.model");
@@ -116,6 +116,36 @@ const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.adminAccess = adminAccess;
+const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { authorization } = req.headers;
+        const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
+            const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
+            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "PICKER") {
+                const users = yield (0, user_model_1.getAllUser)();
+                req.userInfo = users;
+                return next();
+            }
+        }
+        res.status(401).json({
+            status: "error",
+            message: "Unauthorized access",
+        });
+    }
+    catch (error) {
+        if (error.message.includes("jwt expired")) {
+            error.statusCode = 403;
+            error.message = "Your token has expired. Please login Again";
+        }
+        if (error.message.includes("invalid signature")) {
+            error.statusCode = 401;
+            error.message = error.message;
+        }
+        next(error);
+    }
+});
+exports.PickerAccess = PickerAccess;
 const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;

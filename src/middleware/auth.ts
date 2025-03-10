@@ -139,6 +139,50 @@ export const adminAccess = async (
   }
 };
 
+export const PickerAccess = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // get access jwt key form the fornt end
+    const { authorization } = req.headers;
+    // decode the JWT which tell key is valid and expired or not
+    const decoded = verifyAccessJWT(authorization as string);
+    //decoded have three properties one of them being user phone expiry data
+    // extrat phone and get get user by phone
+    if (decoded?.phone) {
+      // check if the user is active
+      const user = await getUserByPhoneOrEmail(decoded.phone);
+      if (user?.role === "ADMIN" || user?.role === "PICKER") {
+         const users: ( IUser & Required<{ _id: string }>)[] = await getAllUser();
+    // Transform the users to remove sensitive information (password and refreshJWT)
+       req.userInfo = users as IUser[]
+        // return res.status(403).json({
+        //   status: 'fail',
+        //   message: 'Forbidden: Only admin can access all users.',
+        // })
+        return next();
+      }
+          // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA0ODE0NTI5MjAiLCJpYXQiOjE3Mzk0MjIzMTAsImV4cCI6MTc0MDcxODMxMH0.WVjuH0W979p3RpNb2JAXCXsZNtlH3Su2Eq3nuqTKmco
+    }
+    res.status(401).json({
+      status: "error",
+      message: "Unauthorized access",
+    });
+  } catch (error: CustomError | any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login Again";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = error.message;
+    }
+    next(error);
+  }
+};
+
 export const refreshAuth = async (
   req: Request,
   res: Response,
