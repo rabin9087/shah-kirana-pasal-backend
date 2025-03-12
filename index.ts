@@ -12,15 +12,22 @@ import { CustomError } from "./types";
 import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
 import helmet from 'helmet'
+import rateLimit from "express-rate-limit";
 //For env File
 // dotenv.config();
-
 connectMongo();
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // Limit each IP to 100 requests per minute
+});
+
+
 const app: Application = express();
 const port =  Number(process.env.PORT) || 8080;
 app.use(cors());
 app.use(morgan("short"));
 app.use(express.json());
+app.use(limiter);
 app.use(
   helmet.contentSecurityPolicy({
     directives: {

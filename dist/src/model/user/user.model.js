@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByPhoneAndJWT = exports.UpdateUserCartHistoryByPhone = exports.UpdateUserByPhone = exports.getUserByPhoneOrEmail = exports.getAllUser = exports.createUser = void 0;
+exports.getUserByPhoneAndJWT = exports.UpdateUserCartHistoryByPhone = exports.signOutUserByPhoneANDJWT = exports.UpdateUserByPhone = exports.getUserByPhoneOrEmail = exports.getAllUser = exports.createUser = void 0;
 const user_schema_1 = __importDefault(require("./user.schema"));
 const createUser = (userObj) => {
     return new user_schema_1.default(userObj).save();
@@ -30,9 +30,23 @@ const getUserByPhoneOrEmail = (email_phone) => __awaiter(void 0, void 0, void 0,
 });
 exports.getUserByPhoneOrEmail = getUserByPhoneOrEmail;
 const UpdateUserByPhone = (phone, data) => {
-    return user_schema_1.default.findOneAndUpdate({ phone }, { $set: data }, { new: true });
+    const updateQuery = { $set: Object.assign({}, data) };
+    if (data.refreshJWT) {
+        updateQuery.$push = { refreshJWT: data.refreshJWT };
+        delete updateQuery.$set.refreshJWT;
+    }
+    return user_schema_1.default.findOneAndUpdate({ phone }, updateQuery, { new: true });
 };
 exports.UpdateUserByPhone = UpdateUserByPhone;
+const signOutUserByPhoneANDJWT = (phone, data) => {
+    const updateQuery = { $set: Object.assign({}, data) };
+    if (data.refreshJWT) {
+        updateQuery.$pull = { refreshJWT: data.refreshJWT };
+        delete updateQuery.$set.refreshJWT;
+    }
+    return user_schema_1.default.findOneAndUpdate({ phone }, updateQuery, { new: true });
+};
+exports.signOutUserByPhoneANDJWT = signOutUserByPhoneANDJWT;
 const UpdateUserCartHistoryByPhone = (phone, data, amount, orderNumber) => {
     return user_schema_1.default.findOneAndUpdate({ phone }, {
         $push: {
@@ -44,7 +58,11 @@ const UpdateUserCartHistoryByPhone = (phone, data, amount, orderNumber) => {
     }, { new: true, upsert: true });
 };
 exports.UpdateUserCartHistoryByPhone = UpdateUserCartHistoryByPhone;
-const getUserByPhoneAndJWT = (obj) => {
-    return user_schema_1.default.findOne(obj);
-};
+const getUserByPhoneAndJWT = (_a) => __awaiter(void 0, [_a], void 0, function* ({ phone, refreshJWT, }) {
+    return user_schema_1.default.findOne({
+        phone,
+        refreshJWT: { $in: [refreshJWT] },
+    }).populate("cart.productId")
+        .populate("cartHistory.items.productId");
+});
 exports.getUserByPhoneAndJWT = getUserByPhoneAndJWT;

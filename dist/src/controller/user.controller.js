@@ -177,10 +177,16 @@ const signOutUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     phone: decoded.phone,
                     refreshJWT: authorization,
                 });
-                yield (0, user_model_1.UpdateUserByPhone)(decoded.phone, { refreshJWT: "" });
-                res.json({
-                    status: "success",
-                    message: "User signed out successfully",
+                const user = yield (0, user_model_1.signOutUserByPhoneANDJWT)(decoded.phone, { refreshJWT: authorization });
+                if (user === null || user === void 0 ? void 0 : user._id) {
+                    return res.json({
+                        status: "success",
+                        message: "User signed out successfully",
+                    });
+                }
+                return res.json({
+                    status: "error",
+                    message: "Error signing out user!",
                 });
             }
         }

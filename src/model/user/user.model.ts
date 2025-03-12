@@ -15,9 +15,28 @@ export const getUserByPhoneOrEmail = async (email_phone: string) => {
     .populate("cartHistory.items.productId"); // Path to populate cartHistory items
 };
 
-export const UpdateUserByPhone = (phone: string, data: object) => {
-  return userSchema.findOneAndUpdate({ phone }, { $set: data }, { new: true });
+export const UpdateUserByPhone = (phone: string, data: { refreshJWT?: string } & Record<string, any>) => {
+  const updateQuery: Record<string, any> = { $set: { ...data } };
+
+  if (data.refreshJWT) {
+    updateQuery.$push = { refreshJWT: data.refreshJWT }; // Push new JWT instead of replacing it
+    delete updateQuery.$set.refreshJWT; // Remove from $set to avoid overwriting
+  }
+  return userSchema.findOneAndUpdate({ phone }, updateQuery, { new: true });
 };
+
+export const signOutUserByPhoneANDJWT = (phone: string, data: { refreshJWT?: string } & Record<string, any>) => {
+  const updateQuery: Record<string, any> = { $set: { ...data } };
+
+  if (data.refreshJWT) {
+    updateQuery.$pull = { refreshJWT: data.refreshJWT }; // Remove specific JWT from the array
+    delete updateQuery.$set.refreshJWT; // Ensure it is not set in $set
+  }
+
+  return userSchema.findOneAndUpdate({ phone }, updateQuery, { new: true });
+};
+
+
 
 export const UpdateUserCartHistoryByPhone = (
   phone: string,
@@ -40,10 +59,17 @@ export const UpdateUserCartHistoryByPhone = (
 };
 
 
-
-export const getUserByPhoneAndJWT = (obj: {
+export const getUserByPhoneAndJWT = async ({
+  phone,
+  refreshJWT,
+}: {
   phone: string;
   refreshJWT: string;
 }) => {
-  return userSchema.findOne(obj);
+  return userSchema.findOne({
+    phone,
+    refreshJWT: { $in: [refreshJWT] }, // Check if refreshJWT exists in the array
+  }).populate("cart.productId") // Populate product in cart
+    .populate("cartHistory.items.productId"); // Path to populate cartHistory items;
 };
+

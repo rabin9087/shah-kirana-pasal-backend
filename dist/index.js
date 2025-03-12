@@ -10,12 +10,18 @@ const morgan_1 = __importDefault(require("morgan"));
 const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
 const helmet_1 = __importDefault(require("helmet"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 (0, mongo_connect_1.connectMongo)();
+const limiter = (0, express_rate_limit_1.default)({
+    windowMs: 1 * 60 * 1000,
+    max: 100,
+});
 const app = (0, express_1.default)();
 const port = Number(process.env.PORT) || 8080;
 app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)("short"));
 app.use(express_1.default.json());
+app.use(limiter);
 app.use(helmet_1.default.contentSecurityPolicy({
     directives: {
         defaultSrc: ["'self'"],

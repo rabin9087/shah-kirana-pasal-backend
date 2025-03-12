@@ -65,8 +65,8 @@ const userSchema = new mongoose_1.default.Schema({
         default: "",
     },
     refreshJWT: {
-        type: String,
-        default: "",
+        type: [String],
+        default: [],
     },
     address: {
         type: String,

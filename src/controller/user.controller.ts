@@ -1,6 +1,6 @@
 import twilio from 'twilio'
 import { NextFunction, Request, Response } from "express";
-import { UpdateUserByPhone, UpdateUserCartHistoryByPhone, createUser, getUserByPhoneAndJWT, getUserByPhoneOrEmail } from "../model/user/user.model";
+import { UpdateUserByPhone, UpdateUserCartHistoryByPhone, createUser, getUserByPhoneAndJWT, getUserByPhoneOrEmail, signOutUserByPhoneANDJWT } from "../model/user/user.model";
 import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
@@ -190,10 +190,16 @@ export const signOutUser = async (
           phone: decoded.phone,
           refreshJWT: authorization,
         });
-        await UpdateUserByPhone(decoded.phone, { refreshJWT: "" })
-        res.json({
+        const user = await signOutUserByPhoneANDJWT(decoded.phone, { refreshJWT: authorization })
+        if (user?._id) {
+          return res.json({
           status: "success",
           message: "User signed out successfully",
+        })
+        }
+        return res.json({
+          status: "error",
+          message: "Error signing out user!",
         })
       }
     }

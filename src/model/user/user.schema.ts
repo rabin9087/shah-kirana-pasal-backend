@@ -13,7 +13,7 @@ export interface IUser extends Document {
   password: string | undefined;
   isVerified: boolean;
   verificationCode: string | null;
-  refreshJWT: string | undefined;
+  refreshJWT: string[] | [];
   address?: string;
   profile: string | null;
   cart: IAddToCartTypes[]; // Current active cart
@@ -106,10 +106,9 @@ const userSchema = new mongoose.Schema<IUser>(
       default: "",
     },
     refreshJWT: {
-      type: String,
-      default: "",
+    type: [String], // Change from `String` to an array `[String]`
+    default: [],
     },
-
     address: {
       type: String,
       default: "",
