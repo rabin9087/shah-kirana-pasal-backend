@@ -36,8 +36,6 @@ export const signOutUserByPhoneANDJWT = (phone: string, data: { refreshJWT?: str
   return userSchema.findOneAndUpdate({ phone }, updateQuery, { new: true });
 };
 
-
-
 export const UpdateUserCartHistoryByPhone = (
   phone: string,
   data: { items: any[] },

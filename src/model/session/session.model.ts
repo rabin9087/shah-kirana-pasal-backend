@@ -14,8 +14,7 @@ export const findOneByFilterAndDelete = (filter: {
   return sessionSchema.findOneAndDelete(filter);
 };
 
-export const CheckToken = (filter: { associate: string; token: string }) => {
-  console.log(filter);
+export const CheckUserByToken = (filter: { associate: string; token: string }) => {
   return sessionSchema.findOne(filter);
 };
 export const findOneAndDelete = (token: { token: string }) => {

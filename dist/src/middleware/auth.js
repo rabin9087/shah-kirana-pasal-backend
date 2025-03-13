@@ -89,7 +89,14 @@ exports.newAdminSignUpAuth = newAdminSignUpAuth;
 const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        if (!authorization) {
+            return res.status(401).json({
+                status: "error",
+                message: "Authorization token missing",
+            });
+        }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN") {
@@ -98,19 +105,19 @@ const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 return next();
             }
         }
-        res.status(401).json({
+        res.status(403).json({
             status: "error",
-            message: "Unauthorized access",
+            message: "Forbidden: Only admin can access this resource.",
         });
     }
     catch (error) {
         if (error.message.includes("jwt expired")) {
             error.statusCode = 403;
-            error.message = "Your token has expired. Please login Again";
+            error.message = "Your token has expired. Please login again.";
         }
         if (error.message.includes("invalid signature")) {
             error.statusCode = 401;
-            error.message = error.message;
+            error.message = "Invalid token signature.";
         }
         next(error);
     }
@@ -119,7 +126,14 @@ exports.adminAccess = adminAccess;
 const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        if (!authorization) {
+            return res.status(401).json({
+                status: "error",
+                message: "Authorization token missing",
+            });
+        }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "PICKER") {
@@ -128,19 +142,19 @@ const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 return next();
             }
         }
-        res.status(401).json({
+        res.status(403).json({
             status: "error",
-            message: "Unauthorized access",
+            message: "Forbidden: Only admin or picker can access this resource.",
         });
     }
     catch (error) {
         if (error.message.includes("jwt expired")) {
             error.statusCode = 403;
-            error.message = "Your token has expired. Please login Again";
+            error.message = "Your token has expired. Please login again.";
         }
         if (error.message.includes("invalid signature")) {
             error.statusCode = 401;
-            error.message = error.message;
+            error.message = "Invalid token signature.";
         }
         next(error);
     }
@@ -150,13 +164,34 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { authorization } = req.headers;
         if (!authorization) {
-            throw new Error("No Authorization provided");
+            return res.status(401).json({ status: "error", message: "No Authorization provided" });
         }
-        const decoded = (0, jwt_1.verifyRefreshJWT)(authorization);
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        try {
+            const accessDecoded = (0, jwt_1.verifyAccessJWT)(token);
+            if (accessDecoded === null || accessDecoded === void 0 ? void 0 : accessDecoded.phone) {
+                const userToken = yield (0, session_model_1.CheckUserByToken)({ associate: accessDecoded.phone, token });
+                if (userToken === null || userToken === void 0 ? void 0 : userToken._id) {
+                    const user = yield (0, user_model_1.getUserByPhoneOrEmail)(accessDecoded.phone);
+                    if (user === null || user === void 0 ? void 0 : user._id) {
+                        user.password = undefined;
+                        return res.json({
+                            status: "success",
+                            message: "Authorized",
+                            user,
+                        });
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.log("Access JWT verification failed, attempting Refresh JWT...");
+        }
+        const decoded = (0, jwt_1.verifyRefreshJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneAndJWT)({
                 phone: decoded.phone,
-                refreshJWT: authorization,
+                refreshJWT: token,
             });
             if (user === null || user === void 0 ? void 0 : user._id) {
                 user.password = undefined;
@@ -165,11 +200,11 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     status: "success",
                     message: "Authorized",
                     accessJWT,
-                    user
+                    user,
                 });
             }
         }
-        res.status(401).json({
+        return res.status(401).json({
             status: "error",
             message: "Unauthorized",
         });

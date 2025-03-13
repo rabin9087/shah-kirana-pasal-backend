@@ -6,7 +6,7 @@ import {
 } from "../utils/jwt";
 import { CustomError } from "../../types";
 import { getUserByPhoneOrEmail, getUserByPhoneAndJWT, getAllUser } from "../model/user/user.model";
-import { findOneByFilterAndDelete } from "../model/session/session.model";
+import { CheckUserByToken, findOneByFilterAndDelete } from "../model/session/session.model";
 import { IUser } from "../model/user/user.schema";
 
 type UserWithoutSensitiveData = Omit<IUser, 'password' | 'refreshJWT'>;
@@ -95,132 +95,167 @@ export const newAdminSignUpAuth = async (
   }
 };
 
-export const adminAccess = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const adminAccess = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // get access jwt key form the fornt end
-    const { authorization } = req.headers;
-    // decode the JWT which tell key is valid and expired or not
-    const decoded = verifyAccessJWT(authorization as string);
-    //decoded have three properties one of them being user phone expiry data
-    // extrat phone and get get user by phone
-    if (decoded?.phone) {
-      // check if the user is active
-      const user = await getUserByPhoneOrEmail(decoded.phone);
-      if (user?.role === "ADMIN") {
-         const users: ( IUser & Required<{ _id: string }>)[] = await getAllUser();
-    // Transform the users to remove sensitive information (password and refreshJWT)
-       req.userInfo = users as IUser[]
-        // return res.status(403).json({
-        //   status: 'fail',
-        //   message: 'Forbidden: Only admin can access all users.',
-        // })
-        return next();
-      }
-          // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA0ODE0NTI5MjAiLCJpYXQiOjE3Mzk0MjIzMTAsImV4cCI6MTc0MDcxODMxMH0.WVjuH0W979p3RpNb2JAXCXsZNtlH3Su2Eq3nuqTKmco
-    }
-    res.status(401).json({
-      status: "error",
-      message: "Unauthorized access",
-    });
-  } catch (error: CustomError | any) {
-    if (error.message.includes("jwt expired")) {
-      error.statusCode = 403;
-      error.message = "Your token has expired. Please login Again";
-    }
-    if (error.message.includes("invalid signature")) {
-      error.statusCode = 401;
-      error.message = error.message;
-    }
-    next(error);
-  }
-};
-
-export const PickerAccess = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    // get access jwt key form the fornt end
-    const { authorization } = req.headers;
-    // decode the JWT which tell key is valid and expired or not
-    const decoded = verifyAccessJWT(authorization as string);
-    //decoded have three properties one of them being user phone expiry data
-    // extrat phone and get get user by phone
-    if (decoded?.phone) {
-      // check if the user is active
-      const user = await getUserByPhoneOrEmail(decoded.phone);
-      if (user?.role === "ADMIN" || user?.role === "PICKER") {
-         const users: ( IUser & Required<{ _id: string }>)[] = await getAllUser();
-    // Transform the users to remove sensitive information (password and refreshJWT)
-       req.userInfo = users as IUser[]
-        // return res.status(403).json({
-        //   status: 'fail',
-        //   message: 'Forbidden: Only admin can access all users.',
-        // })
-        return next();
-      }
-          // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjA0ODE0NTI5MjAiLCJpYXQiOjE3Mzk0MjIzMTAsImV4cCI6MTc0MDcxODMxMH0.WVjuH0W979p3RpNb2JAXCXsZNtlH3Su2Eq3nuqTKmco
-    }
-    res.status(401).json({
-      status: "error",
-      message: "Unauthorized access",
-    });
-  } catch (error: CustomError | any) {
-    if (error.message.includes("jwt expired")) {
-      error.statusCode = 403;
-      error.message = "Your token has expired. Please login Again";
-    }
-    if (error.message.includes("invalid signature")) {
-      error.statusCode = 401;
-      error.message = error.message;
-    }
-    next(error);
-  }
-};
-
-export const refreshAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    // 1.get  the refreshAuth
+    // 1. Get access JWT token from the frontend
     const { authorization } = req.headers;
     if (!authorization) {
-      throw new Error("No Authorization provided");
+      return res.status(401).json({
+        status: "error",
+        message: "Authorization token missing",
+      });
     }
-    // 2.decode the jwt
-    const decoded = verifyRefreshJWT(authorization as string);
-    // 3. extract phone and get user by phone
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Decode the JWT to verify if it's valid and not expired
+    const decoded = verifyAccessJWT(token);
+    
     if (decoded?.phone) {
-      // 4. check fif the user is active
+      // 3. Check if the user exists by phone number and verify role
+      const user = await getUserByPhoneOrEmail(decoded.phone);
+      if (user?.role === "ADMIN") {
+        const users = await getAllUser();
+        
+        // Transform the users to remove sensitive information (password and refreshJWT)
+        req.userInfo = users as IUser[];
+        
+        return next();
+      }
+    }
+
+    // If not an admin, unauthorized access
+    res.status(403).json({
+      status: "error",
+      message: "Forbidden: Only admin can access this resource.",
+    });
+  } catch (error: any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login again.";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = "Invalid token signature.";
+    }
+    next(error);
+  }
+};
+
+// Picker Access Control
+export const PickerAccess = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // 1. Get access JWT token from the frontend
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(401).json({
+        status: "error",
+        message: "Authorization token missing",
+      });
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Decode the JWT to verify if it's valid and not expired
+    const decoded = verifyAccessJWT(token);
+    
+    if (decoded?.phone) {
+      // 3. Check if the user exists by phone number and verify role
+      const user = await getUserByPhoneOrEmail(decoded.phone);
+      if (user?.role === "ADMIN" || user?.role === "PICKER") {
+        const users = await getAllUser();
+
+        // Transform the users to remove sensitive information (password and refreshJWT)
+        req.userInfo = users as IUser[];
+
+        return next();
+      }
+    }
+
+    // If not an admin or picker, unauthorized access
+    res.status(403).json({
+      status: "error",
+      message: "Forbidden: Only admin or picker can access this resource.",
+    });
+  } catch (error: any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login again.";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = "Invalid token signature.";
+    }
+    next(error);
+  }
+};
+
+export const refreshAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // 1. Get the refreshAuth token
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(401).json({ status: "error", message: "No Authorization provided" });
+    }
+
+    // Extract token from "Bearer <token>"
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Try to verify access JWT first
+    try {
+      const accessDecoded = verifyAccessJWT(token);
+      if (accessDecoded?.phone) {
+        // 3. Check if user is active
+        const userToken = await CheckUserByToken({ associate: accessDecoded.phone, token });
+        if (userToken?._id) {
+          const user = await getUserByPhoneOrEmail(accessDecoded.phone);
+
+          if (user?._id) {
+            user.password = undefined; // Remove password from response
+            return res.json({
+              status: "success",
+              message: "Authorized",
+              user,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Access JWT verification failed, attempting Refresh JWT...");
+    }
+
+    // 3. Verify refresh token
+    const decoded = verifyRefreshJWT(token);
+
+    if (decoded?.phone) {
+      // 4. Check if user exists with the refresh token
       const user = await getUserByPhoneAndJWT({
         phone: decoded.phone,
-        refreshJWT: authorization,
+        refreshJWT: token,
       });
 
       if (user?._id) {
-        user.password = undefined
-        // create new accessJWT
+        user.password = undefined; // Remove password before sending response
+        // 5. Generate a new access JWT
         const accessJWT = await createAccessJWT(decoded.phone);
+
         return res.json({
           status: "success",
           message: "Authorized",
           accessJWT,
-          user
+          user,
         });
       }
     }
-    res.status(401).json({
+
+    // If no valid token is found, return unauthorized
+    return res.status(401).json({
       status: "error",
       message: "Unauthorized",
     });
-  } catch (error: CustomError | any) {
+  } catch (error: any) {
     next(error);
   }
 };
