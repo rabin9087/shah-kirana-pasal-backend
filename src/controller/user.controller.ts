@@ -178,35 +178,57 @@ export const signOutUser = async (
 ) => {
   try {
     const { authorization } = req.headers;
-       const decoded = verifyRefreshJWT(authorization as string);
-    // 3. extract phone and get user by phone
+
+    // 1. Check if authorization header exists
     if (!authorization) {
-      throw new Error("No Authorization provided");
+      return res.status(401).json({
+        status: "error",
+        message: "No Authorization provided",
+      });
     }
-    if (authorization) {
-      if (decoded?.phone) {
-        // 4. check fif the user is active
-        await getUserByPhoneAndJWT({
-          phone: decoded.phone,
-          refreshJWT: authorization,
-        });
-        const user = await signOutUserByPhoneANDJWT(decoded.phone, { refreshJWT: authorization })
-        if (user?._id) {
-          return res.json({
-          status: "success",
-          message: "User signed out successfully",
-        })
-        }
-        return res.json({
-          status: "error",
-          message: "Error signing out user!",
-        })
-      }
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Decode the JWT token
+    const decoded = verifyRefreshJWT(token);
+    if (!decoded || !decoded.phone) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid or expired token",
+      });
     }
+
+    // 3. Retrieve user by phone and refresh token
+    const user = await getUserByPhoneAndJWT({
+      phone: decoded.phone,
+      refreshJWT: token,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found or already signed out",
+      });
+    }
+
+    // 4. Sign out user
+    const updatedUser = await signOutUserByPhoneANDJWT(decoded.phone, { refreshJWT: token });
+
+    if (updatedUser?._id) {
+      return res.json({
+        status: "success",
+        message: "User signed out successfully",
+      });
+    }
+
+    return res.status(500).json({
+      status: "error",
+      message: "Error signing out user",
+    });
+
   } catch (error) {
-     next(error);
+    next(error);
   }
-}
+};
   
 export const OTPRequest = async(req: Request, res: Response, next: NextFunction) => {
   try {
@@ -242,7 +264,7 @@ export const OTPRequest = async(req: Request, res: Response, next: NextFunction)
 
 export const OTPVerification = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const {email_phone, otp, password} = req.body
+    const {email_phone, otp} = req.body
     //find user with provided email or phone 
     if(!email_phone) throw new Error("Email or Phone number required!")
       const user = await getUserByPhoneOrEmail(email_phone)

@@ -13,9 +13,7 @@ exports.searchNewItem = void 0;
 const search_model_1 = require("../model/search/search.model");
 const searchNewItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Query: ", req.body);
         const { searchTerm } = req.query;
-        console.log("searchTerm", searchTerm);
         if (!searchTerm) {
             return res.status(400).json({ message: "Search term is required" });
         }
@@ -24,7 +22,7 @@ const searchNewItem = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             ? res.json({
                 status: "success",
                 message: "Here are all searched products",
-                result: products.map(({ _id, name, parentCategoryID }) => ({ name, _id, parentCategoryID }))
+                result: products.map(({ _id, name, alternateName, parentCategoryID }) => ({ name, _id, alternateName, parentCategoryID }))
             })
             : res.json({
                 status: "success",

@@ -7,7 +7,10 @@ exports.getSearchResults = void 0;
 const product_schema_1 = __importDefault(require("../product/product.schema"));
 const getSearchResults = (searchTerm) => {
     return product_schema_1.default.find({
-        name: { $regex: searchTerm, $options: "i" },
+        $or: [
+            { name: { $regex: searchTerm, $options: "i" } },
+            { alternateName: { $regex: searchTerm, $options: "i" } }
+        ]
     });
 };
 exports.getSearchResults = getSearchResults;

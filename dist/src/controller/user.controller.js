@@ -167,29 +167,41 @@ exports.loginUser = loginUser;
 const signOutUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        const decoded = (0, jwt_1.verifyRefreshJWT)(authorization);
         if (!authorization) {
-            throw new Error("No Authorization provided");
+            return res.status(401).json({
+                status: "error",
+                message: "No Authorization provided",
+            });
         }
-        if (authorization) {
-            if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
-                yield (0, user_model_1.getUserByPhoneAndJWT)({
-                    phone: decoded.phone,
-                    refreshJWT: authorization,
-                });
-                const user = yield (0, user_model_1.signOutUserByPhoneANDJWT)(decoded.phone, { refreshJWT: authorization });
-                if (user === null || user === void 0 ? void 0 : user._id) {
-                    return res.json({
-                        status: "success",
-                        message: "User signed out successfully",
-                    });
-                }
-                return res.json({
-                    status: "error",
-                    message: "Error signing out user!",
-                });
-            }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyRefreshJWT)(token);
+        if (!decoded || !decoded.phone) {
+            return res.status(401).json({
+                status: "error",
+                message: "Invalid or expired token",
+            });
         }
+        const user = yield (0, user_model_1.getUserByPhoneAndJWT)({
+            phone: decoded.phone,
+            refreshJWT: token,
+        });
+        if (!user) {
+            return res.status(404).json({
+                status: "error",
+                message: "User not found or already signed out",
+            });
+        }
+        const updatedUser = yield (0, user_model_1.signOutUserByPhoneANDJWT)(decoded.phone, { refreshJWT: token });
+        if (updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id) {
+            return res.json({
+                status: "success",
+                message: "User signed out successfully",
+            });
+        }
+        return res.status(500).json({
+            status: "error",
+            message: "Error signing out user",
+        });
     }
     catch (error) {
         next(error);
@@ -229,7 +241,7 @@ const OTPRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 exports.OTPRequest = OTPRequest;
 const OTPVerification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email_phone, otp, password } = req.body;
+        const { email_phone, otp } = req.body;
         if (!email_phone)
             throw new Error("Email or Phone number required!");
         const user = yield (0, user_model_1.getUserByPhoneOrEmail)(email_phone);

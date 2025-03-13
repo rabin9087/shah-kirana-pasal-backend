@@ -13,11 +13,19 @@ type UserWithoutSensitiveData = Omit<IUser, 'password' | 'refreshJWT'>;
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // get access jwt key form the fornt end
-    // Authorization
+     // 1. Get access JWT token from the frontend
     const { authorization } = req.headers;
-    // decode the JWT which tell key is valid and expired or not
-    const decoded = verifyRefreshJWT(authorization as string);
+    if (!authorization) {
+      return res.status(401).json({
+        status: "error",
+        message: "Authorization token missing",
+      });
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    const decoded = verifyRefreshJWT(token as string);
     //decoded have three properties one of them being user phone expiry data
     // extrat phone and get get user by email
     if (decoded?.phone) {
@@ -53,15 +61,19 @@ export const newAdminSignUpAuth = async (
   next: NextFunction
 ) => {
   try {
-    // get access jwt key form the fornt end
+   // 1. Get access JWT token from the frontend
     const { authorization } = req.headers;
     if (!authorization) {
-      return res.json({
+      return res.status(401).json({
         status: "error",
-        message: "Unauthorized access",
+        message: "Authorization token missing",
       });
     }
-    const decoded = verifyAccessJWT(authorization as string);
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+    const decoded = verifyAccessJWT(token as string);
+
     if (!decoded?.phone) {
       return res.status(401).json({
         status: "error",
@@ -71,7 +83,7 @@ export const newAdminSignUpAuth = async (
     }
     const session = await findOneByFilterAndDelete({
       associate: decoded.phone!,
-      token: authorization!,
+      token: token!,
     });
 
     if (!session) {
@@ -82,6 +94,7 @@ export const newAdminSignUpAuth = async (
     }
     req.body.role = "ADMIN";
     return next();
+    
   } catch (error: CustomError | any) {
     if (error.message.includes("jwt expired")) {
       error.statusCode = 403;

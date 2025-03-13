@@ -16,7 +16,14 @@ const session_model_1 = require("../model/session/session.model");
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
-        const decoded = (0, jwt_1.verifyRefreshJWT)(authorization);
+        if (!authorization) {
+            return res.status(401).json({
+                status: "error",
+                message: "Authorization token missing",
+            });
+        }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyRefreshJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if (user === null || user === void 0 ? void 0 : user._id) {
@@ -47,12 +54,13 @@ const newAdminSignUpAuth = (req, res, next) => __awaiter(void 0, void 0, void 0,
     try {
         const { authorization } = req.headers;
         if (!authorization) {
-            return res.json({
+            return res.status(401).json({
                 status: "error",
-                message: "Unauthorized access",
+                message: "Authorization token missing",
             });
         }
-        const decoded = (0, jwt_1.verifyAccessJWT)(authorization);
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (!(decoded === null || decoded === void 0 ? void 0 : decoded.phone)) {
             return res.status(401).json({
                 status: "error",
@@ -62,7 +70,7 @@ const newAdminSignUpAuth = (req, res, next) => __awaiter(void 0, void 0, void 0,
         }
         const session = yield (0, session_model_1.findOneByFilterAndDelete)({
             associate: decoded.phone,
-            token: authorization,
+            token: token,
         });
         if (!session) {
             return res.status(401).send({
