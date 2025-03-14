@@ -6,7 +6,7 @@ const auth_1 = require("../middleware/auth");
 const awsUpload_1 = require("../utils/awsUpload");
 const router = (0, express_1.Router)();
 const updateUploadMiddleware = awsUpload_1.upload.fields([
-    { name: "profile", maxCount: 10 },
+    { name: "profile", maxCount: 1 },
 ]);
 router.post("/sign-up", user_controller_1.createNewUser);
 router.patch("/profile", updateUploadMiddleware, user_controller_1.updateUserProfile);

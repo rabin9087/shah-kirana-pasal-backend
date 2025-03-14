@@ -20,33 +20,29 @@ export const createNewProduct = async (
         req.body.thumbnail = files["thumbnail"][0].location
       }
     }
-
       req.body.slug = slugify(req.body.name, {
       replacement: '-', 
         lower: true,
       trim: true
     })
     const { sku, qrCodeNumber, slug } = req.body
-    // const parts = productLocation.split('.')
-    // // Define the prefixes
-    // const prefixes = ['A', 'B', 'S', 'L'];
-    // const formattedParts = parts.map((part: string, index:number) => {
-    // const paddedNumber = part.padStart(2, '0');
-    // return `${prefixes[index]}${paddedNumber}`;
-    // });
-    
-    // // Join the formatted parts with ' - ' separator
-    // req.body.productLocation = formattedParts.join('-');
 
-      const skuValue = await getAProductBySKU(sku)
+    const generateRandomSKU = () => {
+      return Math.floor(Math.random() * (9999999 - 100 + 1)) + 100; // Generates a number between 100 and 9999999
+    };
+
+  let newSku = sku;
+  let skuExists = await getAProductBySKU(newSku);
+
+// Check if SKU already exists and generate a new one if necessary
+    while (skuExists?._id) {
+      newSku = generateRandomSKU().toString();
+      skuExists = await getAProductBySKU(newSku);
+    }
       const qrCode  = await getAProductByQRCodeNumber(qrCodeNumber)
-      const slugValue  = await getAProductByQRCodeNumber(slug)
-      if(skuValue?._id)  {
-        return res.json({
-        status: "error",
-        message: "SKU name already exist! \n Write different sku name",
-        })
-      } else if (qrCode?._id) {
+    const slugValue = await getAProductByQRCodeNumber(slug)
+    
+     if (qrCode?._id) {
         return res.json({
         status: "error",
         message: "QRCode value already exist! \n Enter different QRCode value",
@@ -54,7 +50,7 @@ export const createNewProduct = async (
       } else if (slugValue?._id) {
         return res.json({
         status: "error",
-        message: "Slug value already exist! \n Enter different Slug value",
+        message: "Slug already exist! \n Enter different Slug value",
         })
       }
       else {

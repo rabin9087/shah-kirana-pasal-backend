@@ -20,9 +20,8 @@ import { upload } from "../utils/awsUpload";
 const router = Router();
 
 const updateUploadMiddleware = upload.fields([
-  { name: "profile", maxCount: 10 },
+  { name: "profile", maxCount: 1 },
 ]);
-
 
 router.post("/sign-up", createNewUser);
 router.patch("/profile", updateUploadMiddleware, updateUserProfile);

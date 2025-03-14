@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, fetchAProductBySKUController, getAllProductList, getAllProductListByCategory, updateAProductController, updateAProductStatusController, updateProductThumbnail } from "../controller/product.controller";
 import { upload } from "../utils/awsUpload";
-import multer from 'multer'
 import { getAllActiveProducts } from "../model/product/product.model";
 import { adminAccess } from "../middleware/auth";
 

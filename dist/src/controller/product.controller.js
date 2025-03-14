@@ -44,16 +44,18 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             trim: true
         });
         const { sku, qrCodeNumber, slug } = req.body;
-        const skuValue = yield (0, product_model_1.getAProductBySKU)(sku);
+        const generateRandomSKU = () => {
+            return Math.floor(Math.random() * (9999999 - 100 + 1)) + 100;
+        };
+        let newSku = sku;
+        let skuExists = yield (0, product_model_1.getAProductBySKU)(newSku);
+        while (skuExists === null || skuExists === void 0 ? void 0 : skuExists._id) {
+            newSku = generateRandomSKU().toString();
+            skuExists = yield (0, product_model_1.getAProductBySKU)(newSku);
+        }
         const qrCode = yield (0, product_model_1.getAProductByQRCodeNumber)(qrCodeNumber);
         const slugValue = yield (0, product_model_1.getAProductByQRCodeNumber)(slug);
-        if (skuValue === null || skuValue === void 0 ? void 0 : skuValue._id) {
-            return res.json({
-                status: "error",
-                message: "SKU name already exist! \n Write different sku name",
-            });
-        }
-        else if (qrCode === null || qrCode === void 0 ? void 0 : qrCode._id) {
+        if (qrCode === null || qrCode === void 0 ? void 0 : qrCode._id) {
             return res.json({
                 status: "error",
                 message: "QRCode value already exist! \n Enter different QRCode value",
@@ -62,7 +64,7 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         else if (slugValue === null || slugValue === void 0 ? void 0 : slugValue._id) {
             return res.json({
                 status: "error",
-                message: "Slug value already exist! \n Enter different Slug value",
+                message: "Slug already exist! \n Enter different Slug value",
             });
         }
         else {

@@ -38,15 +38,23 @@ export const createNewUser = async (
 
 export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
+
     if (req.files) {
       const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
       if (files["profile"]) {
         req.body.profile = files["profile"][0].location; // Save the image URL
       }
+    } else {
+      return res.status(400).json({ status: "error", message: "No file uploaded." });
     }
-
+    // Validate user phone before updating
+    if (!req.body.phone) {
+      return res.status(400).json({ status: "error", message: "Phone number is required." });
+    }
+    
     // Update the user profile
     const updatedUser = await UpdateUserByPhone(req.body.phone, { profile: req.body.profile });
+    
     if (updatedUser?._id) {
       res.json({
         status: "success",
@@ -63,6 +71,38 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
+
+
+// export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+
+//     let profileImageUrl = "";
+//         console.log("files: ",req.file)
+//     if (req.files) {
+//       const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+
+//       if (files["profile"] && files["profile"].length > 0) {
+//         profileImageUrl = files["profile"][0].location; // Get the uploaded image URL
+//       }
+//     }
+//     // Update the user profile
+//     const updatedUser = await UpdateUserByPhone(req.body.phone, { profile: profileImageUrl });
+//     if (updatedUser?._id) {
+//       res.json({
+//         status: "success",
+//         message: "Profile updated successfully!",
+//         data: updatedUser,
+//       });
+//     } else {
+//       res.status(400).json({
+//         status: "error",
+//         message: "Failed to update profile.",
+//       });
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const updateAUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {

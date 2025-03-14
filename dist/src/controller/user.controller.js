@@ -45,6 +45,12 @@ const updateUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 req.body.profile = files["profile"][0].location;
             }
         }
+        else {
+            return res.status(400).json({ status: "error", message: "No file uploaded." });
+        }
+        if (!req.body.phone) {
+            return res.status(400).json({ status: "error", message: "Phone number is required." });
+        }
         const updatedUser = yield (0, user_model_1.UpdateUserByPhone)(req.body.phone, { profile: req.body.profile });
         if (updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id) {
             res.json({
