@@ -72,38 +72,6 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
   }
 };
 
-
-// export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-
-//     let profileImageUrl = "";
-//         console.log("files: ",req.file)
-//     if (req.files) {
-//       const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
-
-//       if (files["profile"] && files["profile"].length > 0) {
-//         profileImageUrl = files["profile"][0].location; // Get the uploaded image URL
-//       }
-//     }
-//     // Update the user profile
-//     const updatedUser = await UpdateUserByPhone(req.body.phone, { profile: profileImageUrl });
-//     if (updatedUser?._id) {
-//       res.json({
-//         status: "success",
-//         message: "Profile updated successfully!",
-//         data: updatedUser,
-//       });
-//     } else {
-//       res.status(400).json({
-//         status: "error",
-//         message: "Failed to update profile.",
-//       });
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 export const updateAUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { phone } = req.params;

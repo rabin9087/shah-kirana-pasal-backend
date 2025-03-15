@@ -2,7 +2,7 @@ import { Router } from "express";
 import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, fetchAProductBySKUController, getAllProductList, getAllProductListByCategory, updateAProductController, updateAProductStatusController, updateProductThumbnail } from "../controller/product.controller";
 import { upload } from "../utils/awsUpload";
 import { getAllActiveProducts } from "../model/product/product.model";
-import { adminAccess } from "../middleware/auth";
+import { PickerAccess, adminAccess } from "../middleware/auth";
 
 const router = Router();
 
@@ -22,16 +22,16 @@ const uploadMiddlewareImageThumbnail = upload.fields([
   { name: "thumbnail", maxCount: 1 },
 ])
 
-router.post("/", uploadMiddleware, createNewProduct);
+router.post("/", adminAccess, uploadMiddleware,  createNewProduct);
 router.get("/sku_value/:sku", adminAccess, fetchAProductBySKUController);
-router.patch("/thumbnail/:_id", uploadMiddlewareImageThumbnail, updateProductThumbnail);
+router.patch("/thumbnail/:_id", adminAccess, uploadMiddlewareImageThumbnail, updateProductThumbnail);
 router.get("/q", fetchAProductByFilter);
 router.get("/q=:code", fetchAProductByQRCode);
 router.get("/:_id", fetchAProductByID);
 router.get("/category/:slug", getAllProductListByCategory);
 router.get("/", getAllProductList);
 router.get("/", getAllActiveProducts);
-router.delete("/:_id", deleteProductByID);
+router.delete("/:_id", adminAccess, deleteProductByID);
 router.put("/:_id", updateUploadMiddleware, updateAProductController);
-router.patch("/:_id", updateAProductStatusController);
+router.patch("/:_id", PickerAccess, updateAProductStatusController);
 export default router;

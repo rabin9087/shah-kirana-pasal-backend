@@ -25,7 +25,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     // Extract token from "Bearer <token>" format
     const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
 
-    const decoded = verifyRefreshJWT(token as string);
+    const decoded = verifyAccessJWT(token as string);
     //decoded have three properties one of them being user phone expiry data
     // extrat phone and get get user by email
     if (decoded?.phone) {

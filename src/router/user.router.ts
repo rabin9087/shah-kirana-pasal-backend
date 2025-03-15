@@ -24,9 +24,9 @@ const updateUploadMiddleware = upload.fields([
 ]);
 
 router.post("/sign-up", createNewUser);
-router.patch("/profile", updateUploadMiddleware, updateUserProfile);
-router.patch("/cart", updateUserCartController);
-router.patch("/cartHistory", updateUserCartHistoryController);
+router.patch("/profile", auth, updateUploadMiddleware, updateUserProfile);
+router.patch("/cart", auth, updateUserCartController);
+router.patch("/cartHistory", auth, updateUserCartHistoryController);
 router.post("/sign-up/admin", newAdminSignUpAuth, createNewUser);
 router.post("/login", loginUser);
 router.get("/logout", signOutUser);

@@ -23,7 +23,7 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
-        const decoded = (0, jwt_1.verifyRefreshJWT)(token);
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if (user === null || user === void 0 ? void 0 : user._id) {
