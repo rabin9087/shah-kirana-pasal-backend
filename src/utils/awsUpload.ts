@@ -34,13 +34,9 @@ export const upload = multer({
       }
     // Set correct content type
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+   limits: {}, // No file size limit
   fileFilter: function (req, file, cb) {
-    if (!file.mimetype.startsWith("image/")) {
-       cb(new Error("Only image uploads are allowed!"));
-    return;
-    }
-    cb(null, true); 
+    cb(null, true); // Allow all file types
   },
 });
 

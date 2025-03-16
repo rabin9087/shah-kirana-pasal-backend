@@ -170,8 +170,8 @@ export const loginUser = async (
       status: "success",
       message: `Welcome back ${user.fName} !`,
       tokens: {
-        accessJWT: await createAccessJWT(user.phone!),
-        refreshJWT: await createRefreshJWT(user.phone!),
+        accessJWT: await createAccessJWT((user.phone ? user.phone : user.email) as string),
+        refreshJWT: await createRefreshJWT((user.phone ? user.phone : user.email) as string),
       },
     });
   } catch (error) {
@@ -404,7 +404,6 @@ export const getAUserByPhoneController = async (
   }
 
 };
-
 
 export const sendLinkController = async (
   req: Request,

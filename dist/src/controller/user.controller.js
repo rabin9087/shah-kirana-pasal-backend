@@ -160,8 +160,8 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             status: "success",
             message: `Welcome back ${user.fName} !`,
             tokens: {
-                accessJWT: yield (0, jwt_1.createAccessJWT)(user.phone),
-                refreshJWT: yield (0, jwt_1.createRefreshJWT)(user.phone),
+                accessJWT: yield (0, jwt_1.createAccessJWT)((user.phone ? user.phone : user.email)),
+                refreshJWT: yield (0, jwt_1.createRefreshJWT)((user.phone ? user.phone : user.email)),
             },
         });
     }
