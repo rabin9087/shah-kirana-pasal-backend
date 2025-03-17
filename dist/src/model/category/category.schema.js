@@ -14,6 +14,9 @@ const categorySchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    alternativeName: {
+        type: String,
+    },
     description: {
         type: String,
         default: ""

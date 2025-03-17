@@ -17,7 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
     const URI = process.env.MONGO_URI;
     try {
-        yield mongoose_1.default.connect(URI);
+        const conn = yield mongoose_1.default.connect(URI);
     }
     catch (e) {
         throw new Error(e.message);

@@ -70,6 +70,7 @@ export type createUserParams = {
 export type createCategoryParams = {
     status?: string,
     name: string,
+    alternativeName?: string,
     description?: string,
 };
 

@@ -6,6 +6,7 @@ export interface ICategory extends Document {
     _id: string,
     status: IStatus,
     name: string,
+    alternativeName?: string,
     description?: string,
     slug: string,
     createdAt?: Date;
@@ -22,6 +23,9 @@ const categorySchema = new mongose.Schema<ICategory>(
         name: {
             type: String,
             required: true,
+        },
+         alternativeName: {
+            type: String,
         },
         description: {
             type: String,

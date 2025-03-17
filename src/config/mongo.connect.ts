@@ -4,7 +4,8 @@ export const connectMongo = async () => {
 
   const URI = process.env.MONGO_URI as string;
   try {
-     await mongoose.connect(URI);
+    const conn = await mongoose.connect(URI);
+    // console.log(conn)
   } catch (e: Error | any) {
     throw new Error(e.message);
   }
