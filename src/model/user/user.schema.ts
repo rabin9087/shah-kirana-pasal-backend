@@ -1,6 +1,7 @@
 import mongoose, { Document } from "mongoose";
 import { Role } from "../../../types";
 import product from "../product/product.schema"; 
+import { string } from "zod";
 
 export interface IUser extends Document {
   _id: string;
@@ -55,7 +56,9 @@ const CartHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  orderNumber: String
+  orderNumber: String,
+  paymentStatus: String,
+  deliveryStatus: String
 });
 
 

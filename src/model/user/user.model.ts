@@ -40,14 +40,16 @@ export const UpdateUserCartHistoryByPhone = (
   phone: string,
   data: { items: any[] },
   amount: number,
-  orderNumber: number
+  orderNumber: number,
+  paymentStatus: string,
+  deliveryStatus: string
 ) => {
   return userSchema.findOneAndUpdate(
     { phone },
     { 
       $push: { 
         cartHistory: { 
-          $each: [{ items: data.items, amount, purchasedAt: new Date() , orderNumber}], 
+          $each: [{ items: data.items, amount, purchasedAt: new Date() , orderNumber, paymentStatus, deliveryStatus}], 
           $position: 0 // Inserts at index 0
         } 
       } 

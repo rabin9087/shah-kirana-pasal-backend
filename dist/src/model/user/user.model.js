@@ -47,11 +47,11 @@ const signOutUserByPhoneANDJWT = (phone, data) => {
     return user_schema_1.default.findOneAndUpdate({ phone }, updateQuery, { new: true });
 };
 exports.signOutUserByPhoneANDJWT = signOutUserByPhoneANDJWT;
-const UpdateUserCartHistoryByPhone = (phone, data, amount, orderNumber) => {
+const UpdateUserCartHistoryByPhone = (phone, data, amount, orderNumber, paymentStatus, deliveryStatus) => {
     return user_schema_1.default.findOneAndUpdate({ phone }, {
         $push: {
             cartHistory: {
-                $each: [{ items: data.items, amount, purchasedAt: new Date(), orderNumber }],
+                $each: [{ items: data.items, amount, purchasedAt: new Date(), orderNumber, paymentStatus, deliveryStatus }],
                 $position: 0
             }
         }

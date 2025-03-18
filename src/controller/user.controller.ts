@@ -118,8 +118,8 @@ export const updateUserCartController = async (req: Request, res: Response, next
 
 export const updateUserCartHistoryController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {phone, cartHistory, amount, orderNumber} = req.body;
-    const updatedUserCartHistory = await UpdateUserCartHistoryByPhone(phone, cartHistory, amount, orderNumber );
+    const { phone, cartHistory, amount, orderNumber, paymentStatus, deliveryStatus } = req.body;
+    const updatedUserCartHistory = await UpdateUserCartHistoryByPhone(phone, cartHistory, amount, orderNumber, paymentStatus, deliveryStatus );
     if (updatedUserCartHistory?._id) {
       res.json({
         status: "success",

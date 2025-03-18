@@ -21,7 +21,9 @@ const CartHistorySchema = new mongoose_1.default.Schema({
         type: Date,
         default: Date.now,
     },
-    orderNumber: String
+    orderNumber: String,
+    paymentStatus: String,
+    deliveryStatus: String
 });
 const userSchema = new mongoose_1.default.Schema({
     status: {

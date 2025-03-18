@@ -119,8 +119,8 @@ const updateUserCartController = (req, res, next) => __awaiter(void 0, void 0, v
 exports.updateUserCartController = updateUserCartController;
 const updateUserCartHistoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { phone, cartHistory, amount, orderNumber } = req.body;
-        const updatedUserCartHistory = yield (0, user_model_1.UpdateUserCartHistoryByPhone)(phone, cartHistory, amount, orderNumber);
+        const { phone, cartHistory, amount, orderNumber, paymentStatus, deliveryStatus } = req.body;
+        const updatedUserCartHistory = yield (0, user_model_1.UpdateUserCartHistoryByPhone)(phone, cartHistory, amount, orderNumber, paymentStatus, deliveryStatus);
         if (updatedUserCartHistory === null || updatedUserCartHistory === void 0 ? void 0 : updatedUserCartHistory._id) {
             res.json({
                 status: "success",
