@@ -36,8 +36,6 @@ interface ImportMetaEnv {
   // Add other environment variables here...
 }
 
-
-
 declare global {
   namespace NodeJS {
     interface ProcessEnv extends z.infer<typeof envVariables> {
@@ -45,7 +43,6 @@ declare global {
     }
   }
 }
-
 
 export enum Role {
   ADMIN = "ADMIN",
@@ -81,6 +78,7 @@ export interface IReviews{
 
 export enum IStoredAt {
   AMBIENT = "AMBIENT",
+  BULK = "BULK",
   CHILLED = "CHILLED",
   "FRUTES AND VEG" = "FRUTES AND VEG"
 }

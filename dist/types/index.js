@@ -14,6 +14,7 @@ var IStatus;
 var IStoredAt;
 (function (IStoredAt) {
     IStoredAt["AMBIENT"] = "AMBIENT";
+    IStoredAt["BULK"] = "BULK";
     IStoredAt["CHILLED"] = "CHILLED";
     IStoredAt["FRUTES AND VEG"] = "FRUTES AND VEG";
 })(IStoredAt || (exports.IStoredAt = IStoredAt = {}));
