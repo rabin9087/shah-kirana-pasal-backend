@@ -29,7 +29,6 @@ const categorySchema = new mongose.Schema<ICategory>(
         },
         description: {
             type: String,
-            default: ""
         },
         slug: {
             type: String,

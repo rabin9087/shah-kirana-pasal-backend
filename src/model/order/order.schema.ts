@@ -6,6 +6,7 @@ export interface IItemTypes {
     productId: mongose.Types.ObjectId,
     quantity: number,
     price: number,
+    costPrice?: number,
     supplied: number,
     note?: string,
 }
@@ -64,13 +65,15 @@ const orderSchema = new mongose.Schema<IOrder>(
                     type: Number,
                     required: true,
                 },
+                costPrice: {
+                    type: Number,
+                },
                 supplied: {
                     type: Number,
                     default: 0,
                 },
                 note: {
                     type: String,
-                    
                 },
             },],
             required: true

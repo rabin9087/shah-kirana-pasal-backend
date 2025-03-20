@@ -42,8 +42,10 @@ export const getProductListBystatus = (status: string) => {
 
 
 export const getAProductBySKU = (sku: string) => {
-    return productSchema.findOne({sku})
-}
+    return productSchema.findOne({
+        $or: [{ sku }, { qrCodeNumber: sku }],
+    });
+};
 
 export const getAProductByFilter = (filter: object) => {
     return productSchema.findOne(filter)

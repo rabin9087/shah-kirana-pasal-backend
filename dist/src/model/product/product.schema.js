@@ -24,8 +24,6 @@ const productSchema = new mongoose_1.default.Schema({
     },
     description: {
         type: String,
-        required: true,
-        default: ""
     },
     parentCategoryID: {
         type: mongoose_1.default.Types.ObjectId,
@@ -38,6 +36,12 @@ const productSchema = new mongoose_1.default.Schema({
         type: String,
     },
     salesPrice: {
+        type: Number,
+    },
+    retailerPrice: {
+        type: Number,
+    },
+    costPrice: {
         type: Number,
     },
     salesEndDate: {

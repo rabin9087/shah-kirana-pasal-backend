@@ -49,7 +49,9 @@ const getProductListBystatus = (status) => {
 };
 exports.getProductListBystatus = getProductListBystatus;
 const getAProductBySKU = (sku) => {
-    return product_schema_1.default.findOne({ sku });
+    return product_schema_1.default.findOne({
+        $or: [{ sku }, { qrCodeNumber: sku }],
+    });
 };
 exports.getAProductBySKU = getAProductBySKU;
 const getAProductByFilter = (filter) => {

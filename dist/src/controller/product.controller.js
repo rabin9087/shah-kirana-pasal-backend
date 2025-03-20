@@ -128,11 +128,15 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
             .find(query)
             .sort({ [sortBy]: order })
             .skip((page - 1) * limit)
-            .limit(limit);
+            .limit(limit)
+            .lean();
         res.json({
             status: "success",
             message: "Products fetched successfully!",
-            products,
+            products: products.map((_a) => {
+                var { costPrice } = _a, rest = __rest(_a, ["costPrice"]);
+                return (rest);
+            }),
             pagination: {
                 total,
                 page,

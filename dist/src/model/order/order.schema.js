@@ -36,6 +36,9 @@ const orderSchema = new mongoose_1.default.Schema({
                     type: Number,
                     required: true,
                 },
+                costPrice: {
+                    type: Number,
+                },
                 supplied: {
                     type: Number,
                     default: 0,

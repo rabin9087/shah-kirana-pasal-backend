@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID, updateAProductStatusByID, updateAProductThumbnailByID } from "../model/product/product.model";
+import { createProduct, deleteAProductByID, getAllProducts, 
+  getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory,
+  updateAProduct, updateAProductByID, updateAProductStatusByID, updateAProductThumbnailByID
+} from "../model/product/product.model";
 import slugify from 'slugify'
 import { getACategoryBySlug } from "../model/category/category.model";
 import productSchema from "../model/product/product.schema";
@@ -65,7 +68,6 @@ export const createNewProduct = async (
             status: "error",
             message: "Error creating new product.",
           });}
-
     } catch (error) {
       next(error);
     }
@@ -129,12 +131,13 @@ export const getAllProductListByLimit = async (
       .find(query)
       .sort({ [sortBy]: order })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.json({
       status: "success",
       message: "Products fetched successfully!",
-      products,
+      products: products.map(({costPrice, ...rest}) => (rest)),
       pagination: {
         total,
         page,

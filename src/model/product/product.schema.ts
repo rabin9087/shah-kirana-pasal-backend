@@ -10,10 +10,12 @@ export interface IProduct extends Document {
     sku: string,
     slug: string,
     productWeight?: string,
-    description: string,
+    description?: string,
     images?: string,
     brand?: string,
     price: number,
+    retailerPrice?: number,
+    costPrice?: number,
     quantity: number,
     storedAt: IStoredAt,
     productLocation: string;
@@ -51,8 +53,6 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         description: {
             type: String,
-            required: true,
-            default: ""
         },
         parentCategoryID: {
             type: mongose.Types.ObjectId,
@@ -65,6 +65,12 @@ const productSchema = new mongose.Schema<IProduct>(
             type: String,
         },
         salesPrice: {
+            type: Number,
+        },
+         retailerPrice: {
+            type: Number,
+        },
+          costPrice: {
             type: Number,
         },
         salesEndDate: {

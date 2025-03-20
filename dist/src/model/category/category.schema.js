@@ -19,7 +19,6 @@ const categorySchema = new mongoose_1.default.Schema({
     },
     description: {
         type: String,
-        default: ""
     },
     slug: {
         type: String,
