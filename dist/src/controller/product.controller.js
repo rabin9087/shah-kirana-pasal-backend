@@ -23,10 +23,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.updateProductThumbnail = exports.createNewProduct = void 0;
+exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.getAllProductListByLimit = exports.updateProductThumbnail = exports.createNewProduct = void 0;
 const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
+const product_schema_1 = __importDefault(require("../model/product/product.schema"));
 const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (req.files) {
@@ -111,6 +112,40 @@ const updateProductThumbnail = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 exports.updateProductThumbnail = updateProductThumbnail;
+const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 30;
+        const search = req.query.search;
+        const sortBy = req.query.sortBy || "createdAt";
+        const order = req.query.order === "asc" ? -1 : 1;
+        const query = {};
+        if (search) {
+            query.name = { $regex: search, $options: "i" };
+        }
+        const total = yield product_schema_1.default.countDocuments(query);
+        const products = yield product_schema_1.default
+            .find(query)
+            .sort({ [sortBy]: order })
+            .skip((page - 1) * limit)
+            .limit(limit);
+        res.json({
+            status: "success",
+            message: "Products fetched successfully!",
+            products,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAllProductListByLimit = getAllProductListByLimit;
 const getAllProductList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield (0, product_model_1.getAllProducts)();

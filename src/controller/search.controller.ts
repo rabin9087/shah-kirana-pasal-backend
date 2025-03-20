@@ -23,7 +23,7 @@ export const searchNewItem = async (
          ? res.json({
             status: "success",
             message: "Here are all searched products",
-            result: products.map(({_id, name, alternateName, parentCategoryID}) => ({name, _id, alternateName, parentCategoryID}))
+            result: products.map(({_id, name, alternateName, parentCategoryID, qrCodeNumber}) => ({name, _id, alternateName, parentCategoryID, qrCodeNumber}))
           })
         : res.json({
             status: "success",

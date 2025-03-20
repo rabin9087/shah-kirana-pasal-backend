@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { createProduct, deleteAProductByID, getAllProducts, getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory, updateAProduct, updateAProductByID, updateAProductStatusByID, updateAProductThumbnailByID } from "../model/product/product.model";
 import slugify from 'slugify'
 import { getACategoryBySlug } from "../model/category/category.model";
+import productSchema from "../model/product/product.schema";
 
 export const createNewProduct = async (
     req: Request,
@@ -106,6 +107,47 @@ try {
 
 }
 
+export const getAllProductListByLimit = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 30;
+    const search = req.query.search as string;
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const order = req.query.order === "asc" ? -1 : 1;
+
+    const query: any = {};
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+    }
+
+    const total = await productSchema.countDocuments(query);
+    const products = await productSchema
+      .find(query)
+      .sort({ [sortBy]: order })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({
+      status: "success",
+      message: "Products fetched successfully!",
+      products,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
   export const getAllProductList = async (
     req: Request,
     res: Response,
@@ -161,7 +203,6 @@ try {
       next(error);
     }
   };
-
 
   export const fetchAProductByID = async (
     req: Request,
