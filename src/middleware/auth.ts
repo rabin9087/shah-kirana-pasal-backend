@@ -55,6 +55,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+
 export const newAdminSignUpAuth = async (
   req: Request,
   res: Response,
@@ -128,7 +129,103 @@ export const adminAccess = async (req: Request, res: Response, next: NextFunctio
     if (decoded?.phone) {
       // 3. Check if the user exists by phone number and verify role
       const user = await getUserByPhoneOrEmail(decoded.phone);
-      if (user?.role === "ADMIN") {
+      if (user?.role === "ADMIN" || user?.role === "SUPERADMIN") {
+        const users = await getAllUser();
+        
+        // Transform the users to remove sensitive information (password and refreshJWT)
+        req.userInfo = users as IUser[];
+        
+        return next();
+      }
+    }
+
+    // If not an admin, unauthorized access
+    res.status(403).json({
+      status: "error",
+      message: "Forbidden: Only admin can access this resource.",
+    });
+  } catch (error: any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login again.";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = "Invalid token signature.";
+    }
+    next(error);
+  }
+};
+
+export const superAdminAccess = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // 1. Get access JWT token from the frontend
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(401).json({
+        status: "error",
+        message: "Authorization token missing",
+      });
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Decode the JWT to verify if it's valid and not expired
+    const decoded = verifyAccessJWT(token);
+    
+    if (decoded?.phone) {
+      // 3. Check if the user exists by phone number and verify role
+      const user = await getUserByPhoneOrEmail(decoded.phone);
+      if (user?.role === "SUPERADMIN") {
+        const users = await getAllUser();
+        
+        // Transform the users to remove sensitive information (password and refreshJWT)
+        req.userInfo = users as IUser[];
+        
+        return next();
+      }
+    }
+
+    // If not an admin, unauthorized access
+    res.status(403).json({
+      status: "error",
+      message: "Forbidden: Only admin can access this resource.",
+    });
+  } catch (error: any) {
+    if (error.message.includes("jwt expired")) {
+      error.statusCode = 403;
+      error.message = "Your token has expired. Please login again.";
+    }
+    if (error.message.includes("invalid signature")) {
+      error.statusCode = 401;
+      error.message = "Invalid token signature.";
+    }
+    next(error);
+  }
+};
+
+export const storeSalerAccess = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // 1. Get access JWT token from the frontend
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(401).json({
+        status: "error",
+        message: "Authorization token missing",
+      });
+    }
+
+    // Extract token from "Bearer <token>" format
+    const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+
+    // 2. Decode the JWT to verify if it's valid and not expired
+    const decoded = verifyAccessJWT(token);
+    
+    if (decoded?.phone) {
+      // 3. Check if the user exists by phone number and verify role
+      const user = await getUserByPhoneOrEmail(decoded.phone);
+      if (user?.role === "ADMIN" || user?.role === "STOREUSER" || user?.role === "SUPERADMIN") {
         const users = await getAllUser();
         
         // Transform the users to remove sensitive information (password and refreshJWT)
@@ -177,7 +274,7 @@ export const PickerAccess = async (req: Request, res: Response, next: NextFuncti
     if (decoded?.phone) {
       // 3. Check if the user exists by phone number and verify role
       const user = await getUserByPhoneOrEmail(decoded.phone);
-      if (user?.role === "ADMIN" || user?.role === "PICKER") {
+      if (user?.role === "ADMIN" || user?.role === "PICKER" || user?.role === "SUPERADMIN") {
         const users = await getAllUser();
 
         // Transform the users to remove sensitive information (password and refreshJWT)

@@ -5,7 +5,7 @@ import { string } from "zod";
 
 export interface IUser extends Document {
   _id: string;
-  role: 'ADMIN'| 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'PICKER';
+  role: 'ADMIN'| 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'PICKER' | "STOREUSER";
   status: string;
   fName: string;
   lName: string;

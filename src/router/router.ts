@@ -6,6 +6,7 @@ import paymentRouter from '../router/payment.router'
 import orderRouter from '../router/order.router'
 import searchRouter from '../router/search.router'
 import salesRouter from '../router/sales.router'
+import storeSale from '../router/storeSale.router'
 const router = express.Router()
 
 router.use("/user", userRouter)
@@ -15,4 +16,5 @@ router.use("/order", orderRouter)
 router.use("/payment", paymentRouter)
 router.use("/search", searchRouter)
 router.use("/sales", salesRouter)
+router.use("/storeSale", storeSale)
 export default router

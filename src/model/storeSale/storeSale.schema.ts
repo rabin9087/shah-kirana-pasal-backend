@@ -1,63 +1,52 @@
-import mongose, { Document } from 'mongoose'
 import mongoose from 'mongoose';
+import mongose, { Document } from 'mongoose'
 
-export interface IItemTypes {
+export interface IStoreSaleItemTypes {
     productId: mongose.Types.ObjectId,
-    quantity: number,
     price: number,
     costPrice?: number,
-    supplied: number,
-    note?: string,
+    orderQuantity: number,
 }
 
-export interface IOrder extends Document {
-    name: string,
+
+export interface IStoreSale extends Document {
+    name?: string,
     address?: string,
-    phone: string,
-    email: string,
-    items: IItemTypes[];
+    phone?: string,
+    email?: string,
+    items: IStoreSaleItemTypes[];
     orderNumber: number,
-    deliveryStatus: string,
-    deliveryDate?: {
-                    date: string,
-                    time: string
-    },
-    requestDeliveryDate?: string,
-    paymentType: string,
+    paymentMethod: string,
     paymentStatus: string,
     amount: number,
     createdAt: Date,
     updatedAt: Date,
-    orderType: string,
-    picker?: {userId: mongose.Types.ObjectId, name: string},
+    saler: {userId: mongose.Types.ObjectId, name: string},
 }
 
-const orderSchema = new mongose.Schema<IOrder>(
+const storeSaleSchema = new mongose.Schema<IStoreSale>(
     {
         name: {
             type: String,
-            required: true
+           index: 1,
         },
         address: {
             type: String,
         },
         phone: {
             type: String,
-            required: true
+             index: 1,
+          
         },
         email: {
             type: String,
-            required: true
+           index: 1,
         },
         items: {
             type: [{
                 productId: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'product',
-                    required: true,
-                },
-                quantity: {
-                    type: Number,
                     required: true,
                 },
                 price: {
@@ -67,12 +56,9 @@ const orderSchema = new mongose.Schema<IOrder>(
                 costPrice: {
                     type: Number,
                 },
-                supplied: {
+                orderQuantity: {
                     type: Number,
                     default: 0,
-                },
-                note: {
-                    type: String,
                 },
             },],
             required: true
@@ -83,29 +69,8 @@ const orderSchema = new mongose.Schema<IOrder>(
             unique: true,
             index: 1,
         },
-         deliveryStatus: {
-            type: String,
-            required: true
-        },
-        deliveryDate: {
-                    date: {
-            type: String,
-            
-        },
-                    time: {
-            type: String,
-            
-        }
-        },
-        requestDeliveryDate: {
-            type: String,
-            index: true
-        },
-        orderType: {
-            type: String,
-            required: true
-        },
-        paymentType: {
+
+        paymentMethod: {
             type: String,
             required: true
         },
@@ -117,9 +82,10 @@ const orderSchema = new mongose.Schema<IOrder>(
             type: Number,
             required: true
         },
-        picker: {
+        saler: {
             userId: {
-                type: String,
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'user',
                 default: ""
             },
             name: {
@@ -130,4 +96,4 @@ const orderSchema = new mongose.Schema<IOrder>(
      { timestamps: true })
 
 
-export default mongose.model<IOrder>("order", orderSchema)
+export default mongose.model<IStoreSale>("storeSale", storeSaleSchema)

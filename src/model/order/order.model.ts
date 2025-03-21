@@ -6,7 +6,6 @@ export const createOrder = (OrderObj: IOrder) => {
     return new orderSchema(OrderObj).save()
 }
 
-
 export const getAllOrders = () => {
     return orderSchema.find().populate('items.productId');
 };

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshAuth = exports.PickerAccess = exports.adminAccess = exports.newAdminSignUpAuth = exports.auth = void 0;
+exports.refreshAuth = exports.PickerAccess = exports.storeSalerAccess = exports.superAdminAccess = exports.adminAccess = exports.newAdminSignUpAuth = exports.auth = void 0;
 const jwt_1 = require("../utils/jwt");
 const user_model_1 = require("../model/user/user.model");
 const session_model_1 = require("../model/session/session.model");
@@ -107,7 +107,7 @@ const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
-            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN") {
+            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "SUPERADMIN") {
                 const users = yield (0, user_model_1.getAllUser)();
                 req.userInfo = users;
                 return next();
@@ -131,6 +131,80 @@ const adminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.adminAccess = adminAccess;
+const superAdminAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { authorization } = req.headers;
+        if (!authorization) {
+            return res.status(401).json({
+                status: "error",
+                message: "Authorization token missing",
+            });
+        }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
+        if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
+            const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
+            if ((user === null || user === void 0 ? void 0 : user.role) === "SUPERADMIN") {
+                const users = yield (0, user_model_1.getAllUser)();
+                req.userInfo = users;
+                return next();
+            }
+        }
+        res.status(403).json({
+            status: "error",
+            message: "Forbidden: Only admin can access this resource.",
+        });
+    }
+    catch (error) {
+        if (error.message.includes("jwt expired")) {
+            error.statusCode = 403;
+            error.message = "Your token has expired. Please login again.";
+        }
+        if (error.message.includes("invalid signature")) {
+            error.statusCode = 401;
+            error.message = "Invalid token signature.";
+        }
+        next(error);
+    }
+});
+exports.superAdminAccess = superAdminAccess;
+const storeSalerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { authorization } = req.headers;
+        if (!authorization) {
+            return res.status(401).json({
+                status: "error",
+                message: "Authorization token missing",
+            });
+        }
+        const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const decoded = (0, jwt_1.verifyAccessJWT)(token);
+        if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
+            const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
+            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "STOREUSER" || (user === null || user === void 0 ? void 0 : user.role) === "SUPERADMIN") {
+                const users = yield (0, user_model_1.getAllUser)();
+                req.userInfo = users;
+                return next();
+            }
+        }
+        res.status(403).json({
+            status: "error",
+            message: "Forbidden: Only admin can access this resource.",
+        });
+    }
+    catch (error) {
+        if (error.message.includes("jwt expired")) {
+            error.statusCode = 403;
+            error.message = "Your token has expired. Please login again.";
+        }
+        if (error.message.includes("invalid signature")) {
+            error.statusCode = 401;
+            error.message = "Invalid token signature.";
+        }
+        next(error);
+    }
+});
+exports.storeSalerAccess = storeSalerAccess;
 const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
@@ -144,7 +218,7 @@ const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const decoded = (0, jwt_1.verifyAccessJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
-            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "PICKER") {
+            if ((user === null || user === void 0 ? void 0 : user.role) === "ADMIN" || (user === null || user === void 0 ? void 0 : user.role) === "PICKER" || (user === null || user === void 0 ? void 0 : user.role) === "SUPERADMIN") {
                 const users = yield (0, user_model_1.getAllUser)();
                 req.userInfo = users;
                 return next();

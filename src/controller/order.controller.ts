@@ -1,6 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
 import { randomOTPGenerator } from "../utils/randomGenerator";
+import { IItemTypes } from "../model/order/order.schema";
+import productSchema from "../model/product/product.schema";
+
+export const addCostPriceToItems = async (items: IItemTypes[]) => {
+  const updatedItems = await Promise.all(
+    items.map(async (item) => {
+      const product = await productSchema.findById(item.productId).lean();
+      return {
+        ...item,
+        costPrice: product?.costPrice ?? null,
+      };
+    })
+  );
+  return updatedItems;
+};
 
 export const createNewOrder = async (
   req: Request,
@@ -18,6 +33,7 @@ export const createNewOrder = async (
         isUnique = true;
       }
     }
+     req.body.items = await addCostPriceToItems(req.body.items);
     // Create the order with the unique orderNumber
     const order = await createOrder({ orderNumber, ...req.body });
 
