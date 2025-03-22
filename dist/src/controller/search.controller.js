@@ -9,15 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchNewItem = void 0;
+exports.searchUser = exports.searchProductItem = void 0;
 const search_model_1 = require("../model/search/search.model");
-const searchNewItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const searchProductItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { searchTerm } = req.query;
         if (!searchTerm) {
             return res.status(400).json({ message: "Search term is required" });
         }
-        const products = yield (0, search_model_1.getSearchResults)(searchTerm);
+        const products = yield (0, search_model_1.getSearchProductResults)(searchTerm);
         (products === null || products === void 0 ? void 0 : products.length)
             ? res.json({
                 status: "success",
@@ -34,4 +34,28 @@ const searchNewItem = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next();
     }
 });
-exports.searchNewItem = searchNewItem;
+exports.searchProductItem = searchProductItem;
+const searchUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { searchTerm } = req.query;
+        if (!searchTerm) {
+            return res.status(400).json({ message: "Search term is required" });
+        }
+        const users = yield (0, search_model_1.getSearchUserResults)(searchTerm);
+        (users === null || users === void 0 ? void 0 : users.length)
+            ? res.json({
+                status: "success",
+                message: "Here are all searched products",
+                result: users.map(({ _id, fName, lName, email, phone }) => ({ _id, fName, lName, email, phone }))
+            })
+            : res.json({
+                status: "success",
+                message: "Product not found.",
+                result: []
+            });
+    }
+    catch (error) {
+        next();
+    }
+});
+exports.searchUser = searchUser;

@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { searchNewItem } from "../controller/search.controller";
+import { searchProductItem, searchUser } from "../controller/search.controller";
 
 const router = Router();
 
-router.get("/products", searchNewItem)
+router.get("/products", searchProductItem)
+router.get("/user", searchUser)
 // router.post(`=?}`, );
 
 export default router;
