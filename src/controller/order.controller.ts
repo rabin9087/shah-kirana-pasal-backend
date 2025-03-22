@@ -7,7 +7,7 @@ import productSchema from "../model/product/product.schema";
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
   const updatedItems = await Promise.all(
     items.map(async (item) => {
-      const product = await productSchema.findById(item.productId).lean();
+      const product = await productSchema.findById(item.productId);
       return {
         ...item,
         costPrice: product?.costPrice ?? null,
@@ -33,7 +33,7 @@ export const createNewOrder = async (
         isUnique = true;
       }
     }
-     req.body.items = await addCostPriceToItems(req.body.items);
+    req.body.items = await addCostPriceToItems(req.body.items);
     // Create the order with the unique orderNumber
     const order = await createOrder({ orderNumber, ...req.body });
 

@@ -19,7 +19,7 @@ const product_schema_1 = __importDefault(require("../model/product/product.schem
 const addCostPriceToItems = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedItems = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        const product = yield product_schema_1.default.findById(item.productId).lean();
+        const product = yield product_schema_1.default.findById(item.productId);
         return Object.assign(Object.assign({}, item), { costPrice: (_a = product === null || product === void 0 ? void 0 : product.costPrice) !== null && _a !== void 0 ? _a : null });
     })));
     return updatedItems;
