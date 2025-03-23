@@ -28,6 +28,8 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
             const user = yield (0, user_model_1.getUserByPhoneOrEmail)(decoded.phone);
             if (user === null || user === void 0 ? void 0 : user._id) {
                 user.password = undefined;
+                user.refreshJWT = undefined;
+                user.verificationCode = undefined;
                 req.userInfo = user;
                 return next();
             }
@@ -257,6 +259,8 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     const user = yield (0, user_model_1.getUserByPhoneOrEmail)(accessDecoded.phone);
                     if (user === null || user === void 0 ? void 0 : user._id) {
                         user.password = undefined;
+                        user.verificationCode = undefined;
+                        user.refreshJWT = undefined;
                         return res.json({
                             status: "success",
                             message: "Authorized",

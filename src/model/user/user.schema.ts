@@ -13,8 +13,8 @@ export interface IUser extends Document {
   email?: string;
   password: string | undefined;
   isVerified: boolean;
-  verificationCode: string | null;
-  refreshJWT: string[] | [];
+  verificationCode: string | null | undefined;
+  refreshJWT: string[] | [] | null | undefined ;
   address?: string;
   profile: string | null;
   cart: IAddToCartTypes[]; // Current active cart

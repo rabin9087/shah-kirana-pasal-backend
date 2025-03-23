@@ -120,6 +120,9 @@ exports.getAOrderByFilterController = getAOrderByFilterController;
 const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { _id } = req.params;
+        if (req.body.items) {
+            req.body.items = yield (0, exports.addCostPriceToItems)(req.body.items);
+        }
         const order = yield (0, order_model_1.updateAOrder)(_id, req.body);
         order.matchedCount > 0
             ? res.json({

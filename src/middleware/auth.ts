@@ -34,6 +34,8 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       if (user?._id) {
         // user.refreshJWT = undefined;
         user.password = undefined;
+        user.refreshJWT = undefined;
+        user.verificationCode = undefined;
         req.userInfo = user as IUser;
         return next();
       }
@@ -324,6 +326,8 @@ export const refreshAuth = async (req: Request, res: Response, next: NextFunctio
 
           if (user?._id) {
             user.password = undefined; // Remove password from response
+            user.verificationCode = undefined; // Remove password from response
+            user.refreshJWT = undefined; // Remove password from response
             return res.json({
               status: "success",
               message: "Authorized",

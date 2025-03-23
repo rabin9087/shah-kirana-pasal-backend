@@ -133,6 +133,9 @@ export const updateAOrderController = async (
   try {
     const { _id } = req.params;
     // const orderNumber = randomOTPGenerator()
+    if (req.body.items) {
+      req.body.items = await addCostPriceToItems(req.body.items);
+    }
     const order = await updateAOrder(_id as string, req.body);
     order.matchedCount > 0
       ? res.json({
