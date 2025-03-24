@@ -11,8 +11,14 @@ export const getAllProducts = () => {
     return productSchema.find()
 }
 
-export const getAllActiveProducts = () => {
-    return productSchema.find({status: "ACTIVE"})
+export const getAllActiveProducts = async() => {
+     try {
+        const activeProducts = await productSchema.find({ status: "ACTIVE" });
+        return activeProducts;
+    } catch (error) {
+        console.error("Error fetching active products:", error);
+        return [];
+    }
 }
 
 
