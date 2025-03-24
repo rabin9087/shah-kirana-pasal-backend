@@ -358,7 +358,8 @@ const deleteProductByID = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.deleteProductByID = deleteProductByID;
 const updateProductByID = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const _a = req.body, { _id } = _a, rest = __rest(_a, ["_id"]);
+        const { _id } = req.params;
+        const rest = __rest(req.body, []);
         const product = yield (0, product_model_1.updateAProduct)(_id, Object.assign({}, rest));
         (product === null || product === void 0 ? void 0 : product.matchedCount)
             ? res.json({

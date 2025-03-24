@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, fetchAProductBySKUController, getAllProductList, getAllProductListByCategory, getAllProductListByLimit, updateAProductController, updateAProductStatusController, updateProductThumbnail } from "../controller/product.controller";
+import { createNewProduct, deleteProductByID, fetchAProductByFilter, fetchAProductByID, fetchAProductByQRCode, fetchAProductBySKUController, getAllProductList, getAllProductListByCategory, getAllProductListByLimit, updateAProductController, updateAProductStatusController, updateProductByID, updateProductThumbnail } from "../controller/product.controller";
 import { upload } from "../utils/awsUpload";
 import { getAllActiveProducts } from "../model/product/product.model";
 import { PickerAccess, adminAccess } from "../middleware/auth";
@@ -21,11 +21,13 @@ const updateUploadMiddleware = upload.fields([
 const uploadMiddlewareImageThumbnail = upload.fields([
   { name: "thumbnail", maxCount: 1 },
 ])
+updateProductByID
 
 router.post("/", adminAccess, uploadMiddleware, createNewProduct);
 router.get("/limitProduct", getAllProductListByLimit);
 router.get("/sku_value/:sku", adminAccess, fetchAProductBySKUController);
 router.patch("/thumbnail/:_id", adminAccess, uploadMiddlewareImageThumbnail, updateProductThumbnail);
+router.patch("/update/:_id", adminAccess, updateProductByID);
 router.get("/q", fetchAProductByFilter);
 router.get("/q=:code", fetchAProductByQRCode);
 router.get("/:_id", fetchAProductByID);

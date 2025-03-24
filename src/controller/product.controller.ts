@@ -403,7 +403,8 @@ export const getAllProductListByLimit = async (
     next: NextFunction
   ) => {
     try {
-      const {_id, ...rest} = req.body
+      const { _id } = req.params
+      const { ...rest} = req.body
       const product = await updateAProduct(_id, {...rest})
    
         product?.matchedCount
