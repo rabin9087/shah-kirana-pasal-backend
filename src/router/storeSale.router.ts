@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { getAllSalesController, getSaleAmountController } from "../controller/sales.controller";
-import { adminAccess, storeSalerAccess } from "../middleware/auth";
+import { getAllSalesController, getDailySalesController, getSaleAmountController } from "../controller/sales.controller";
+import { adminAccess, storeSalerAccess, superAdminAccess } from "../middleware/auth";
 import { createNewStoreSaleOrder } from "../controller/storeSale.controller";
 
 const router = Router();
 
 router.post("/new-storeSale", storeSalerAccess, createNewStoreSaleOrder);
 router.get("/", adminAccess, getSaleAmountController)
-router.get("/allSales", adminAccess, getAllSalesController)
+router.get("/allStoreSales", superAdminAccess, getAllSalesController)
+router.get("/dailyStoreSales", storeSalerAccess, getDailySalesController)
 
 export default router;

@@ -137,7 +137,8 @@ export const getAllProductListByLimit = async (
     res.json({
       status: "success",
       message: "Products fetched successfully!",
-      products: products.map(({costPrice, ...rest}) => (rest)),
+      products: products.map(({ costPrice, ...rest }) => (rest))
+        .filter((item) => item.status === "ACTIVE"),
       pagination: {
         total,
         page,
@@ -189,7 +190,7 @@ export const getAllProductListByLimit = async (
          ? res.json({
             status: "success",
             message: "Here is list of all products!",
-            products
+            products: products.filter((item) => item.status === "ACTIVE")
           })
         : res.json({
             status: "error",

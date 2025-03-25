@@ -7,5 +7,6 @@ const storeSale_controller_1 = require("../controller/storeSale.controller");
 const router = (0, express_1.Router)();
 router.post("/new-storeSale", auth_1.storeSalerAccess, storeSale_controller_1.createNewStoreSaleOrder);
 router.get("/", auth_1.adminAccess, sales_controller_1.getSaleAmountController);
-router.get("/allSales", auth_1.adminAccess, sales_controller_1.getAllSalesController);
+router.get("/allStoreSales", auth_1.superAdminAccess, sales_controller_1.getAllSalesController);
+router.get("/dailyStoreSales", auth_1.storeSalerAccess, sales_controller_1.getDailySalesController);
 exports.default = router;

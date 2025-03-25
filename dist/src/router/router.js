@@ -20,5 +20,5 @@ router.use("/order", order_router_1.default);
 router.use("/payment", payment_router_1.default);
 router.use("/search", search_router_1.default);
 router.use("/sales", sales_router_1.default);
-router.use("/storeSale", storeSale_router_1.default);
+router.use("/storeSales", storeSale_router_1.default);
 exports.default = router;

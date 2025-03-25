@@ -37,12 +37,12 @@ const createNewStoreSaleOrder = (req, res, next) => __awaiter(void 0, void 0, vo
             }
         }
         req.body.items = yield (0, exports.addCostPriceToItems)(req.body.items);
-        const storeSale = yield (0, storeSale_model_1.createStoreSaleOrder)(Object.assign({ orderNumber }, req.body));
-        if (storeSale === null || storeSale === void 0 ? void 0 : storeSale._id) {
+        const storeSales = yield (0, storeSale_model_1.createStoreSaleOrder)(Object.assign({ orderNumber }, req.body));
+        if (storeSales === null || storeSales === void 0 ? void 0 : storeSales._id) {
             res.json({
                 status: 'success',
                 message: 'New order has been created successfully!',
-                storeSale,
+                storeSales,
             });
         }
         else {

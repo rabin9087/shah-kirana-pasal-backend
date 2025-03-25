@@ -10,7 +10,7 @@ const getSearchProductResults = (searchTerm) => {
     return product_schema_1.default.find({
         $or: [
             { name: { $regex: searchTerm, $options: "i" } },
-            { alternateName: { $regex: searchTerm, $options: "i" } }
+            { alternateName: { $regex: searchTerm, $options: "i" } },
         ]
     });
 };

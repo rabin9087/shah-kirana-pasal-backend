@@ -136,7 +136,8 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
             products: products.map((_a) => {
                 var { costPrice } = _a, rest = __rest(_a, ["costPrice"]);
                 return (rest);
-            }),
+            })
+                .filter((item) => item.status === "ACTIVE"),
             pagination: {
                 total,
                 page,
@@ -179,7 +180,7 @@ const getAllProductListByCategory = (req, res, next) => __awaiter(void 0, void 0
                 ? res.json({
                     status: "success",
                     message: "Here is list of all products!",
-                    products
+                    products: products.filter((item) => item.status === "ACTIVE")
                 })
                 : res.json({
                     status: "error",

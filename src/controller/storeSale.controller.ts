@@ -36,13 +36,13 @@ export const createNewStoreSaleOrder = async (
     }
      req.body.items = await addCostPriceToItems(req.body.items);
     // Create the order with the unique orderNumber
-    const storeSale = await createStoreSaleOrder({ orderNumber, ...req.body });
+    const storeSales = await createStoreSaleOrder({ orderNumber, ...req.body });
 
-    if (storeSale?._id) {
+    if (storeSales?._id) {
       res.json({
         status: 'success',
         message: 'New order has been created successfully!',
-        storeSale,
+        storeSales,
       });
     } else {
       res.json({

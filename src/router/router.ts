@@ -16,5 +16,5 @@ router.use("/order", orderRouter)
 router.use("/payment", paymentRouter)
 router.use("/search", searchRouter)
 router.use("/sales", salesRouter)
-router.use("/storeSale", storeSale)
+router.use("/storeSales", storeSale)
 export default router
