@@ -26,6 +26,7 @@ export interface IProduct extends Document {
     salesStartDate?: Date,
     salesEndDate?: Date,
     productReviews?: Array<IReviews>,
+    expireDate?: string,
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -106,6 +107,10 @@ const productSchema = new mongose.Schema<IProduct>(
             type: Number,
             required: true,
         },
+          expireDate: {
+            type: String,
+            default: ""
+        },
         quantity: {
             type: Number,
             required: true,
@@ -121,7 +126,8 @@ const productSchema = new mongose.Schema<IProduct>(
         productLocation: {
             type: String,
             required: true
-        }
+        },
+      
     },
      { timestamps: true })
 

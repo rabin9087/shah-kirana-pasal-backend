@@ -77,6 +77,10 @@ const productSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true,
     },
+    expireDate: {
+        type: String,
+        default: ""
+    },
     quantity: {
         type: Number,
         required: true,
@@ -92,6 +96,6 @@ const productSchema = new mongoose_1.default.Schema({
     productLocation: {
         type: String,
         required: true
-    }
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("product", productSchema);

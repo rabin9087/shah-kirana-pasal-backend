@@ -17,7 +17,6 @@ const updateUploadMiddleware = awsUpload_1.upload.fields([
 const uploadMiddlewareImageThumbnail = awsUpload_1.upload.fields([
     { name: "thumbnail", maxCount: 1 },
 ]);
-product_controller_1.updateProductByID;
 router.post("/", auth_1.adminAccess, uploadMiddleware, product_controller_1.createNewProduct);
 router.get("/limitProduct", product_controller_1.getAllProductListByLimit);
 router.get("/sku_value/:sku", auth_1.adminAccess, product_controller_1.fetchAProductBySKUController);

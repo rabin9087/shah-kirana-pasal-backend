@@ -28,14 +28,14 @@ app.use(cors());
 app.use(morgan("short"));
 app.use(express.json());
 app.use(limiter);
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-    },
-  })
-);
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+//     },
+//   })
+// );
 
 app.get("/", (req: Request, res: Response) => {
   res.json({

@@ -6,7 +6,6 @@ import { PickerAccess, adminAccess } from "../middleware/auth";
 
 const router = Router();
 
-
 // Multer middleware for handling uploads
 const uploadMiddleware = upload.fields([
   { name: "images", maxCount: 10 },
@@ -21,7 +20,6 @@ const updateUploadMiddleware = upload.fields([
 const uploadMiddlewareImageThumbnail = upload.fields([
   { name: "thumbnail", maxCount: 1 },
 ])
-updateProductByID
 
 router.post("/", adminAccess, uploadMiddleware, createNewProduct);
 router.get("/limitProduct", getAllProductListByLimit);

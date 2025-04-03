@@ -73,7 +73,6 @@ export const createNewProduct = async (
     }
 };
   
-
 export const updateProductThumbnail = async (
   req: Request,
   res: Response,
