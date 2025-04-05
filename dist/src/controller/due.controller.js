@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserDueController = exports.createNewDueController = void 0;
+exports.updateUserDueController = exports.getUserDueController = exports.createNewDueController = void 0;
 const due_model_1 = require("../model/due/due.model");
 const createNewDueController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -50,3 +50,23 @@ const getUserDueController = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 exports.getUserDueController = getUserDueController;
+const updateUserDueController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const dues = yield (0, due_model_1.getDuesByUser)(userId);
+        (dues === null || dues === void 0 ? void 0 : dues.length)
+            ? res.json({
+                status: "success",
+                message: "Here are the dues for the user.",
+                dues
+            })
+            : res.json({
+                status: "error",
+                message: "Error fetching user's due.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateUserDueController = updateUserDueController;

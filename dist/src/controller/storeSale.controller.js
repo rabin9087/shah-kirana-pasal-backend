@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createNewStoreSaleOrder = exports.addCostPriceToItems = void 0;
+exports.getDailySalesController = exports.createNewStoreSaleOrder = exports.addCostPriceToItems = void 0;
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
 const randomGenerator_1 = require("../utils/randomGenerator");
 const storeSale_model_1 = require("../model/storeSale/storeSale.model");
@@ -57,3 +57,22 @@ const createNewStoreSaleOrder = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 exports.createNewStoreSaleOrder = createNewStoreSaleOrder;
+const getDailySalesController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const storeSales = yield (0, storeSale_model_1.getDailyStoreSale)();
+        storeSales.length
+            ? res.json({
+                status: "success",
+                message: "All Orders",
+                storeSales,
+            })
+            : res.json({
+                status: "error",
+                message: "Error getting total sales",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getDailySalesController = getDailySalesController;

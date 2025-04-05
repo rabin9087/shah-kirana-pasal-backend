@@ -21,6 +21,7 @@ export interface IStoreSale extends Document {
     amount: number,
     createdAt: Date,
     updatedAt: Date,
+    customerCash?: number;
     saler: {userId: mongose.Types.ObjectId, name: string},
 }
 
@@ -81,6 +82,9 @@ const storeSaleSchema = new mongose.Schema<IStoreSale>(
         amount: {
             type: Number,
             required: true
+        },
+         customerCash: {
+            type: Number,
         },
         saler: {
             userId: {

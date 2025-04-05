@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getTotalSales } from "../model/sales/sales.model";
-import { getAllStoreSale, getDailyStoreSale } from "../model/storeSale/storeSale.model";
+import { getAllSales, getTotalSales } from "../model/sales/sales.model";
 
 export const getSaleAmountController = async (
 req: Request,
@@ -31,35 +30,12 @@ req: Request,
   next: NextFunction
 ) => {
     try {
-        const storeSales = await getAllStoreSale();
-         storeSales.length
+        const sales = await getAllSales();
+         sales.length
       ? res.json({
           status: "success",
           message: "All Orders",
-          storeSales,
-        })
-      : res.json({
-          status: "error",
-          message: "Error getting total sales",
-        });
-
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getDailySalesController = async (
-req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-    try {
-        const storeSales = await getDailyStoreSale();
-         storeSales.length
-      ? res.json({
-          status: "success",
-          message: "All Orders",
-          storeSales,
+          sales,
         })
       : res.json({
           status: "error",

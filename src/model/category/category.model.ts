@@ -1,7 +1,6 @@
 import { createCategoryParams } from "../../../types";
 import categorySchema from "./category.schema";
 
-
 export const createCategory = (categoryObj: createCategoryParams) => {
     return new categorySchema(categoryObj).save()
 }

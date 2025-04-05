@@ -60,6 +60,9 @@ const storeSaleSchema = new mongoose_2.default.Schema({
         type: Number,
         required: true
     },
+    customerCash: {
+        type: Number,
+    },
     saler: {
         userId: {
             type: mongoose_1.default.Schema.Types.ObjectId,

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IStoreSaleItemTypes } from "../model/storeSale/storeSale.schema";
 import productSchema from "../model/product/product.schema";
 import { randomOTPGenerator } from "../utils/randomGenerator";
-import { createStoreSaleOrder, getAStoreSaleOrderByOrderNumber } from "../model/storeSale/storeSale.model";
+import { createStoreSaleOrder, getAStoreSaleOrderByOrderNumber, getDailyStoreSale } from "../model/storeSale/storeSale.model";
 
 
 export const addCostPriceToItems = async (items: IStoreSaleItemTypes[]) => {
@@ -54,3 +54,26 @@ export const createNewStoreSaleOrder = async (
     next(error);
   }
 };
+
+export const getDailySalesController = async (
+req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+    try {
+        const storeSales = await getDailyStoreSale();
+         storeSales.length
+      ? res.json({
+          status: "success",
+          message: "All Orders",
+          storeSales,
+        })
+      : res.json({
+          status: "error",
+          message: "Error getting total sales",
+        });
+
+    } catch (error) {
+        next(error)
+    }
+}

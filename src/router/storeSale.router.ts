@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getAllSalesController, getDailySalesController, getSaleAmountController } from "../controller/sales.controller";
+import { getAllSalesController, getSaleAmountController } from "../controller/sales.controller";
 import { adminAccess, storeSalerAccess, superAdminAccess } from "../middleware/auth";
-import { createNewStoreSaleOrder } from "../controller/storeSale.controller";
+import { createNewStoreSaleOrder, getDailySalesController } from "../controller/storeSale.controller";
 
 const router = Router();
 

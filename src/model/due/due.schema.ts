@@ -13,7 +13,7 @@ export interface IDue extends Document {
 
  const DueSchema = new mongoose.Schema<IDue>(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+        userId: { type: mongoose.Schema.Types.ObjectId, indexes: 1,  ref: 'user', required: true },
         salesId: { type: mongoose.Schema.Types.ObjectId, ref: 'storeSale', required: true },
         totalAmout: { type: Number, required: true},
         dueAmount: { type: Number, required: true},

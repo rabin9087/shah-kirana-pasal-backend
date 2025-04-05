@@ -9,6 +9,8 @@ import salesRouter from '../router/sales.router'
 import storeSale from '../router/storeSale.router'
 import shop from '../router/shop.router'
 import due from '../router/due.router'
+import contractManagement from '../router/contractManagement.router'
+import jobs from '../router/jobs.router'
 
 const mongoosShopRoutes = process.env.MONGO_URI.includes("shah_kirana_pasal")
 const router = express.Router()
@@ -22,5 +24,7 @@ router.use("/search", searchRouter)
 router.use("/sales", salesRouter)
 router.use("/storeSales", storeSale)
 router.use("/due", due)
+router.use("/contractManagement", contractManagement)
+router.use("/jobs", jobs)
 mongoosShopRoutes && router.use("/shop", shop)
 export default router

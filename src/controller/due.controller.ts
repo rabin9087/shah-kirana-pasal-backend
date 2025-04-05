@@ -47,3 +47,27 @@ export const getUserDueController = async (
       next(error);
     }
 };
+
+export const updateUserDueController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+  try {
+
+      const { userId } = req.params;
+      const dues = await getDuesByUser(userId);
+        dues?.length
+        ? res.json({
+            status: "success",
+            message: "Here are the dues for the user.",
+            dues
+          })
+        : res.json({
+            status: "error",
+            message: "Error fetching user's due.",
+          });
+    } catch (error) {
+      next(error);
+    }
+};
