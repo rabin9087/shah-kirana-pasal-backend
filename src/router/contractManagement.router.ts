@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { createNewDueController, getUserDueController } from "../controller/due.controller";
+// import { Router } from "express";
+// import { createNewDueController, getUserDueController } from "../controller/due.controller";
 
-const router = Router();
+// const router = Router();
 
-router.post("/", createNewDueController)
+// router.post("/", createNewDueController)
 
-export default router;
+// export default router;
