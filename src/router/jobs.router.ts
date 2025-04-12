@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { createNewJobController } from "../controller/jobs.controller";
+import { createNewJobController, getAllJobsController, upadateAJobController, upadateJobPaymentController } from "../controller/jobs.controller";
 
 const router = Router();
 
+router.get("/", getAllJobsController)
 router.post("/", createNewJobController)
+router.patch("/:_id", upadateJobPaymentController)
+router.put("/:_id", upadateAJobController)
 
 export default router;

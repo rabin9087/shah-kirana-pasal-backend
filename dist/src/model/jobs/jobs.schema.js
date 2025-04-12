@@ -8,6 +8,11 @@ const JobsSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     jobTypes: { type: String, required: true },
     advanceAmount: { type: Number, default: 0 },
+    newPayment: [{
+            subject: { type: String, },
+            amount: { type: Number },
+            createdAt: { type: Date, default: Date.now },
+        }],
     contractAmount: { type: Number, required: true },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("job", JobsSchema);
