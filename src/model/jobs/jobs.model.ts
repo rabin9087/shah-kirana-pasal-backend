@@ -4,8 +4,8 @@ export const createJob = (data: IJobs) => {
     return new JobsSchema(data).save()
 }
 
-export const getAllJobs = () => {
-    return JobsSchema.find()
+export const getAllJobs = (_id: string) => {
+    return JobsSchema.find({jobCatergory: _id})
 }
 
 export const updateAJobPayment = (_id: string, newPayment: {

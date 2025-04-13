@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const JobsSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
+    jobCatergory: { type: String, ref: 'jobCategory' },
     jobTypes: { type: String, required: true },
     advanceAmount: { type: Number, default: 0 },
     newPayment: [{

@@ -32,7 +32,8 @@ const createNewJobController = (req, res, next) => __awaiter(void 0, void 0, voi
 exports.createNewJobController = createNewJobController;
 const getAllJobsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const jobs = yield (0, jobs_model_1.getAllJobs)();
+        const { _id } = req.params;
+        const jobs = yield (0, jobs_model_1.getAllJobs)(_id);
         (jobs === null || jobs === void 0 ? void 0 : jobs.length)
             ? res.json({
                 status: "success",

@@ -3,7 +3,7 @@ import { createNewJobController, getAllJobsController, upadateAJobController, up
 
 const router = Router();
 
-router.get("/", getAllJobsController)
+router.get("/:_id", getAllJobsController)
 router.post("/", createNewJobController)
 router.patch("/:_id", upadateJobPaymentController)
 router.put("/:_id", upadateAJobController)

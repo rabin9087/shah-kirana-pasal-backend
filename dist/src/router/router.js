@@ -15,6 +15,7 @@ const storeSale_router_1 = __importDefault(require("../router/storeSale.router")
 const shop_router_1 = __importDefault(require("../router/shop.router"));
 const due_router_1 = __importDefault(require("../router/due.router"));
 const jobs_router_1 = __importDefault(require("../router/jobs.router"));
+const jobcategory_router_1 = __importDefault(require("../router/jobcategory.router"));
 const mongoosShopRoutes = process.env.MONGO_URI.includes("shah_kirana_pasal");
 const router = express_1.default.Router();
 router.use("/user", user_router_1.default);
@@ -27,5 +28,6 @@ router.use("/sales", sales_router_1.default);
 router.use("/storeSales", storeSale_router_1.default);
 router.use("/due", due_router_1.default);
 router.use("/jobs", jobs_router_1.default);
+router.use("/jobCategory", jobcategory_router_1.default);
 mongoosShopRoutes && router.use("/shop", shop_router_1.default);
 exports.default = router;

@@ -30,8 +30,8 @@ export const getAllJobsController = async (
     next: NextFunction
   ) => {
   try {
-
-    const jobs = await getAllJobs()
+    const {_id} = req.params
+    const jobs = await getAllJobs(_id)
         jobs?.length
         ? res.json({
             status: "success",

@@ -9,8 +9,8 @@ const createJob = (data) => {
     return new jobs_schema_1.default(data).save();
 };
 exports.createJob = createJob;
-const getAllJobs = () => {
-    return jobs_schema_1.default.find();
+const getAllJobs = (_id) => {
+    return jobs_schema_1.default.find({ jobCatergory: _id });
 };
 exports.getAllJobs = getAllJobs;
 const updateAJobPayment = (_id, newPayment) => {
