@@ -3,7 +3,7 @@ import { createNewJobCategoryController, getAllJobsCategoryController } from "..
 
 const router = Router();
 
-router.get("/", getAllJobsCategoryController)
+router.get("/:_id", getAllJobsCategoryController)
 router.post("/", createNewJobCategoryController)
 
 export default router;
