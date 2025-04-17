@@ -40,7 +40,7 @@ export const getAllJobsController = async (
           })
         : res.json({
             status: "error",
-            message: "Error geting jobs.",
+            message: "No jobs available.",
           });
     } catch (error) {
       next(error);

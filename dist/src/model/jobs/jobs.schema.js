@@ -8,6 +8,7 @@ const JobsSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     jobCatergory: { type: String, ref: 'jobCategory' },
     jobTypes: { type: String, required: true },
+    advancePaymenyBy: { type: String, },
     advanceAmount: { type: Number, default: 0 },
     newPayment: [{
             subject: { type: String, },

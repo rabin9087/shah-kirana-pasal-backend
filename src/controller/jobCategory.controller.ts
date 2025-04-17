@@ -31,7 +31,8 @@ export const getAllJobsCategoryController = async (
   ) => {
   try {
 
-    const jobCategories = await getAllJobsCategory()
+    const {_id} = req.params
+    const jobCategories = await getAllJobsCategory(_id)
         jobCategories?.length
         ? res.json({
             status: "success",
@@ -40,7 +41,7 @@ export const getAllJobsCategoryController = async (
           })
         : res.json({
             status: "error",
-            message: "Error geting jobCategory.",
+            message: "No jobCategory available.",
           });
     } catch (error) {
       next(error);

@@ -9,7 +9,7 @@ const createJobCategory = (data) => {
     return new jobCategory_schema_1.default(data).save();
 };
 exports.createJobCategory = createJobCategory;
-const getAllJobsCategory = () => {
-    return jobCategory_schema_1.default.find();
+const getAllJobsCategory = (_id) => {
+    return jobCategory_schema_1.default.find({ user: _id });
 };
 exports.getAllJobsCategory = getAllJobsCategory;

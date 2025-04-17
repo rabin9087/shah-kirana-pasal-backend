@@ -32,7 +32,8 @@ const createNewJobCategoryController = (req, res, next) => __awaiter(void 0, voi
 exports.createNewJobCategoryController = createNewJobCategoryController;
 const getAllJobsCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const jobCategories = yield (0, jobCategory_model_1.getAllJobsCategory)();
+        const { _id } = req.params;
+        const jobCategories = yield (0, jobCategory_model_1.getAllJobsCategory)(_id);
         (jobCategories === null || jobCategories === void 0 ? void 0 : jobCategories.length)
             ? res.json({
                 status: "success",
@@ -41,7 +42,7 @@ const getAllJobsCategoryController = (req, res, next) => __awaiter(void 0, void 
             })
             : res.json({
                 status: "error",
-                message: "Error geting jobCategory.",
+                message: "No jobCategory available.",
             });
     }
     catch (error) {

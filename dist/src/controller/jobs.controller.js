@@ -42,7 +42,7 @@ const getAllJobsController = (req, res, next) => __awaiter(void 0, void 0, void 
             })
             : res.json({
                 status: "error",
-                message: "Error geting jobs.",
+                message: "No jobs available.",
             });
     }
     catch (error) {
