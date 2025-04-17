@@ -11,7 +11,7 @@ import shop from '../router/shop.router'
 import due from '../router/due.router'
 // import contractManagement from '../router/contractManagement.router'
 import jobs from '../router/jobs.router'
-import jobCategory from '../router/jobCategory.router'
+import jobCategory from './jobCategories.router'
 
 const mongoosShopRoutes = process.env.MONGO_URI.includes("shah_kirana_pasal")
 const router = express.Router()

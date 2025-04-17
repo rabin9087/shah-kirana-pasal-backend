@@ -33,7 +33,6 @@ exports.createNewJobCategoryController = createNewJobCategoryController;
 const getAllJobsCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { _id } = req.params;
-        console.log(_id);
         const jobCategories = yield (0, jobCategory_model_1.getAllJobsCategory)(_id);
         (jobCategories === null || jobCategories === void 0 ? void 0 : jobCategories.length)
             ? res.json({
