@@ -32,6 +32,7 @@ export const getAllJobsCategoryController = async (
   try {
 
     const {_id} = req.params
+    console.log(_id)
     const jobCategories = await getAllJobsCategory(_id)
         jobCategories?.length
         ? res.json({
