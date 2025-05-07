@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllSalesController = exports.getSaleAmountController = void 0;
+exports.getAllOrderSalesController = exports.getSaleAmountController = void 0;
 const sales_model_1 = require("../model/sales/sales.model");
 const getSaleAmountController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -30,22 +30,25 @@ const getSaleAmountController = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 exports.getSaleAmountController = getSaleAmountController;
-const getAllSalesController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllOrderSalesController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const sales = yield (0, sales_model_1.getAllSales)();
-        sales.length
-            ? res.json({
+        const sales = yield (0, sales_model_1.getAllOrderSales)();
+        if (sales.length) {
+            res.json({
                 status: "success",
                 message: "All Orders",
                 sales,
-            })
-            : res.json({
-                status: "error",
-                message: "Error getting total sales",
             });
+        }
+        else {
+            res.json({
+                status: "success",
+                message: "No online sales available",
+            });
+        }
     }
     catch (error) {
         next(error);
     }
 });
-exports.getAllSalesController = getAllSalesController;
+exports.getAllOrderSalesController = getAllOrderSalesController;

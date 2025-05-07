@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IStoreSaleItemTypes } from "../model/storeSale/storeSale.schema";
 import productSchema from "../model/product/product.schema";
 import { randomOTPGenerator } from "../utils/randomGenerator";
-import { createStoreSaleOrder, getAStoreSaleOrderByOrderNumber, getDailyStoreSale } from "../model/storeSale/storeSale.model";
+import { createStoreSaleOrder, getAStoreSaleOrderByOrderNumber, getAllStoreSale, getDailyStoreSale } from "../model/storeSale/storeSale.model";
 
 
 export const addCostPriceToItems = async (items: IStoreSaleItemTypes[]) => {
@@ -55,24 +55,61 @@ export const createNewStoreSaleOrder = async (
   }
 };
 
-export const getDailySalesController = async (
+export const getDailyStoreSalesController = async (
 req: Request,
   res: Response,
   next: NextFunction
 ) => {
-    try {
-        const storeSales = await getDailyStoreSale();
-         storeSales.length
-      ? res.json({
-          status: "success",
-          message: "All Orders",
-          storeSales,
-        })
-      : res.json({
-          status: "error",
-          message: "Error getting total sales",
-        });
+  try {
+      const { date } = req.params;
 
+    if (!date) {
+      return res.status(400).json({
+        status: "error",
+        message: "Date parameter is required.",
+      });
+    }
+
+    const storeSales = await getDailyStoreSale(date);
+
+    if (storeSales && storeSales.length > 0) {
+      return res.status(200).json({
+        status: "success",
+        message: "All Orders",
+        storeSales,
+      });
+    } else {
+      return res.status(200).json({
+        status: "error",
+        message: "No sales found for the given date.",
+      });
+    }
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getAllStoreSalesController = async (
+req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+
+    const storeSales = await getAllStoreSale();
+
+    if (storeSales && storeSales.length > 0) {
+      return res.status(200).json({
+        status: "success",
+        message: "All Store Sales available",
+        storeSales,
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "No store sales available",
+      });
+    }
     } catch (error) {
         next(error)
     }

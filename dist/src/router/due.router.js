@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const due_controller_1 = require("../controller/due.controller");
+const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
-router.post("/", due_controller_1.createNewDueController);
-router.get("/:userId", due_controller_1.getUserDueController);
+router.post("/", auth_1.storeSalerAccess, due_controller_1.createNewDueController);
+router.get("/:userId", auth_1.storeSalerAccess, due_controller_1.getUserDueController);
+router.patch("/:_id", auth_1.storeSalerAccess, due_controller_1.updateUserDueController);
 exports.default = router;

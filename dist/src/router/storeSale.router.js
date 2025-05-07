@@ -1,12 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const sales_controller_1 = require("../controller/sales.controller");
 const auth_1 = require("../middleware/auth");
 const storeSale_controller_1 = require("../controller/storeSale.controller");
 const router = (0, express_1.Router)();
 router.post("/new-storeSale", auth_1.storeSalerAccess, storeSale_controller_1.createNewStoreSaleOrder);
-router.get("/", auth_1.adminAccess, sales_controller_1.getSaleAmountController);
-router.get("/allStoreSales", auth_1.superAdminAccess, sales_controller_1.getAllSalesController);
-router.get("/dailyStoreSales", auth_1.storeSalerAccess, storeSale_controller_1.getDailySalesController);
+router.get("/allStoreSales", auth_1.superAdminAccess, storeSale_controller_1.getAllStoreSalesController);
+router.get("/dailyStoreSales/:date", auth_1.storeSalerAccess, storeSale_controller_1.getDailyStoreSalesController);
 exports.default = router;

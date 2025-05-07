@@ -41,8 +41,8 @@ const getUserDueController = (req, res, next) => __awaiter(void 0, void 0, void 
                 dues
             })
             : res.json({
-                status: "error",
-                message: "Error fetching user's due.",
+                status: "success",
+                message: "No deus available.",
             });
     }
     catch (error) {
@@ -52,18 +52,22 @@ const getUserDueController = (req, res, next) => __awaiter(void 0, void 0, void 
 exports.getUserDueController = getUserDueController;
 const updateUserDueController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.params;
-        const dues = yield (0, due_model_1.getDuesByUser)(userId);
-        (dues === null || dues === void 0 ? void 0 : dues.length)
-            ? res.json({
+        const { _id } = req.params;
+        const dues = yield (0, due_model_1.updateDueAmountByID)(_id, req.body);
+        console.log("This is dues return data: ", dues);
+        if (dues === null || dues === void 0 ? void 0 : dues._id) {
+            return res.json({
                 status: "success",
                 message: "Here are the dues for the user.",
-                dues
-            })
-            : res.json({
-                status: "error",
-                message: "Error fetching user's due.",
+                dues,
             });
+        }
+        else {
+            return res.status(404).json({
+                status: "error",
+                message: "Error updaing user's due.",
+            });
+        }
     }
     catch (error) {
         next(error);

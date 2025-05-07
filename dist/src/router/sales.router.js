@@ -5,5 +5,5 @@ const sales_controller_1 = require("../controller/sales.controller");
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 router.get("/", auth_1.adminAccess, sales_controller_1.getSaleAmountController);
-router.get("/allSales", auth_1.adminAccess, sales_controller_1.getAllSalesController);
+router.get("/allSales", auth_1.adminAccess, sales_controller_1.getAllOrderSalesController);
 exports.default = router;

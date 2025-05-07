@@ -17,10 +17,11 @@ const getAllStoreSale = () => {
     return storeSale_schema_1.default.find();
 };
 exports.getAllStoreSale = getAllStoreSale;
-const getDailyStoreSale = () => {
-    const startOfDay = new Date();
+const getDailyStoreSale = (date) => {
+    const selectedDate = new Date(date);
+    const startOfDay = new Date(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
+    const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
     return storeSale_schema_1.default.find({
         createdAt: { $gte: startOfDay, $lte: endOfDay }
