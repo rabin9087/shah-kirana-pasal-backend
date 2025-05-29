@@ -8,7 +8,6 @@ import { CustomError } from "../../types";
 import { getUserByPhoneOrEmail, getUserByPhoneAndJWT, getAllUser } from "../model/user/user.model";
 import { CheckUserByToken, findOneByFilterAndDelete } from "../model/session/session.model";
 import { IUser } from "../model/user/user.schema";
-import { redisClient } from "../utils/redis";
 
 type UserWithoutSensitiveData = Omit<IUser, 'password' | 'refreshJWT'>;
 
@@ -305,145 +304,72 @@ export const PickerAccess = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-// export const refreshAuth = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     // 1. Get the refreshAuth token
-//     const { authorization } = req.headers;
-//     if (!authorization) {
-//       return res.status(401).json({ status: "error", message: "No Authorization provided" });
-//     }
-
-//     // Extract token from "Bearer <token>"
-//     const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
-
-//     // 2. Try to verify access JWT first
-//     try {
-//       const accessDecoded = verifyAccessJWT(token);
-//       if (accessDecoded?.phone) {
-//         // 3. Check if user is active
-//         const userToken = await CheckUserByToken({ associate: accessDecoded.phone, token });
-//         if (userToken?._id) {
-//           const user = await getUserByPhoneOrEmail(accessDecoded.phone);
-
-//           if (user?._id) {
-//             user.password = undefined; // Remove password from response
-//             user.verificationCode = undefined; // Remove password from response
-//             user.refreshJWT = undefined; // Remove password from response
-//             return res.json({
-//               status: "success",
-//               message: "Authorized",
-//               user,
-//             });
-//           }
-//         }
-//       }
-//     } catch (error) {
-//       console.log("Access JWT verification failed, attempting Refresh JWT...");
-//     }
-
-//     // 3. Verify refresh token
-//     const decoded = verifyRefreshJWT(token);
-
-//     if (decoded?.phone) {
-//       // 4. Check if user exists with the refresh token
-//       const user = await getUserByPhoneAndJWT({
-//         phone: decoded.phone,
-//         refreshJWT: token,
-//       });
-
-//       if (user?._id) {
-//         user.password = undefined; // Remove password before sending response
-//         // 5. Generate a new access JWT
-//         const accessJWT = await createAccessJWT(decoded.phone);
-
-//         return res.json({
-//           status: "success",
-//           message: "Authorized",
-//           accessJWT,
-//           user,
-//         });
-//       }
-//     }
-
-//     // If no valid token is found, return unauthorized
-//     return res.status(401).json({
-//       status: "error",
-//       message: "Unauthorized",
-//     });
-//   } catch (error: any) {
-//     next(error);
-//   }
-// };
-
 export const refreshAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // 1. Get the refreshAuth token
     const { authorization } = req.headers;
-
     if (!authorization) {
       return res.status(401).json({ status: "error", message: "No Authorization provided" });
     }
 
+    // Extract token from "Bearer <token>"
     const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
-    const cacheKey = `auth:${token}`;
 
-    // 1. Check Redis cache
-    const cachedAuthData = await redisClient.get(cacheKey);
-    if (cachedAuthData) {
-      console.log("✅ Returned auth data from Redis cache");
-      return res.json(JSON.parse(cachedAuthData));
-    }
-
-    // 2. Try Access JWT first
+    // 2. Try to verify access JWT first
     try {
       const accessDecoded = verifyAccessJWT(token);
       if (accessDecoded?.phone) {
+        // 3. Check if user is active
         const userToken = await CheckUserByToken({ associate: accessDecoded.phone, token });
         if (userToken?._id) {
           const user = await getUserByPhoneOrEmail(accessDecoded.phone);
-          if (user?._id) {
-            // Sanitize user object
-            delete user.password;
-            delete user.verificationCode;
-            delete user.refreshJWT;
 
-            const responseData = {
+          if (user?._id) {
+            user.password = undefined; // Remove password from response
+            user.verificationCode = undefined; // Remove password from response
+            user.refreshJWT = undefined; // Remove password from response
+            return res.json({
               status: "success",
               message: "Authorized",
               user,
-            };
-
-            await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
-            return res.json(responseData);
+            });
           }
         }
       }
     } catch (error) {
-      console.log("⚠️ Access JWT verification failed, attempting Refresh JWT...");
+      console.log("Access JWT verification failed, attempting Refresh JWT...");
     }
 
-    // 3. Try Refresh JWT
+    // 3. Verify refresh token
     const decoded = verifyRefreshJWT(token);
+
     if (decoded?.phone) {
-      const user = await getUserByPhoneAndJWT({ phone: decoded.phone, refreshJWT: token });
+      // 4. Check if user exists with the refresh token
+      const user = await getUserByPhoneAndJWT({
+        phone: decoded.phone,
+        refreshJWT: token,
+      });
+
       if (user?._id) {
-        delete user.password;
+        user.password = undefined; // Remove password before sending response
+        // 5. Generate a new access JWT
         const accessJWT = await createAccessJWT(decoded.phone);
 
-        const responseData = {
+        return res.json({
           status: "success",
           message: "Authorized",
           accessJWT,
           user,
-        };
-
-        await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
-        return res.json(responseData);
+        });
       }
     }
 
-    // If all fails
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
-  } catch (error) {
+    // If no valid token is found, return unauthorized
+    return res.status(401).json({
+      status: "error",
+      message: "Unauthorized",
+    });
+  } catch (error: any) {
     next(error);
   }
 };

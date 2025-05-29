@@ -106,6 +106,7 @@ try {
 } catch (error) {
   next(error)
 }
+
 }
 
 export const getAllProductListByLimit = async (
@@ -116,22 +117,13 @@ export const getAllProductListByLimit = async (
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 30;
-    const search = req.query.search as string || "";
+    const search = req.query.search as string;
     const sortBy = (req.query.sortBy as string) || "createdAt";
-    const order = req.query.order === "asc" ? 1 : -1;
+    const order = req.query.order === "asc" ? -1 : 1;
 
-    const cacheKey = `products:page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&order=${order}`;
-
-    // 1. Check Redis cache
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-      return res.json(JSON.parse(cachedData));
-    }
-
-    // 2. Build MongoDB query
     const query: any = {};
     if (search) {
-      query.name = { $regex: search, $options: "i" };
+      query.name = { $regex: search, $options: "i" }; // case-insensitive search
     }
 
     const total = await productSchema.countDocuments(query);
@@ -142,111 +134,47 @@ export const getAllProductListByLimit = async (
       .limit(limit)
       .lean();
 
-    const filteredProducts = products
-      .map(({ costPrice, ...rest }) => rest)
-      .filter((item) => item.status === "ACTIVE");
-
-    const responseData = {
+    res.json({
       status: "success",
       message: "Products fetched successfully!",
-      products: filteredProducts,
+      products: products.map(({ costPrice, ...rest }) => (rest))
+        .filter((item) => item.status === "ACTIVE"),
       pagination: {
         total,
         page,
         limit,
         totalPages: Math.ceil(total / limit),
       },
-    };
-
-    // 3. Cache data in Redis (expires in 5 minutes)
-    await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
-
-    res.json(responseData);
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// export const getAllProductListByLimit = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const page = parseInt(req.query.page as string) || 1;
-//     const limit = parseInt(req.query.limit as string) || 30;
-//     const search = req.query.search as string;
-//     const sortBy = (req.query.sortBy as string) || "createdAt";
-//     const order = req.query.order === "asc" ? -1 : 1;
 
-//     const query: any = {};
-//     if (search) {
-//       query.name = { $regex: search, $options: "i" }; // case-insensitive search
-//     }
+  export const getAllProductList = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
 
-//     const total = await productSchema.countDocuments(query);
-//     const products = await productSchema
-//       .find(query)
-//       .sort({ [sortBy]: order })
-//       .skip((page - 1) * limit)
-//       .limit(limit)
-//       .lean();
-
-//     res.json({
-//       status: "success",
-//       message: "Products fetched successfully!",
-//       products: products.map(({ costPrice, ...rest }) => (rest))
-//         .filter((item) => item.status === "ACTIVE"),
-//       pagination: {
-//         total,
-//         page,
-//         limit,
-//         totalPages: Math.ceil(total / limit),
-//       },
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
- export const getAllProductList = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const cacheKey = `allProducts`;
-
-    // 1. Check Redis cache first
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-      return res.json(JSON.parse(cachedData));
+      const products = await getAllProducts()
+      
+        products?.length
+         ? res.json({
+            status: "success",
+            message: "Here is list of all products!",
+            products
+          })
+        : res.json({
+            status: "error",
+            message: "Error fetching product.",
+          })
+    } catch (error) {
+      next(error);
     }
-
-    // 2. Fetch from DB if not in Redis
-    const products = await getAllProducts();
-
-    if (products?.length) {
-      const responseData = {
-        status: "success",
-        message: "Here is list of all products!",
-        products,
-      };
-
-      // 3. Cache the data in Redis for 5 minutes
-      await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
-
-      return res.json(responseData);
-    } else {
-      return res.json({
-        status: "error",
-        message: "Error fetching product.",
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
+  };
 
    export const getAllProductListByCategory = async (
     req: Request,
