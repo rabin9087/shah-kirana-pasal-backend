@@ -4,12 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-require("dotenv/config");
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+const redis_1 = require("./src/utils/redis");
+(0, redis_1.connectRedis)();
 (0, mongo_connect_1.connectMongo)();
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 1 * 60 * 1000,

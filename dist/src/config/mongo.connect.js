@@ -14,13 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectMongo = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
-    const URI = process.env.MONGO_URI;
     try {
+        const URI = process.env.MONGO_URI;
+        if (!URI) {
+            throw new Error("MONGO_URI is not defined in environment variables.");
+        }
         const conn = yield mongoose_1.default.connect(URI);
+        console.log("mongo connect success");
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
     }
-    catch (e) {
-        throw new Error(e.message);
+    catch (error) {
+        console.error("MongoDB connection error:", error.message);
+        throw new Error(error.message);
     }
 });
 exports.connectMongo = connectMongo;

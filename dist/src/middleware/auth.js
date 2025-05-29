@@ -13,6 +13,7 @@ exports.refreshAuth = exports.PickerAccess = exports.storeSalerAccess = exports.
 const jwt_1 = require("../utils/jwt");
 const user_model_1 = require("../model/user/user.model");
 const session_model_1 = require("../model/session/session.model");
+const redis_1 = require("../utils/redis");
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { authorization } = req.headers;
@@ -251,6 +252,12 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             return res.status(401).json({ status: "error", message: "No Authorization provided" });
         }
         const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
+        const cacheKey = `auth:${token}`;
+        const cachedAuthData = yield redis_1.redisClient.get(cacheKey);
+        if (cachedAuthData) {
+            console.log("✅ Returned auth data from Redis cache");
+            return res.json(JSON.parse(cachedAuthData));
+        }
         try {
             const accessDecoded = (0, jwt_1.verifyAccessJWT)(token);
             if (accessDecoded === null || accessDecoded === void 0 ? void 0 : accessDecoded.phone) {
@@ -258,42 +265,40 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 if (userToken === null || userToken === void 0 ? void 0 : userToken._id) {
                     const user = yield (0, user_model_1.getUserByPhoneOrEmail)(accessDecoded.phone);
                     if (user === null || user === void 0 ? void 0 : user._id) {
-                        user.password = undefined;
-                        user.verificationCode = undefined;
-                        user.refreshJWT = undefined;
-                        return res.json({
+                        delete user.password;
+                        delete user.verificationCode;
+                        delete user.refreshJWT;
+                        const responseData = {
                             status: "success",
                             message: "Authorized",
                             user,
-                        });
+                        };
+                        yield redis_1.redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
+                        return res.json(responseData);
                     }
                 }
             }
         }
         catch (error) {
-            console.log("Access JWT verification failed, attempting Refresh JWT...");
+            console.log("⚠️ Access JWT verification failed, attempting Refresh JWT...");
         }
         const decoded = (0, jwt_1.verifyRefreshJWT)(token);
         if (decoded === null || decoded === void 0 ? void 0 : decoded.phone) {
-            const user = yield (0, user_model_1.getUserByPhoneAndJWT)({
-                phone: decoded.phone,
-                refreshJWT: token,
-            });
+            const user = yield (0, user_model_1.getUserByPhoneAndJWT)({ phone: decoded.phone, refreshJWT: token });
             if (user === null || user === void 0 ? void 0 : user._id) {
-                user.password = undefined;
+                delete user.password;
                 const accessJWT = yield (0, jwt_1.createAccessJWT)(decoded.phone);
-                return res.json({
+                const responseData = {
                     status: "success",
                     message: "Authorized",
                     accessJWT,
                     user,
-                });
+                };
+                yield redis_1.redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 300 });
+                return res.json(responseData);
             }
         }
-        return res.status(401).json({
-            status: "error",
-            message: "Unauthorized",
-        });
+        return res.status(401).json({ status: "error", message: "Unauthorized" });
     }
     catch (error) {
         next(error);

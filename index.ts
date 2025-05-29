@@ -5,16 +5,15 @@ import express, {
   NextFunction,
 } from "express";
 // import { WebSocketServer } from 'ws';
-import "dotenv/config";
 import cors from "cors";
 import morgan from "morgan";
 import { CustomError } from "./types";
 import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
-import helmet from 'helmet'
 import rateLimit from "express-rate-limit";
+import { connectRedis } from "./src/utils/redis";
 //For env File
-// dotenv.config();
+connectRedis()
 connectMongo();
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
