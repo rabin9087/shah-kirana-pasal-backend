@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.getAllProductListByLimit = exports.updateProductThumbnail = exports.createNewProduct = void 0;
+exports.updateProductQuantities = exports.updateProductByID = exports.deleteProductByID = exports.updateAProductStatusController = exports.updateAProductController = exports.fetchAProductBySKUController = exports.fetchAProductByQRCode = exports.fetchAProductByFilter = exports.fetchAProductByID = exports.getAllProductListByCategory = exports.getAllProductList = exports.getAllProductListByLimit = exports.updateProductThumbnail = exports.createNewProduct = void 0;
 const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
@@ -380,3 +380,29 @@ const updateProductByID = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.updateProductByID = updateProductByID;
+const updateProductQuantities = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedProducts = [];
+        for (const item of req.body) {
+            const productId = item.productId;
+            const product = yield product_schema_1.default.findById(productId);
+            if (!product) {
+                console.warn(`Product with ID ${productId} not found`);
+                continue;
+            }
+            const suppliedQty = parseInt(item.supplied) || 0;
+            const newQuantity = product.quantity - suppliedQty;
+            product.quantity = newQuantity < 0 ? 0 : newQuantity;
+            yield product.save();
+            updatedProducts.push(product);
+        }
+        return res.json({
+            status: 'success',
+            message: 'Products have been updated successfully!',
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateProductQuantities = updateProductQuantities;

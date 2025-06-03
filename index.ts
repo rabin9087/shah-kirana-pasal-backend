@@ -12,9 +12,11 @@ import router from "./src/router/router"
 import { connectMongo } from "./src/config/mongo.connect";
 import rateLimit from "express-rate-limit";
 import { connectRedis } from "./src/utils/redis";
+import dotenv from "dotenv";
+
+dotenv.config();
 //For env File
 connectRedis()
-connectMongo();
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // Limit each IP to 100 requests per minute
@@ -37,6 +39,7 @@ app.use(limiter);
 // );
 
 app.get("/", (req: Request, res: Response) => {
+  res.cookie("test","thisistest",{httpOnly:true,})
   res.json({
     status: "success",
     message: "Welcome to Content Management System API",
@@ -55,10 +58,12 @@ app.use(
     });
   }
 );
-
+connectMongo()
 process.env.ENVIRONMENT === "Development"  
   ? app.listen(port, () => {
-      console.log(`Server is running on http://192.168.20.4:${port}`);
+    console.log(`Server is running on http://192.168.20.4:${port}`);
+
+    
     })
   : app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);

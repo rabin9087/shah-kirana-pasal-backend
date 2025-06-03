@@ -10,8 +10,9 @@ const router_1 = __importDefault(require("./src/router/router"));
 const mongo_connect_1 = require("./src/config/mongo.connect");
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const redis_1 = require("./src/utils/redis");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 (0, redis_1.connectRedis)();
-(0, mongo_connect_1.connectMongo)();
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 1 * 60 * 1000,
     max: 100,
@@ -23,6 +24,7 @@ app.use((0, morgan_1.default)("short"));
 app.use(express_1.default.json());
 app.use(limiter);
 app.get("/", (req, res) => {
+    res.cookie("test", "thisistest", { httpOnly: true, });
     res.json({
         status: "success",
         message: "Welcome to Content Management System API",
@@ -38,6 +40,7 @@ app.use((error, req, res, next) => {
         message,
     });
 });
+(0, mongo_connect_1.connectMongo)();
 process.env.ENVIRONMENT === "Development"
     ? app.listen(port, () => {
         console.log(`Server is running on http://192.168.20.4:${port}`);

@@ -73,7 +73,7 @@ export const updateAOrderByID = (_id: string, OrderObj: IOrder) => {
 }
 
 
-export const updateAOrder = (_id: string, data: object  ) => {
+export const updateAOrder = (_id: string, data: object) => {
     return orderSchema.updateOne({_id}, { $set: data }, { new: true })
 }
 

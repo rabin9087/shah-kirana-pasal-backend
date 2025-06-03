@@ -410,7 +410,6 @@ export const getAllProductListByLimit = async (
     }
   };
 
-
   export const updateProductByID = async (
     req: Request,
     res: Response,
@@ -435,3 +434,37 @@ export const getAllProductListByLimit = async (
       next(error);
     }
   };
+
+export const updateProductQuantities = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const updatedProducts = [];
+    for (const item of req.body) {
+      const productId = item.productId
+
+      const product = await productSchema.findById(productId);
+
+      if (!product) {
+        console.warn(`Product with ID ${productId} not found`);
+        continue;
+      }
+
+      const suppliedQty = parseInt(item.supplied) || 0;
+      const newQuantity = product.quantity - suppliedQty;
+
+      product.quantity = newQuantity < 0 ? 0 : newQuantity;
+      await product.save();
+      updatedProducts.push(product);
+    }
+
+    return res.json({
+      status: 'success',
+      message: 'Products have been updated successfully!',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

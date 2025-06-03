@@ -3,6 +3,7 @@ import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDat
 import { randomOTPGenerator } from "../utils/randomGenerator";
 import { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
+import { updateProductQuantities } from "./product.controller";
 
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
   const updatedItems = await Promise.all(
@@ -136,6 +137,7 @@ export const updateAOrderController = async (
     if (req.body.items) {
       req.body.items = await addCostPriceToItems(req.body.items);
     }
+    
     const order = await updateAOrder(_id as string, req.body);
     order.matchedCount > 0
       ? res.json({

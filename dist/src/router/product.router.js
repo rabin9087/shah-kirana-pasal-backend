@@ -21,6 +21,7 @@ router.post("/", auth_1.adminAccess, uploadMiddleware, product_controller_1.crea
 router.get("/limitProduct", product_controller_1.getAllProductListByLimit);
 router.get("/sku_value/:sku", auth_1.adminAccess, product_controller_1.fetchAProductBySKUController);
 router.patch("/thumbnail/:_id", auth_1.adminAccess, uploadMiddlewareImageThumbnail, product_controller_1.updateProductThumbnail);
+router.patch("/quantityUpdate", auth_1.PickerAccess, product_controller_1.updateProductQuantities);
 router.patch("/update/:_id", auth_1.adminAccess, product_controller_1.updateProductByID);
 router.get("/q", product_controller_1.fetchAProductByFilter);
 router.get("/q=:code", product_controller_1.fetchAProductByQRCode);

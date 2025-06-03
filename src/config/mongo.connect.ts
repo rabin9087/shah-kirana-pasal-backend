@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 
-dotenv.config();
 
 export const connectMongo = async () => {
    try {
@@ -12,9 +10,10 @@ export const connectMongo = async () => {
  
     const conn = await mongoose.connect(URI as string)
     console.log("mongo connect success")
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+     console.log(`MongoDB Connected`);
+     
   } catch (error: any) {
-    console.error("MongoDB connection error:", error.message);
-    throw new Error(error.message);
+    console.error("MongoDB connection error:", error);
+   
   }
 };

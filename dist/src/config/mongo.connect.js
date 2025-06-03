@@ -14,8 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectMongo = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
 const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const URI = process.env.MONGO_URI;
@@ -24,11 +22,10 @@ const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         const conn = yield mongoose_1.default.connect(URI);
         console.log("mongo connect success");
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        console.log(`MongoDB Connected`);
     }
     catch (error) {
-        console.error("MongoDB connection error:", error.message);
-        throw new Error(error.message);
+        console.error("MongoDB connection error:", error);
     }
 });
 exports.connectMongo = connectMongo;
