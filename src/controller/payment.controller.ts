@@ -10,10 +10,9 @@ export const createPayment = async(
 
     const paymentIntents = await stripe.paymentIntents.create({
     amount: parseInt(amount) * 100,
-    currency: currency,
-    automatic_payment_methods: {
-        enabled: true,
-        },
+        currency: currency,
+        payment_method_types: ["card", "afterpay_clearpay", "zip"],
+    // return_url: "http://localhost:5173/payment/success" || "https://www.shahkiranapasal.shop/payment/success",
     });
     
 return res.json({

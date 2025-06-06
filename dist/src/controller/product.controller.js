@@ -383,7 +383,7 @@ exports.updateProductByID = updateProductByID;
 const updateProductQuantities = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const updatedProducts = [];
-        for (const item of req.body) {
+        for (const item of req.body.items) {
             const productId = item.productId;
             const product = yield product_schema_1.default.findById(productId);
             if (!product) {

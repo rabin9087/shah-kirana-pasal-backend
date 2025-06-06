@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -77,9 +86,29 @@ const updateAOrderByID = (_id, OrderObj) => {
     return order_schema_1.default.findByIdAndUpdate(_id, OrderObj);
 };
 exports.updateAOrderByID = updateAOrderByID;
-const updateAOrder = (_id, data) => {
-    return order_schema_1.default.updateOne({ _id }, { $set: data }, { new: true });
-};
+const updateAOrder = (_id, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const order = yield order_schema_1.default.findById(_id);
+    if (!order)
+        return null;
+    if (data.items && Array.isArray(data.items)) {
+        const updateMap = new Map();
+        for (const { productId, supplied } of data.items) {
+            updateMap.set(productId.toString(), supplied);
+        }
+        order.items = order.items.map((item) => {
+            const key = item.productId.toString();
+            console.log("Keys:", key);
+            if (updateMap.has(key)) {
+                item.supplied = updateMap.get(key);
+            }
+            return item;
+        });
+        delete data.items;
+    }
+    Object.assign(order, data);
+    yield order.save();
+    return order;
+});
 exports.updateAOrder = updateAOrder;
 const deleteAOrderByID = (_id) => {
     return order_schema_1.default.findByIdAndDelete(_id);

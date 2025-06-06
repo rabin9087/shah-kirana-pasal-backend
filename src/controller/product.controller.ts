@@ -442,7 +442,7 @@ export const updateProductQuantities = async (
 ) => {
   try {
     const updatedProducts = [];
-    for (const item of req.body) {
+    for (const item of req.body.items) {
       const productId = item.productId
 
       const product = await productSchema.findById(productId);

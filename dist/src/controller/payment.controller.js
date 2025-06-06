@@ -20,9 +20,7 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const paymentIntents = yield stripe.paymentIntents.create({
         amount: parseInt(amount) * 100,
         currency: currency,
-        automatic_payment_methods: {
-            enabled: true,
-        },
+        payment_method_types: ["card", "afterpay_clearpay", "zip"],
     });
     return res.json({
         clientSecret: paymentIntents.client_secret

@@ -8,7 +8,7 @@ router.post("/new-order", createNewOrder);
 router.get("/orderNumber=:orderNumber", getAOrderByFilterController);
 router.get("/all-orders",adminAccess, getOrders);
 router.get("/date=:date",PickerAccess, getOrdersByDateController);
-router.patch("/update/:_id",PickerAccess, updateAOrderController);
+router.patch("/update/:_id",PickerAccess, updateAOrderController, );
 router.delete("/:_id");
 router.put("/");
 export default router;

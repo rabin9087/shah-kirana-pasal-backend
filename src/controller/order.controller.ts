@@ -138,11 +138,12 @@ export const updateAOrderController = async (
       req.body.items = await addCostPriceToItems(req.body.items);
     }
     
-    const order = await updateAOrder(_id as string, req.body);
-    order.matchedCount > 0
+    const updatedOrder = await updateAOrder(_id as string, req.body);
+    updatedOrder
       ? res.json({
           status: "success",
           message: "Orders Updated successfully!",
+          updatedOrder: updatedOrder.items,
         })
       : res.json({
           status: "error",

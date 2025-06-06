@@ -1,5 +1,5 @@
 
-import orderSchema, { IOrder } from "./order.schema";
+import orderSchema, { IItemTypes, IOrder } from "./order.schema";
 
 
 export const createOrder = (OrderObj: IOrder) => {
@@ -73,9 +73,33 @@ export const updateAOrderByID = (_id: string, OrderObj: IOrder) => {
 }
 
 
-export const updateAOrder = (_id: string, data: object) => {
-    return orderSchema.updateOne({_id}, { $set: data }, { new: true })
-}
+export const updateAOrder = async (_id: string, data: any): Promise<IOrder | null> => {
+  const order = await orderSchema.findById(_id);
+  if (!order) return null;
+
+  if (data.items && Array.isArray(data.items)) {
+    const updateMap = new Map<string, number>();
+    for (const { productId, supplied } of data.items) {
+      updateMap.set(productId.toString(), supplied);
+    }
+
+    // ✅ Safely update `supplied` without `.toObject()`
+    order.items = order.items.map((item: IItemTypes) => {
+        const key = item.productId.toString();
+        console.log("Keys:", key)
+      if (updateMap.has(key)) {
+        item.supplied = updateMap.get(key)!; // directly modify item
+      }
+      return item;
+    });
+
+    delete data.items;
+  }
+
+  Object.assign(order, data);
+  await order.save();
+  return order;
+};
 
 
 export const deleteAOrderByID = (_id: string) => {
