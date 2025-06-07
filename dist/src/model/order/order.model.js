@@ -97,7 +97,6 @@ const updateAOrder = (_id, data) => __awaiter(void 0, void 0, void 0, function* 
         }
         order.items = order.items.map((item) => {
             const key = item.productId.toString();
-            console.log("Keys:", key);
             if (updateMap.has(key)) {
                 item.supplied = updateMap.get(key);
             }

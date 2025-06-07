@@ -86,7 +86,6 @@ export const updateAOrder = async (_id: string, data: any): Promise<IOrder | nul
     // ✅ Safely update `supplied` without `.toObject()`
     order.items = order.items.map((item: IItemTypes) => {
         const key = item.productId.toString();
-        console.log("Keys:", key)
       if (updateMap.has(key)) {
         item.supplied = updateMap.get(key)!; // directly modify item
       }

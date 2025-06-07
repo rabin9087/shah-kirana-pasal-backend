@@ -133,8 +133,8 @@ export const updateAOrderController = async (
 ) => {
   try {
     const { _id } = req.params;
-    // const orderNumber = randomOTPGenerator()
     if (req.body.items) {
+       await updateProductsQuantities(req.body.items)
       req.body.items = await addCostPriceToItems(req.body.items);
     }
     
@@ -143,13 +143,34 @@ export const updateAOrderController = async (
       ? res.json({
           status: "success",
           message: "Orders Updated successfully!",
-          updatedOrder: updatedOrder.items,
+
         })
       : res.json({
           status: "error",
           message: "Error creating new order. \n Try again!.",
-        });
+      });
+    
   } catch (error) {
     next(error);
   }
 };
+
+const updateProductsQuantities = async (items: any) => {
+  const updatedProducts = [];
+  for (const item of items) {
+    const productId = item.productId
+
+    const product = await productSchema.findById(productId.toString());
+    if (!product) {
+      console.warn(`Product with ID ${productId} not found`);
+      continue;
+    }
+
+    const suppliedQty = parseInt(item.supplied) || 0;
+    const newQuantity = product.quantity - suppliedQty;
+
+    product.quantity = newQuantity < 0 ? 0 : newQuantity;
+    await product.save();
+    updatedProducts.push(product);
+  }
+}

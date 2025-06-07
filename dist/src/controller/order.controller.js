@@ -121,6 +121,7 @@ const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, voi
     try {
         const { _id } = req.params;
         if (req.body.items) {
+            yield updateProductsQuantities(req.body.items);
             req.body.items = yield (0, exports.addCostPriceToItems)(req.body.items);
         }
         const updatedOrder = yield (0, order_model_1.updateAOrder)(_id, req.body);
@@ -128,7 +129,6 @@ const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, voi
             ? res.json({
                 status: "success",
                 message: "Orders Updated successfully!",
-                updatedOrder: updatedOrder.items,
             })
             : res.json({
                 status: "error",
@@ -140,3 +140,19 @@ const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 exports.updateAOrderController = updateAOrderController;
+const updateProductsQuantities = (items) => __awaiter(void 0, void 0, void 0, function* () {
+    const updatedProducts = [];
+    for (const item of items) {
+        const productId = item.productId;
+        const product = yield product_schema_1.default.findById(productId.toString());
+        if (!product) {
+            console.warn(`Product with ID ${productId} not found`);
+            continue;
+        }
+        const suppliedQty = parseInt(item.supplied) || 0;
+        const newQuantity = product.quantity - suppliedQty;
+        product.quantity = newQuantity < 0 ? 0 : newQuantity;
+        yield product.save();
+        updatedProducts.push(product);
+    }
+});
