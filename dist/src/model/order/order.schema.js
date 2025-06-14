@@ -97,5 +97,7 @@ const orderSchema = new mongoose_1.default.Schema({
             default: ""
         }
     },
+    startPickingTime: { type: Date },
+    endPickingTime: { type: Date },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("order", orderSchema);

@@ -26,6 +26,8 @@ export interface IOrder extends Document {
     paymentType: string,
     paymentStatus: string,
     amount: number,
+    startPickingTime?: Date,
+    endPickingTime?: Date,
     createdAt: Date,
     updatedAt: Date,
     orderType: string,
@@ -125,7 +127,10 @@ const orderSchema = new mongose.Schema<IOrder>(
             name: {
                 type: String,
                 default: ""
-            } },
+            }
+        },
+        startPickingTime: {type: Date},
+        endPickingTime: {type: Date},
     },
      { timestamps: true })
 

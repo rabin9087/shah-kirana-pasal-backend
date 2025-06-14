@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createCategory, deleteACategoryByID, getACategoryByID, getACategoryBySlug, getAllCategories, updateCategoryByID } from "../model/category/category.model";
+import { createCategory, deleteACategoryByID, getACategoryByID, getACategoryBySlug, getAllCategories, updateCategoryByID, updateCategoryStatusByID } from "../model/category/category.model";
 import slugify from "slugify";
 
 
@@ -117,6 +117,7 @@ export const createNewCategory = async (
     next: NextFunction
   ) => {
     try {
+      console.log(req.body)
       const { _id, ...categoryObj } = req.body
        req.body.slug = slugify(req.body.name, {
       replacement: '-', 
@@ -137,7 +138,30 @@ export const createNewCategory = async (
           category
           });
     } catch (error) {
-       
+       next(error)
     }
   }
 
+export const updateACategoryStatus = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const {_id} = req.params
+      const { status } = req.body
+        const category = await updateCategoryStatusByID(_id, status)
+        category?._id
+        ? res.json({
+            status: "success",
+            message: "Catery has been updated successfully",
+            category
+          })
+        : res.json({
+            status: "error",
+          message: "Error updating a category.",
+          });
+    } catch (error) {
+       next(error)
+    }
+  }

@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAOrderController = exports.getAOrderByFilterController = exports.getOrdersByDateController = exports.getOrders = exports.createNewOrder = exports.addCostPriceToItems = void 0;
+exports.updateMultipleOrderController = exports.updateAOrderController = exports.getAOrderByFilterController = exports.getOrdersByDateController = exports.getOrders = exports.createNewOrder = exports.addCostPriceToItems = void 0;
 const order_model_1 = require("../model/order/order.model");
 const randomGenerator_1 = require("../utils/randomGenerator");
+const order_schema_1 = __importDefault(require("../model/order/order.schema"));
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
 const addCostPriceToItems = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedItems = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
@@ -140,6 +141,41 @@ const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 exports.updateAOrderController = updateAOrderController;
+const updateMultipleOrderController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const incomingOrders = req.body;
+        if (!Array.isArray(incomingOrders) || incomingOrders.length === 0) {
+            return res.status(400).json({
+                status: "error",
+                message: "No orders provided",
+            });
+        }
+        for (const { orderNumber, items, deliveryStatus } of incomingOrders) {
+            if (!orderNumber || !Array.isArray(items))
+                continue;
+            yield updateProductsQuantities(items);
+            const updatedItems = yield (0, exports.addCostPriceToItems)(items);
+            const existingOrder = yield order_schema_1.default.findOne({ orderNumber });
+            if (!existingOrder) {
+                console.warn(`Order with number ${orderNumber} not found`);
+                continue;
+            }
+            yield (0, order_model_1.updateAOrder)(existingOrder._id.toString(), {
+                orderNumber,
+                items: updatedItems,
+                deliveryStatus
+            });
+        }
+        return res.json({
+            status: "success",
+            message: "All orders updated successfully!",
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateMultipleOrderController = updateMultipleOrderController;
 const updateProductsQuantities = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedProducts = [];
     for (const item of items) {

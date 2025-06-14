@@ -56,8 +56,6 @@ export const getAOrdersByDate = (requestDeliveryDate: string) => {
     return orderSchema.find({requestDeliveryDate}).populate('items.productId')
 }
 
-
-
 export const getAOrderBySlug = (slug: string) => {
     return orderSchema.findOne({slug})
 }
@@ -72,6 +70,9 @@ export const updateAOrderByID = (_id: string, OrderObj: IOrder) => {
     return orderSchema.findByIdAndUpdate(_id, OrderObj)
 }
 
+export const updateOrderStatusByID = (orderNumber: string, OrderObj: object) => {
+    return orderSchema.findByIdAndUpdate(orderNumber, OrderObj)
+}
 
 export const updateAOrder = async (_id: string, data: any): Promise<IOrder | null> => {
   const order = await orderSchema.findById(_id);

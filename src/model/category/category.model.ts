@@ -21,6 +21,10 @@ export const updateCategoryByID = (_id: string, categoryObj: createCategoryParam
     return categorySchema.findByIdAndUpdate(_id, categoryObj)
 }
 
+export const updateCategoryStatusByID = (_id: string, status: string ) => {
+    return categorySchema.findByIdAndUpdate(_id, {status})
+}
+
 export const deleteACategoryByID = (_id: string) => {
     return categorySchema.findByIdAndDelete(_id)
 }

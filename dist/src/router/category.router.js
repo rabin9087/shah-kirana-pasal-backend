@@ -8,4 +8,5 @@ router.get("/:_id", category_controller_1.getACategory);
 router.get("/", category_controller_1.getCategoriesList);
 router.delete("/:_id", category_controller_1.deleteACategory);
 router.put("/", category_controller_1.updateACategory);
+router.patch("/:_id", category_controller_1.updateACategoryStatus);
 exports.default = router;

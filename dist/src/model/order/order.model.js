@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAOrderByID = exports.updateAOrder = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrdersByDate = exports.getAOrderByQRCodeNumber = exports.getAOrderByOrderNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
+exports.deleteAOrderByID = exports.updateAOrder = exports.updateOrderStatusByID = exports.updateAOrderByID = exports.getAOrderByStoredAT = exports.getAOrderBySlug = exports.getAOrdersByDate = exports.getAOrderByQRCodeNumber = exports.getAOrderByOrderNumber = exports.getAOrderByFilter = exports.getAOrderBySKU = exports.getOrderListBystatus = exports.getOrderListBySlug = exports.getOrderListByCategory = exports.getAOrderByID = exports.getOrderListByName = exports.getAllOrders = exports.createOrder = void 0;
 const order_schema_1 = __importDefault(require("./order.schema"));
 const createOrder = (OrderObj) => {
     return new order_schema_1.default(OrderObj).save();
@@ -86,6 +86,10 @@ const updateAOrderByID = (_id, OrderObj) => {
     return order_schema_1.default.findByIdAndUpdate(_id, OrderObj);
 };
 exports.updateAOrderByID = updateAOrderByID;
+const updateOrderStatusByID = (orderNumber, OrderObj) => {
+    return order_schema_1.default.findByIdAndUpdate(orderNumber, OrderObj);
+};
+exports.updateOrderStatusByID = updateOrderStatusByID;
 const updateAOrder = (_id, data) => __awaiter(void 0, void 0, void 0, function* () {
     const order = yield order_schema_1.default.findById(_id);
     if (!order)

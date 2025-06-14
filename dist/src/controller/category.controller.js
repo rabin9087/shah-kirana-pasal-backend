@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateACategory = exports.deleteACategory = exports.getACategory = exports.getCategoriesList = exports.createNewCategory = void 0;
+exports.updateACategoryStatus = exports.updateACategory = exports.deleteACategory = exports.getACategory = exports.getCategoriesList = exports.createNewCategory = void 0;
 const category_model_1 = require("../model/category/category.model");
 const slugify_1 = __importDefault(require("slugify"));
 const createNewCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -116,6 +116,7 @@ const deleteACategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 exports.deleteACategory = deleteACategory;
 const updateACategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(req.body);
         const _a = req.body, { _id } = _a, categoryObj = __rest(_a, ["_id"]);
         req.body.slug = (0, slugify_1.default)(req.body.name, {
             replacement: '-',
@@ -137,6 +138,28 @@ const updateACategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             });
     }
     catch (error) {
+        next(error);
     }
 });
 exports.updateACategory = updateACategory;
+const updateACategoryStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { _id } = req.params;
+        const { status } = req.body;
+        const category = yield (0, category_model_1.updateCategoryStatusByID)(_id, status);
+        (category === null || category === void 0 ? void 0 : category._id)
+            ? res.json({
+                status: "success",
+                message: "Catery has been updated successfully",
+                category
+            })
+            : res.json({
+                status: "error",
+                message: "Error updating a category.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateACategoryStatus = updateACategoryStatus;

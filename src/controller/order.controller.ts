@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDate, getAllOrders, updateAOrder } from "../model/order/order.model";
+import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDate, getAllOrders, updateAOrder, updateOrderStatusByID } from "../model/order/order.model";
 import { randomOTPGenerator } from "../utils/randomGenerator";
-import { IItemTypes } from "../model/order/order.schema";
+import orderSchema, { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
 import { updateProductQuantities } from "./product.controller";
 
@@ -150,6 +150,52 @@ export const updateAOrderController = async (
           message: "Error creating new order. \n Try again!.",
       });
     
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateMultipleOrderController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const incomingOrders = req.body; // Array of orders
+
+    if (!Array.isArray(incomingOrders) || incomingOrders.length === 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "No orders provided",
+      });
+    }
+
+    for (const { orderNumber, items, deliveryStatus } of incomingOrders) {
+      if (!orderNumber || !Array.isArray(items)) continue;
+
+      await updateProductsQuantities(items);
+      const updatedItems = await addCostPriceToItems(items);
+
+      // Find order by orderNumber to get its _id
+      const existingOrder = await orderSchema.findOne({ orderNumber });
+      if (!existingOrder) {
+        console.warn(`Order with number ${orderNumber} not found`);
+        continue;
+      }
+
+      // Update the order
+      await updateAOrder(existingOrder._id.toString(), {
+        orderNumber,
+        items: updatedItems,
+        deliveryStatus
+      });
+    }
+
+    return res.json({
+      status: "success",
+      message: "All orders updated successfully!",
+    });
+
   } catch (error) {
     next(error);
   }

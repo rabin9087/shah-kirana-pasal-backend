@@ -9,6 +9,7 @@ router.get("/orderNumber=:orderNumber", order_controller_1.getAOrderByFilterCont
 router.get("/all-orders", auth_1.adminAccess, order_controller_1.getOrders);
 router.get("/date=:date", auth_1.PickerAccess, order_controller_1.getOrdersByDateController);
 router.patch("/update/:_id", auth_1.PickerAccess, order_controller_1.updateAOrderController);
+router.patch("/updateMultiple", auth_1.PickerAccess, order_controller_1.updateMultipleOrderController);
 router.delete("/:_id");
 router.put("/");
 exports.default = router;
