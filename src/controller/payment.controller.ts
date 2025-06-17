@@ -9,11 +9,14 @@ export const createPayment = async(
     const stripe = new Stripe(process.env.STRIP_SECRET)
 
     const paymentIntents = await stripe.paymentIntents.create({
-    amount: parseInt(amount) * 100,
-        currency: currency,
-        payment_method_types: ["card", "afterpay_clearpay", "zip"],
-    // return_url: "http://localhost:5173/payment/success" || "https://www.shahkiranapasal.shop/payment/success",
-    });
+     amount: parseInt(amount) * 100, // convert to cents
+      currency,
+      payment_method_types: [
+        "card",              // Google Pay & Apple Pay use card tokens
+          "afterpay_clearpay",
+        "zip"  // Stripe supports Afterpay
+        // ⚠️ "zippay" is NOT a valid Stripe method
+      ], });
     
 return res.json({
         clientSecret: paymentIntents.client_secret
