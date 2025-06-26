@@ -3,8 +3,9 @@ import { createOrder, getAOrderByFilter, getAOrderByOrderNumber, getAOrdersByDat
 import { randomOTPGenerator } from "../utils/randomGenerator";
 import orderSchema, { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
-import { updateProductQuantities } from "./product.controller";
+import axios from "axios";
 
+  
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
   const updatedItems = await Promise.all(
     items.map(async (item) => {
@@ -38,7 +39,68 @@ export const createNewOrder = async (
     // Create the order with the unique orderNumber
     const order = await createOrder({ orderNumber, ...req.body });
 
+    
     if (order?._id) {
+        // Step 1: Fetch all product IDs from the order
+  const productIds = order.items.map(item => item.productId);
+const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${order.orderNumber}&size=150x150`;
+
+  // Step 2: Fetch all relevant products from the DB
+  const products = await productSchema.find({ _id: { $in: productIds } });
+const productMap: Record<string, { name: string; image: string }> = {};
+
+// Step 3: Build a map for quick lookup
+products.forEach(prod => {
+  productMap[prod._id.toString()] = {
+    name: prod.name,
+    image: prod.images?.[0] || '', // safe access to first image
+  };
+});
+
+  // Step 4: Build the payload with enriched product data
+  const itemsWithDetails = order.items.map(({ productId, price, quantity, note }) => {
+    const prod = productMap[productId.toString()];
+    return {
+      productId,
+      productName: prod?.name || 'Unknown',
+      productImage: prod?.image[0] || '',
+      quantity,
+      price,
+      note,
+    };
+  });
+      
+ // Helpers
+const padLeft = (str: string, length: number) =>
+  str.length >= length ? str.slice(0, length - 1) + '…' : ' '.repeat(length - str.length) + str;
+
+const padRight = (str: string, length: number) =>
+  str.length >= length ? str.slice(0, length - 1) + '…' : str + ' '.repeat(length - str.length);
+      
+ // Header
+const formattedItems = [
+  `${padRight('S.N.', 10)}${padRight('ITEM NAME', 80)}${padLeft('QUANTITY', 15)}${padLeft('PRICE', 20)}${padLeft('TOTAL', 20)}`,
+  `${'-'.repeat(40)}${'-'.repeat(10)}${'-'.repeat(12)}${'-'.repeat(12)}`,
+
+  // Rows
+  ...itemsWithDetails.map(({ productName, quantity, price }, i) => {
+    const total = price * quantity;
+    return `${padRight((i+1).toString(), 10)}${padRight(productName.toUpperCase(), 80)}${padLeft(quantity.toString(), 15)}${padLeft(`@$${price.toFixed(2)}`, 20)}${padLeft(`$${total.toFixed(2)}`, 20)}`;
+  }),
+].join('\n');
+
+      const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER
+
+       // Step 5: Send data to Zapier
+  await axios.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER as string, {
+    CustomerName: order.name,
+    orderNumber: order.orderNumber,
+    total: order.amount,
+    email: order.email,
+    phone: order.phone,
+    items: formattedItems,
+    qrCodeUrl
+  });
       res.json({
         status: 'success',
         message: 'New order has been created successfully!',
@@ -50,7 +112,7 @@ export const createNewOrder = async (
         message: 'Error creating new order. Please try again.',
       });
     }
-  } catch (error) {
+    } catch (error) {
     next(error);
   }
 };
@@ -139,6 +201,16 @@ export const updateAOrderController = async (
     }
     
     const updatedOrder = await updateAOrder(_id as string, req.body);
+    if (updatedOrder?._id) {
+      const ZAPIER_WEBHOOK_URL_ORDER_STATUS = process.env.ZAPIER_WEBHOOK_URL_ORDER_STATUS
+
+      axios.post(ZAPIER_WEBHOOK_URL_ORDER_STATUS as string, {
+        status: req.body.deliveryStatus,
+        name: updatedOrder.name,
+        email: updatedOrder.email,
+        orderNumber: updatedOrder.orderNumber,
+      })
+    }
     updatedOrder
       ? res.json({
           status: "success",
@@ -162,7 +234,6 @@ export const updateMultipleOrderController = async (
 ) => {
   try {
     const incomingOrders = req.body; // Array of orders
-
     if (!Array.isArray(incomingOrders) || incomingOrders.length === 0) {
       return res.status(400).json({
         status: "error",

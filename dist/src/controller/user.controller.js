@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateAUserProfile = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
@@ -15,6 +18,7 @@ const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
 const nodemailer_1 = require("../utils/nodemailer");
 const randomGenerator_1 = require("../utils/randomGenerator");
+const axios_1 = __importDefault(require("axios"));
 const createNewUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { password } = req.body;
@@ -216,6 +220,7 @@ const signOutUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 exports.signOutUser = signOutUser;
 const OTPRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const ZAPIER_WEBHOOK_URL_OTP = process.env.ZAPIER_WEBHOOK_URL_OTP;
         const { email_phone } = req.body;
         if (!email_phone)
             throw new Error("Email or Phone number required!");
@@ -224,6 +229,11 @@ const OTPRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             const otp = (0, randomGenerator_1.randomOTPGenerator)();
             const update = yield (0, user_model_1.UpdateUserByPhone)(user === null || user === void 0 ? void 0 : user.phone, { verificationCode: otp });
             if (update === null || update === void 0 ? void 0 : update._id) {
+                axios_1.default.post(ZAPIER_WEBHOOK_URL_OTP, {
+                    name: update.fName + " " + update.lName,
+                    email: update === null || update === void 0 ? void 0 : update.email,
+                    otp
+                });
                 return res.json({
                     status: "success",
                     message: `OTP has been sent to ${email_phone}`,

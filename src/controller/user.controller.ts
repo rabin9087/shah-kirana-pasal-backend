@@ -10,6 +10,8 @@ import {
 import { sendRegisterationLink } from "../utils/nodemailer";
 import { randomOTPGenerator } from "../utils/randomGenerator";
 import { IUser } from '../model/user/user.schema';
+import axios from 'axios';
+
 
 export const createNewUser = async (
   req: Request,
@@ -240,6 +242,7 @@ export const signOutUser = async (
   
 export const OTPRequest = async(req: Request, res: Response, next: NextFunction) => {
   try {
+    const ZAPIER_WEBHOOK_URL_OTP = process.env.ZAPIER_WEBHOOK_URL_OTP
     const {email_phone} = req.body
     //find user with provided email or phone 
     if(!email_phone) throw new Error("Email or Phone number required!")
@@ -248,7 +251,12 @@ export const OTPRequest = async(req: Request, res: Response, next: NextFunction)
       //generate otp and update user's
       const otp = randomOTPGenerator()
      const update = await UpdateUserByPhone(user?.phone!, {verificationCode: otp})
-     if(update?._id){
+      if (update?._id) {
+        axios.post(ZAPIER_WEBHOOK_URL_OTP as string, {
+          name: update.fName + " " + update.lName,
+          email: update?.email,
+          otp
+       })
       return res.json({
         status: "success",
         message: `OTP has been sent to ${email_phone}`,

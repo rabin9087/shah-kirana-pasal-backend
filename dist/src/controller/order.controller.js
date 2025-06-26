@@ -17,6 +17,7 @@ const order_model_1 = require("../model/order/order.model");
 const randomGenerator_1 = require("../utils/randomGenerator");
 const order_schema_1 = __importDefault(require("../model/order/order.schema"));
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
+const axios_1 = __importDefault(require("axios"));
 const addCostPriceToItems = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedItems = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -40,6 +41,48 @@ const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         req.body.items = yield (0, exports.addCostPriceToItems)(req.body.items);
         const order = yield (0, order_model_1.createOrder)(Object.assign({ orderNumber }, req.body));
         if (order === null || order === void 0 ? void 0 : order._id) {
+            const productIds = order.items.map(item => item.productId);
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${order.orderNumber}&size=150x150`;
+            const products = yield product_schema_1.default.find({ _id: { $in: productIds } });
+            const productMap = {};
+            products.forEach(prod => {
+                var _a;
+                productMap[prod._id.toString()] = {
+                    name: prod.name,
+                    image: ((_a = prod.images) === null || _a === void 0 ? void 0 : _a[0]) || '',
+                };
+            });
+            const itemsWithDetails = order.items.map(({ productId, price, quantity, note }) => {
+                const prod = productMap[productId.toString()];
+                return {
+                    productId,
+                    productName: (prod === null || prod === void 0 ? void 0 : prod.name) || 'Unknown',
+                    productImage: (prod === null || prod === void 0 ? void 0 : prod.image[0]) || '',
+                    quantity,
+                    price,
+                    note,
+                };
+            });
+            const padLeft = (str, length) => str.length >= length ? str.slice(0, length - 1) + '…' : ' '.repeat(length - str.length) + str;
+            const padRight = (str, length) => str.length >= length ? str.slice(0, length - 1) + '…' : str + ' '.repeat(length - str.length);
+            const formattedItems = [
+                `${padRight('S.N.', 10)}${padRight('ITEM NAME', 80)}${padLeft('QUANTITY', 15)}${padLeft('PRICE', 20)}${padLeft('TOTAL', 20)}`,
+                `${'-'.repeat(40)}${'-'.repeat(10)}${'-'.repeat(12)}${'-'.repeat(12)}`,
+                ...itemsWithDetails.map(({ productName, quantity, price }, i) => {
+                    const total = price * quantity;
+                    return `${padRight((i + 1).toString(), 10)}${padRight(productName.toUpperCase(), 80)}${padLeft(quantity.toString(), 15)}${padLeft(`@$${price.toFixed(2)}`, 20)}${padLeft(`$${total.toFixed(2)}`, 20)}`;
+                }),
+            ].join('\n');
+            const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER;
+            yield axios_1.default.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER, {
+                CustomerName: order.name,
+                orderNumber: order.orderNumber,
+                total: order.amount,
+                email: order.email,
+                phone: order.phone,
+                items: formattedItems,
+                qrCodeUrl
+            });
             res.json({
                 status: 'success',
                 message: 'New order has been created successfully!',
@@ -126,6 +169,15 @@ const updateAOrderController = (req, res, next) => __awaiter(void 0, void 0, voi
             req.body.items = yield (0, exports.addCostPriceToItems)(req.body.items);
         }
         const updatedOrder = yield (0, order_model_1.updateAOrder)(_id, req.body);
+        if (updatedOrder === null || updatedOrder === void 0 ? void 0 : updatedOrder._id) {
+            const ZAPIER_WEBHOOK_URL_ORDER_STATUS = process.env.ZAPIER_WEBHOOK_URL_ORDER_STATUS;
+            axios_1.default.post(ZAPIER_WEBHOOK_URL_ORDER_STATUS, {
+                status: req.body.deliveryStatus,
+                name: updatedOrder.name,
+                email: updatedOrder.email,
+                orderNumber: updatedOrder.orderNumber,
+            });
+        }
         updatedOrder
             ? res.json({
                 status: "success",

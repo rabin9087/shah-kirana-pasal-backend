@@ -13,5 +13,9 @@ exports.envVariables = zod_1.z.object({
     REGION: zod_1.z.string(),
     ACCESS_KEY: zod_1.z.string(),
     SECRET_KEY: zod_1.z.string(),
-    STRIP_SECRET: zod_1.z.string()
+    STRIP_SECRET: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_CREATE_ORDER: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_OTP: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_ORDER_PACKED: zod_1.z.string(),
 });

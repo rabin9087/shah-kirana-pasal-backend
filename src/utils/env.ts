@@ -11,6 +11,10 @@ export const envVariables = z.object({
   REGION: z.string(),
   ACCESS_KEY: z.string(),
   SECRET_KEY: z.string(),
-  STRIP_SECRET: z.string()
+  STRIP_SECRET: z.string(),
+  ZAPIER_WEBHOOK_URL_CREATE_ORDER: z.string(),
+  ZAPIER_WEBHOOK_URL_OTP: z.string(),
+  ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: z.string(),
+  ZAPIER_WEBHOOK_URL_ORDER_PACKED: z.string(),
 });
 
