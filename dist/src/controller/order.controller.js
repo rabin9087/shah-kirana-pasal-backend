@@ -18,6 +18,7 @@ const randomGenerator_1 = require("../utils/randomGenerator");
 const order_schema_1 = __importDefault(require("../model/order/order.schema"));
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
 const axios_1 = __importDefault(require("axios"));
+const pdfGenerator_1 = require("../utils/pdfGenerator");
 const addCostPriceToItems = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedItems = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -57,7 +58,7 @@ const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 return {
                     productId,
                     productName: (prod === null || prod === void 0 ? void 0 : prod.name) || 'Unknown',
-                    productImage: (prod === null || prod === void 0 ? void 0 : prod.image[0]) || '',
+                    productImage: (prod === null || prod === void 0 ? void 0 : prod.image) || '',
                     quantity,
                     price,
                     note,
@@ -65,23 +66,46 @@ const createNewOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             });
             const padLeft = (str, length) => str.length >= length ? str.slice(0, length - 1) + '…' : ' '.repeat(length - str.length) + str;
             const padRight = (str, length) => str.length >= length ? str.slice(0, length - 1) + '…' : str + ' '.repeat(length - str.length);
-            const formattedItems = [
-                `${padRight('S.N.', 10)}${padRight('ITEM NAME', 80)}${padLeft('QUANTITY', 15)}${padLeft('PRICE', 20)}${padLeft('TOTAL', 20)}`,
-                `${'-'.repeat(40)}${'-'.repeat(10)}${'-'.repeat(12)}${'-'.repeat(12)}`,
+            const formattedItemsText = [
+                `${padRight('S.N.', 5)}${padRight('ITEM NAME', 50)}${padLeft('QTY', 5)}${padLeft('PRICE', 10)}${padLeft('TOTAL', 10)}`,
+                '-'.repeat(80),
                 ...itemsWithDetails.map(({ productName, quantity, price }, i) => {
                     const total = price * quantity;
-                    return `${padRight((i + 1).toString(), 10)}${padRight(productName.toUpperCase(), 80)}${padLeft(quantity.toString(), 15)}${padLeft(`@$${price.toFixed(2)}`, 20)}${padLeft(`$${total.toFixed(2)}`, 20)}`;
+                    return (`${padRight((i + 1).toString(), 5)}` +
+                        `${padRight(productName.toUpperCase(), 50)}` +
+                        `${padLeft(quantity.toString(), 5)}` +
+                        `${padLeft(`@$${price.toFixed(2)}`, 10)}` +
+                        `${padLeft(`$${total.toFixed(2)}`, 10)}`);
                 }),
             ].join('\n');
+            const grandTotal = itemsWithDetails.reduce((acc, item) => acc + item.quantity * item.price, 0);
+            const htmlItems = `
+<pre style="font-family: monospace; font-size: 14px; line-height: 1.4;">
+🛒 Order Receipt
+
+Customer Name : ${order.name}
+Phone         : ${order.phone}
+Email         : ${order.email}
+Order Number  : ${order.orderNumber}
+
+${formattedItemsText}
+
+${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
+</pre>
+<img src="${qrCodeUrl}" alt="QR Code" style="margin-top: 10px;" />
+`;
             const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER;
+            const pdfBuffer = yield (0, pdfGenerator_1.generateReceiptPDF)(htmlItems);
+            const base64PDF = pdfBuffer.toString('base64');
             yield axios_1.default.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER, {
-                CustomerName: order.name,
+                customerName: order.name,
                 orderNumber: order.orderNumber,
-                total: order.amount,
+                total: `$${grandTotal.toFixed(2)}`,
                 email: order.email,
                 phone: order.phone,
-                items: formattedItems,
-                qrCodeUrl
+                receiptHtml: htmlItems,
+                qrCodeUrl,
+                receiptPdfBase64: base64PDF,
             });
             res.json({
                 status: 'success',

@@ -4,6 +4,7 @@ import { randomOTPGenerator } from "../utils/randomGenerator";
 import orderSchema, { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
 import axios from "axios";
+import { generateReceiptPDF } from "../utils/pdfGenerator";
 
   
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
@@ -25,9 +26,9 @@ export const createNewOrder = async (
   next: NextFunction
 ) => {
   try {
-   let orderNumber: string | undefined;
+    let orderNumber: string | undefined;
     let isUnique = false;
-    // Loop until a unique orderNumber is generated
+
     while (!isUnique) {
       orderNumber = randomOTPGenerator();
       const existingOrder = await getAOrderByOrderNumber({ orderNumber });
@@ -35,72 +36,91 @@ export const createNewOrder = async (
         isUnique = true;
       }
     }
+
     req.body.items = await addCostPriceToItems(req.body.items);
-    // Create the order with the unique orderNumber
     const order = await createOrder({ orderNumber, ...req.body });
 
-    
     if (order?._id) {
-        // Step 1: Fetch all product IDs from the order
-  const productIds = order.items.map(item => item.productId);
-const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${order.orderNumber}&size=150x150`;
+      const productIds = order.items.map(item => item.productId);
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${order.orderNumber}&size=150x150`;
 
-  // Step 2: Fetch all relevant products from the DB
-  const products = await productSchema.find({ _id: { $in: productIds } });
-const productMap: Record<string, { name: string; image: string }> = {};
+      const products = await productSchema.find({ _id: { $in: productIds } });
+      const productMap: Record<string, { name: string; image: string }> = {};
 
-// Step 3: Build a map for quick lookup
-products.forEach(prod => {
-  productMap[prod._id.toString()] = {
-    name: prod.name,
-    image: prod.images?.[0] || '', // safe access to first image
-  };
-});
+      products.forEach(prod => {
+        productMap[prod._id.toString()] = {
+          name: prod.name,
+          image: prod.images?.[0] || '',
+        };
+      });
 
-  // Step 4: Build the payload with enriched product data
-  const itemsWithDetails = order.items.map(({ productId, price, quantity, note }) => {
-    const prod = productMap[productId.toString()];
-    return {
-      productId,
-      productName: prod?.name || 'Unknown',
-      productImage: prod?.image[0] || '',
-      quantity,
-      price,
-      note,
-    };
-  });
-      
- // Helpers
-const padLeft = (str: string, length: number) =>
-  str.length >= length ? str.slice(0, length - 1) + '…' : ' '.repeat(length - str.length) + str;
+      const itemsWithDetails = order.items.map(({ productId, price, quantity, note }) => {
+        const prod = productMap[productId.toString()];
+        return {
+          productId,
+          productName: prod?.name || 'Unknown',
+          productImage: prod?.image || '',
+          quantity,
+          price,
+          note,
+        };
+      });
 
-const padRight = (str: string, length: number) =>
-  str.length >= length ? str.slice(0, length - 1) + '…' : str + ' '.repeat(length - str.length);
-      
- // Header
-const formattedItems = [
-  `${padRight('S.N.', 10)}${padRight('ITEM NAME', 80)}${padLeft('QUANTITY', 15)}${padLeft('PRICE', 20)}${padLeft('TOTAL', 20)}`,
-  `${'-'.repeat(40)}${'-'.repeat(10)}${'-'.repeat(12)}${'-'.repeat(12)}`,
+      const padLeft = (str: string, length: number) =>
+        str.length >= length ? str.slice(0, length - 1) + '…' : ' '.repeat(length - str.length) + str;
 
-  // Rows
-  ...itemsWithDetails.map(({ productName, quantity, price }, i) => {
-    const total = price * quantity;
-    return `${padRight((i+1).toString(), 10)}${padRight(productName.toUpperCase(), 80)}${padLeft(quantity.toString(), 15)}${padLeft(`@$${price.toFixed(2)}`, 20)}${padLeft(`$${total.toFixed(2)}`, 20)}`;
-  }),
-].join('\n');
+      const padRight = (str: string, length: number) =>
+        str.length >= length ? str.slice(0, length - 1) + '…' : str + ' '.repeat(length - str.length);
 
-      const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER
+      const formattedItemsText = [
+        `${padRight('S.N.', 5)}${padRight('ITEM NAME', 50)}${padLeft('QTY', 5)}${padLeft('PRICE', 10)}${padLeft('TOTAL', 10)}`,
+        '-'.repeat(80),
+        ...itemsWithDetails.map(({ productName, quantity, price }, i) => {
+          const total = price * quantity;
+          return (
+            `${padRight((i + 1).toString(), 5)}` +
+            `${padRight(productName.toUpperCase(), 50)}` +
+            `${padLeft(quantity.toString(), 5)}` +
+            `${padLeft(`@$${price.toFixed(2)}`, 10)}` +
+            `${padLeft(`$${total.toFixed(2)}`, 10)}`
+          );
+        }),
+      ].join('\n');
 
-       // Step 5: Send data to Zapier
-  await axios.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER as string, {
-    CustomerName: order.name,
-    orderNumber: order.orderNumber,
-    total: order.amount,
-    email: order.email,
-    phone: order.phone,
-    items: formattedItems,
-    qrCodeUrl
-  });
+      const grandTotal = itemsWithDetails.reduce((acc, item) => acc + item.quantity * item.price, 0);
+
+      const htmlItems = `
+<pre style="font-family: monospace; font-size: 14px; line-height: 1.4;">
+🛒 Order Receipt
+
+Customer Name : ${order.name}
+Phone         : ${order.phone}
+Email         : ${order.email}
+Order Number  : ${order.orderNumber}
+
+${formattedItemsText}
+
+${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
+</pre>
+<img src="${qrCodeUrl}" alt="QR Code" style="margin-top: 10px;" />
+`;
+
+      const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER;
+
+      const pdfBuffer = await generateReceiptPDF(htmlItems);
+    const base64PDF = pdfBuffer.toString('base64');
+
+      await axios.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER as string, {
+        customerName: order.name,
+        orderNumber: order.orderNumber,
+        total: `$${grandTotal.toFixed(2)}`,
+        email: order.email,
+        phone: order.phone,
+        receiptHtml: htmlItems, // 🔥 Final receipt
+        qrCodeUrl, // Optional
+        receiptPdfBase64: base64PDF,
+      });
+
       res.json({
         status: 'success',
         message: 'New order has been created successfully!',
@@ -112,7 +132,7 @@ const formattedItems = [
         message: 'Error creating new order. Please try again.',
       });
     }
-    } catch (error) {
+  } catch (error) {
     next(error);
   }
 };

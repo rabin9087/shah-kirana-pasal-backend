@@ -28,10 +28,11 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             payment_method_types: [
                 "card",
                 "afterpay_clearpay",
+                "zip",
             ],
         });
         return res.json({
-            clientSecret: paymentIntents.client_secret
+            clientSecret: paymentIntents.client_secret,
         });
     }
     catch (error) {

@@ -21,10 +21,53 @@ export const createPayment = async(
       payment_method_types: [
         "card",              // Google Pay & Apple Pay use card tokens
         "afterpay_clearpay",
-      ], });
+        "zip",
+      ],
+      // customer: req.body.customer
+      // automatic_payment_methods: { enabled: true },
+      // shipping: {
+      //   name: req.body.name,
+      //   address: req.body.address,
+      //   phone: req.body.phone,
+      // }
+    });
+
+    // const customerSession = await stripe.customerSessions.create({
+    //   customer: req.body.customer,
+    //   components: {
+    //     payment_element: {
+    //       enabled: true,
+    //       features: {
+    //         payment_method_redisplay: "enabled",
+    //         payment_method_save: "enabled",
+    //         payment_method_save_usage: "on_session",
+    //         payment_method_remove: "enabled",
+    //       }
+    //     }
+    //   }
+    // })
+    // const session = await stripe.checkout.sessions.create({
+    //   line_items: [
+    //     {
+    //       price_data: {
+    //         currency: currency,
+    //         product_data: {
+    //           name: 'Test Product',
+    //         },
+    //         unit_amount: parseInt(amount) * 100,
+    //       },
+    //       quantity: 1,
+    //     },
+    //   ],
+    //   mode: 'payment',
+    //   success_url: 'https://example.com/success',
+    //   cancel_url: 'https://example.com/cancel',
+
+    // })
     
-return res.json({
-        clientSecret: paymentIntents.client_secret
+    return res.json({
+      clientSecret: paymentIntents.client_secret,
+      // customer_session_client_secret: customerSession.client_secret
     })
   } catch (error) {
     next(error)
