@@ -18,7 +18,6 @@ const randomGenerator_1 = require("../utils/randomGenerator");
 const order_schema_1 = __importDefault(require("../model/order/order.schema"));
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
 const axios_1 = __importDefault(require("axios"));
-const pdfGenerator_1 = require("../utils/pdfGenerator");
 const addCostPriceToItems = (items) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedItems = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -95,8 +94,6 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
 <img src="${qrCodeUrl}" alt="QR Code" style="margin-top: 10px;" />
 `;
             const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER;
-            const pdfBuffer = yield (0, pdfGenerator_1.generateReceiptPDF)(htmlItems);
-            const base64PDF = pdfBuffer.toString('base64');
             yield axios_1.default.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER, {
                 customerName: order.name,
                 orderNumber: order.orderNumber,
@@ -106,7 +103,6 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
                 receiptHtml: htmlItems,
                 qrCodeUrl,
                 items: formattedItemsText,
-                receiptPdfBase64: base64PDF,
             });
             res.json({
                 status: 'success',

@@ -4,7 +4,6 @@ import { randomOTPGenerator } from "../utils/randomGenerator";
 import orderSchema, { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
 import axios from "axios";
-import { generateReceiptPDF } from "../utils/pdfGenerator";
   
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
   const updatedItems = await Promise.all(
@@ -106,9 +105,6 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
 
       const ZAPIER_WEBHOOK_URL_CREATE_ORDER = process.env.ZAPIER_WEBHOOK_URL_CREATE_ORDER;
 
-      const pdfBuffer = await generateReceiptPDF(htmlItems);
-    const base64PDF = pdfBuffer.toString('base64');
-
       await axios.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER as string, {
         customerName: order.name,
         orderNumber: order.orderNumber,
@@ -118,7 +114,6 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
         receiptHtml: htmlItems, // 🔥 Final receipt
         qrCodeUrl, // Optional
         items: formattedItemsText,
-        receiptPdfBase64: base64PDF,
       });
 
       res.json({
