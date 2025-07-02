@@ -33,6 +33,10 @@ interface ImportMetaEnv {
   readonly SECRET_KEY: string;
   readonly STRIP_SECRET: string;
   readonly MONGO_URI: string;
+  readonly REDIS_DB_URI: string;
+  readonly REDIS_PASSWORD: string;
+  readonly REDIS_HOST: string;
+  readonly REDIS_PORT: string;
   readonly ZAPIER_WEBHOOK_URL_CREATE_ORDER: string;
   readonly ZAPIER_WEBHOOK_URL_OTP: string;
   readonly ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: string;

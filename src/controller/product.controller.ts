@@ -6,6 +6,7 @@ import { createProduct, deleteAProductByID, getAllProducts,
 import slugify from 'slugify'
 import { getACategoryBySlug } from "../model/category/category.model";
 import productSchema from "../model/product/product.schema";
+import { redisClient } from "../utils/redis";
 
 export const createNewProduct = async (
     req: Request,
@@ -182,13 +183,14 @@ export const getAllProductListByLimit = async (
   ) => {
     try {
       const { slug } = req.params
-    //   const cacheKey = `products:category:${slug}`;
-    //    // 1. Check Redis cache
-    //   const cachedData = await redisClient.get(cacheKey);
-    //   console.log(cachedData)
-    // if (cachedData) {
-    //   return res.json(JSON.parse(cachedData));
-    // }
+      const cacheKey = `products:category:${slug}`;
+       // 1. Check Redis cache
+      const cachedData = await redisClient.get(cacheKey);
+
+
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
       
       const cat = await getACategoryBySlug(slug)
       if (cat?._id) {
@@ -207,7 +209,7 @@ export const getAllProductListByLimit = async (
           };
 
       // 3. Save response in Redis for 60 seconds (you can customize the time)
-      // await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+      await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
 
       return res.json(response);
       } else {
@@ -266,7 +268,6 @@ export const getAllProductListByLimit = async (
       next(error);
     }
   };
-
 
   export const fetchAProductByQRCode = async (
     req: Request,

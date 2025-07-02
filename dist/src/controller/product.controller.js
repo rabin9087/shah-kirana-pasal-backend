@@ -28,6 +28,7 @@ const product_model_1 = require("../model/product/product.model");
 const slugify_1 = __importDefault(require("slugify"));
 const category_model_1 = require("../model/category/category.model");
 const product_schema_1 = __importDefault(require("../model/product/product.schema"));
+const redis_1 = require("../utils/redis");
 const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (req.files) {
@@ -173,6 +174,11 @@ exports.getAllProductList = getAllProductList;
 const getAllProductListByCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { slug } = req.params;
+        const cacheKey = `products:category:${slug}`;
+        const cachedData = yield redis_1.redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.json(JSON.parse(cachedData));
+        }
         const cat = yield (0, category_model_1.getACategoryBySlug)(slug);
         if (cat === null || cat === void 0 ? void 0 : cat._id) {
             const products = yield (0, product_model_1.getProductListByCategory)(cat._id);
@@ -187,6 +193,7 @@ const getAllProductListByCategory = (req, res, next) => __awaiter(void 0, void 0
                     status: "error",
                     message: "No active products found for this category.",
                 };
+            yield redis_1.redisClient.setEx(cacheKey, 60, JSON.stringify(response));
             return res.json(response);
         }
         else {

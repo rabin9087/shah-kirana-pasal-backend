@@ -11,13 +11,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectRedis = exports.redisClient = void 0;
 const redis_1 = require("redis");
-const redisClient = (0, redis_1.createClient)();
+const redisClient = (0, redis_1.createClient)({
+    username: 'default',
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: process.env.REDIS_HOST || "localhost",
+        port: parseInt(process.env.REDIS_PORT || 6379, 10),
+    },
+});
 exports.redisClient = redisClient;
-redisClient.on("error", (err) => console.error("Redis Client Error", err));
+redisClient.on("error", (err) => console.log("Redis Client Error", err));
 const connectRedis = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield redisClient.connect();
-        console.log("🔌 Redis connected");
+        console.log("Redis DB Connect succesfully!");
     }
     catch (err) {
         console.error("❌ Redis connection error:", err);

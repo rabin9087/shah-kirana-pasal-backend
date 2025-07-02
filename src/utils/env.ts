@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const envVariables = z.object({
   MONGO_URI: z.string(),
+  REDIS_DB_URI: z.string(),
+  REDIS_PASSWORD: z.string(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.string(),
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   GMAIL_APP_PASSWORD: z.string(),

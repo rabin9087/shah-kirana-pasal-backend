@@ -15,8 +15,8 @@ import { connectRedis } from "./src/utils/redis";
 import dotenv from "dotenv";
 
 dotenv.config();
+
 //For env File
-connectRedis()
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // Limit each IP to 100 requests per minute
@@ -58,21 +58,20 @@ app.use(
     });
   }
 );
-connectMongo()
+
+const startServer = async () => { 
+  await connectMongo();
+  await connectRedis();
 process.env.ENVIRONMENT === "Development"  
   ? app.listen(port, () => {
     console.log(`Server is running on http://192.168.20.4:${port}`);
-
-    
     })
   : app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
+}
 
-// process.env.ENVIRONMENT === "Development"
-//   ? app.listen(port, "192.168.20.4", () => {
-//       console.log(`Server is running on http://192.168.20.4:${port}`);
-//     })
-//   : app.listen(port, () => {
-//       console.log(`Server is running on http://localhost:${port}`);
-//     });
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});
