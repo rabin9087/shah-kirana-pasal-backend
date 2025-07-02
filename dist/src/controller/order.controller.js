@@ -100,11 +100,12 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
             yield axios_1.default.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER, {
                 customerName: order.name,
                 orderNumber: order.orderNumber,
-                total: `$${grandTotal.toFixed(2)}`,
+                total: `$${order.amount.toFixed(2)}`,
                 email: order.email,
                 phone: order.phone,
                 receiptHtml: htmlItems,
                 qrCodeUrl,
+                items: formattedItemsText,
                 receiptPdfBase64: base64PDF,
             });
             res.json({

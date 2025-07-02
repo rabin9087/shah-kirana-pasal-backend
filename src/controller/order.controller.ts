@@ -5,7 +5,6 @@ import orderSchema, { IItemTypes } from "../model/order/order.schema";
 import productSchema from "../model/product/product.schema";
 import axios from "axios";
 import { generateReceiptPDF } from "../utils/pdfGenerator";
-
   
 export const addCostPriceToItems = async (items: IItemTypes[]) => {
   const updatedItems = await Promise.all(
@@ -113,11 +112,12 @@ ${padLeft("Grand Total:", 70)} $${grandTotal.toFixed(2)}
       await axios.post(ZAPIER_WEBHOOK_URL_CREATE_ORDER as string, {
         customerName: order.name,
         orderNumber: order.orderNumber,
-        total: `$${grandTotal.toFixed(2)}`,
+        total: `$${order.amount.toFixed(2)}`,
         email: order.email,
         phone: order.phone,
         receiptHtml: htmlItems, // 🔥 Final receipt
         qrCodeUrl, // Optional
+        items: formattedItemsText,
         receiptPdfBase64: base64PDF,
       });
 
