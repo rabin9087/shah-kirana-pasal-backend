@@ -9,12 +9,10 @@ import salesRouter from '../router/sales.router'
 import storeSale from '../router/storeSale.router'
 import shop from '../router/shop.router'
 import due from '../router/due.router'
-// import contractManagement from '../router/contractManagement.router'
 import jobs from '../router/jobs.router'
 import jobCategory from './jobCategories.router'
 import productComboOffer from './productComboOffer.router'
 
-const mongoosShopRoutes = process.env.MONGO_URI.includes("shah_kirana_pasal")
 const router = express.Router()
 
 router.use("/user", userRouter)
@@ -26,9 +24,9 @@ router.use("/search", searchRouter)
 router.use("/sales", salesRouter)
 router.use("/storeSales", storeSale)
 router.use("/due", due)
-// router.use("/contractManagement", contractManagement)
 router.use("/jobs", jobs)
 router.use("/jobCategory", jobCategory)
 router.use("/productComboOffer", productComboOffer)
-mongoosShopRoutes && router.use("/shop", shop)
+router.use("/shop", shop)
+
 export default router
