@@ -9,7 +9,6 @@ export const createProductComboOfferController = async (req: Request, res: Respo
             return res.status(200).json({
                 status: "success",
                 message: "Product combo offer created successfully.",
-                data: newProductComboOffer
             })
         } else { }
         return res.status(400).json({
@@ -50,7 +49,7 @@ export const getAProductComboOfferController = async (req: Request, res: Respons
             return res.status(200).json({
                 status: "success",
                 message: "Here is a product combo offer.",
-                data: productComboOffer
+                productComboOffer
             })
         } else { }
         return res.status(400).json({
