@@ -11,7 +11,7 @@ import shop from '../router/shop.router'
 import due from '../router/due.router'
 import jobs from '../router/jobs.router'
 import jobCategory from './jobCategories.router'
-import productComboOffer from './productComboOffer.router'
+import productComboOffer from './productCombo.router'
 
 const router = express.Router()
 
