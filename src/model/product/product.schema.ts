@@ -1,5 +1,7 @@
 import mongose, { Document } from 'mongoose'
 import { IReviews, IStoredAt } from '../../../types';
+import { getAllShop } from '../shop/shop.model';
+import mongoose from 'mongoose';
 
 export interface IProduct extends Document {
     _id: string,
@@ -30,7 +32,6 @@ export interface IProduct extends Document {
     createdAt?: Date;
     updatedAt?: Date;
 }
-
 
 const productSchema = new mongose.Schema<IProduct>(
     {
@@ -131,5 +132,25 @@ const productSchema = new mongose.Schema<IProduct>(
     },
      { timestamps: true })
 
+     // ✅ Function to get model for a specific shop
+// export const getProductModelForShop = (shopName: string) => {
+//   const collectionName = `products_${shopName}`;
+//   // Avoid recompilation in dev
+//   return mongoose.models[collectionName] ||
+//     mongoose.model<IProduct>(collectionName, productSchema, collectionName);
+// };
+
+// export const allShopsProducts = async () => { 
+//       const shops = await getAllShop();
+//       const allProducts = await Promise.all(
+//         shops.map(async (shop) => {
+//         const model = getProductModelForShop(shop.name.toString());
+//         return model.find();
+//      })
+//       );
+//       return allProducts.flat();
+// }
 
 export default mongose.model<IProduct>("product", productSchema)
+
+// allShopsProducts()

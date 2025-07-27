@@ -25,8 +25,7 @@ exports.getAllUser = getAllUser;
 const getUserByPhoneOrEmail = (email_phone) => __awaiter(void 0, void 0, void 0, function* () {
     return yield user_schema_1.default
         .findOne({ $or: [{ email: email_phone }, { phone: email_phone }] })
-        .populate("cart.productId")
-        .populate("cartHistory.items.productId");
+        .populate("cart.productId");
 });
 exports.getUserByPhoneOrEmail = getUserByPhoneOrEmail;
 const UpdateUserByPhone = (phone, data) => {
@@ -62,7 +61,7 @@ const getUserByPhoneAndJWT = (_a) => __awaiter(void 0, [_a], void 0, function* (
     return user_schema_1.default.findOne({
         phone,
         refreshJWT: { $in: [refreshJWT] },
-    }).populate("cart.productId")
-        .populate("cartHistory.items.productId");
+    })
+        .populate("cart.productId");
 });
 exports.getUserByPhoneAndJWT = getUserByPhoneAndJWT;

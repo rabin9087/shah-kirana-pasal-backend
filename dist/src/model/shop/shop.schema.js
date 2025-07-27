@@ -16,7 +16,7 @@ const ShopSchema = new mongoose_1.default.Schema({
         postalCode: { type: String },
     },
     logo: { type: String, default: "" },
-    slogan: { type: String, required: true },
+    slogan: { type: String },
     isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('shop', ShopSchema);

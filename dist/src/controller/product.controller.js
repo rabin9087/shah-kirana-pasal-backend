@@ -124,6 +124,12 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
         if (search) {
             query.name = { $regex: search, $options: "i" };
         }
+        const cacheKey = `products:page=${page}&limit=${limit}&search=${search || ""}&sortBy=${sortBy}&order=${order}`;
+        const cachedData = yield redis_1.redisClient.get(cacheKey);
+        if (cachedData) {
+            const parsed = JSON.parse(cachedData);
+            return res.status(200).json(parsed);
+        }
         const total = yield product_schema_1.default.countDocuments(query);
         const products = yield product_schema_1.default
             .find(query)
@@ -131,21 +137,25 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
             .skip((page - 1) * limit)
             .limit(limit)
             .lean();
-        res.json({
+        const filteredProducts = products
+            .map((_a) => {
+            var { costPrice } = _a, rest = __rest(_a, ["costPrice"]);
+            return rest;
+        })
+            .filter((item) => item.status === "ACTIVE");
+        const responseData = {
             status: "success",
             message: "Products fetched successfully!",
-            products: products.map((_a) => {
-                var { costPrice } = _a, rest = __rest(_a, ["costPrice"]);
-                return (rest);
-            })
-                .filter((item) => item.status === "ACTIVE"),
+            products: filteredProducts,
             pagination: {
                 total,
                 page,
                 limit,
                 totalPages: Math.ceil(total / limit),
             },
-        });
+        };
+        yield redis_1.redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+        return res.status(200).json(responseData);
     }
     catch (error) {
         next(error);
@@ -155,7 +165,12 @@ exports.getAllProductListByLimit = getAllProductListByLimit;
 const getAllProductList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield (0, product_model_1.getAllProducts)();
-        (products === null || products === void 0 ? void 0 : products.length)
+        const cacheKey = `allProducts:`;
+        const cachedData = yield redis_1.redisClient.get(cacheKey);
+        if (cachedData) {
+            return res.json(JSON.parse(cachedData));
+        }
+        const response = (products === null || products === void 0 ? void 0 : products.length)
             ? res.json({
                 status: "success",
                 message: "Here is list of all products!",
@@ -165,6 +180,8 @@ const getAllProductList = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 status: "error",
                 message: "Error fetching product.",
             });
+        yield redis_1.redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+        return res.json(response);
     }
     catch (error) {
         next(error);
@@ -250,6 +267,8 @@ exports.fetchAProductByFilter = fetchAProductByFilter;
 const fetchAProductByQRCode = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { code } = req.params;
+        console.log(code);
+        console.log(req.params);
         const product = yield (0, product_model_1.getAProductByQRCodeNumber)({ qrCodeNumber: code });
         (product === null || product === void 0 ? void 0 : product._id)
             ? res.json({

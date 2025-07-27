@@ -113,8 +113,8 @@ export const newAdminSignUpAuth = async (
 
 export const adminAccess = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // 1. Get access JWT token from the frontend
     const { authorization } = req.headers;
+
     if (!authorization) {
       return res.status(401).json({
         status: "error",
@@ -122,26 +122,22 @@ export const adminAccess = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
-    // Extract token from "Bearer <token>" format
     const token = authorization.startsWith("Bearer ") ? authorization.split(" ")[1] : authorization;
 
-    // 2. Decode the JWT to verify if it's valid and not expired
     const decoded = verifyAccessJWT(token);
-    
+
     if (decoded?.phone) {
-      // 3. Check if the user exists by phone number and verify role
       const user = await getUserByPhoneOrEmail(decoded.phone);
       if (user?.role === "ADMIN" || user?.role === "SUPERADMIN") {
         const users = await getAllUser();
-        
-        // Transform the users to remove sensitive information (password and refreshJWT)
+
+        // Add users to request (you may need to extend Express's Request type)
         req.userInfo = users as IUser[];
-        
+
         return next();
       }
     }
 
-    // If not an admin, unauthorized access
     res.status(403).json({
       status: "error",
       message: "Forbidden: Only admin can access this resource.",
@@ -354,7 +350,7 @@ export const refreshAuth = async (req: Request, res: Response, next: NextFunctio
         user.password = undefined; // Remove password before sending response
         // 5. Generate a new access JWT
         const accessJWT = await createAccessJWT(decoded.phone);
-
+        user.refreshJWT = user.refreshJWT?.filter((refreshToken) =>  refreshToken === token)
         return res.json({
           status: "success",
           message: "Authorized",

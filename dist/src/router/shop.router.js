@@ -8,4 +8,5 @@ const uploadMiddlewareLogo = awsUpload_1.upload.fields([
     { name: "logo", maxCount: 1 },
 ]);
 router.post("/", uploadMiddlewareLogo, shop_controller_1.createNewShopController);
+router.get("/", shop_controller_1.getAllShopController);
 exports.default = router;

@@ -12,7 +12,7 @@ export const getUserByPhoneOrEmail = async (email_phone: string) => {
   return await userSchema
     .findOne({ $or: [{ email: email_phone }, { phone: email_phone }] })
     .populate("cart.productId") // Populate product in cart
-    .populate("cartHistory.items.productId"); // Path to populate cartHistory items
+    // .populate("cartHistory.items.productId"); // Path to populate cartHistory items
 };
 
 export const UpdateUserByPhone = (phone: string, data: { refreshJWT?: string } & Record<string, any>) => {
@@ -69,7 +69,8 @@ export const getUserByPhoneAndJWT = async ({
   return userSchema.findOne({
     phone,
     refreshJWT: { $in: [refreshJWT] }, // Check if refreshJWT exists in the array
-  }).populate("cart.productId") // Populate product in cart
-    .populate("cartHistory.items.productId"); // Path to populate cartHistory items;
+  })
+    .populate("cart.productId") // Populate product in cart
+    // .populate("cartHistory.items.productId"); // Path to populate cartHistory items;
 };
 

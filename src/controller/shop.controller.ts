@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createShop } from "../model/shop/shop.model";
+import { createShop, getAllShop } from "../model/shop/shop.model";
 
 export const createNewShopController = async (
     req: Request,
@@ -21,6 +21,30 @@ export const createNewShopController = async (
             status: "success",
             message: "New shop has been created successfully!",
             shop
+          })
+        : res.json({
+            status: "error",
+            message: "Error creating new shop.",
+          });
+    } catch (error) {
+      next(error);
+    }
+};
+
+export const getAllShopController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+  try {
+
+    const shop = await getAllShop()
+    
+        shop?.length
+        ? res.json({
+            status: "success",
+            message: "New shop has been created successfully!",
+            allShop: shop
           })
         : res.json({
             status: "error",

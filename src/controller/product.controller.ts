@@ -123,9 +123,20 @@ export const getAllProductListByLimit = async (
 
     const query: any = {};
     if (search) {
-      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+      query.name = { $regex: search, $options: "i" };
     }
 
+    // Generate a unique cache key based on the query
+    const cacheKey = `products:page=${page}&limit=${limit}&search=${search || ""}&sortBy=${sortBy}&order=${order}`;
+
+    // Check Redis cache first
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      const parsed = JSON.parse(cachedData);
+      return res.status(200).json(parsed);
+    }
+
+    // If not cached, fetch from DB
     const total = await productSchema.countDocuments(query);
     const products = await productSchema
       .find(query)
@@ -134,25 +145,33 @@ export const getAllProductListByLimit = async (
       .limit(limit)
       .lean();
 
-    res.json({
+    const filteredProducts = products
+      .map(({ costPrice, ...rest }) => rest)
+      .filter((item) => item.status === "ACTIVE");
+
+    const responseData = {
       status: "success",
       message: "Products fetched successfully!",
-      products: products.map(({ costPrice, ...rest }) => (rest))
-        .filter((item) => item.status === "ACTIVE"),
+      products: filteredProducts,
       pagination: {
         total,
         page,
         limit,
         totalPages: Math.ceil(total / limit),
       },
-    });
+    };
+
+    // Cache the response for 60 seconds
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+
+    // Send the response
+    return res.status(200).json(responseData);
   } catch (error) {
     next(error);
   }
 };
 
-
-  export const getAllProductList = async (
+export const getAllProductList = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -160,8 +179,14 @@ export const getAllProductListByLimit = async (
     try {
 
       const products = await getAllProducts()
-      
-        products?.length
+      const cacheKey = `allProducts:`;
+       // 1. Check Redis cache
+      const cachedData = await redisClient.get(cacheKey);
+
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+       const response = products?.length
          ? res.json({
             status: "success",
             message: "Here is list of all products!",
@@ -170,7 +195,9 @@ export const getAllProductListByLimit = async (
         : res.json({
             status: "error",
             message: "Error fetching product.",
-          })
+        })
+       await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+      return res.json(response);
     } catch (error) {
       next(error);
     }
@@ -210,7 +237,6 @@ export const getAllProductListByLimit = async (
 
       // 3. Save response in Redis for 60 seconds (you can customize the time)
       await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
-
       return res.json(response);
       } else {
         res.json({
@@ -275,9 +301,21 @@ export const getAllProductListByLimit = async (
     next: NextFunction
   ) => {
     try {
-      const {code} = req.params
+      const { code } = req.params
+      console.log(code)
+      console.log(req.params)
+
       const product = await getAProductByQRCodeNumber({qrCodeNumber: code})
-   
+      // if (userId && qrCodeNumber) { 
+      //     await userSchema.findByIdAndUpdate(
+      //           {_id: userId},
+      //           {
+      //             $push: { searchHistory: qrCodeNumber },
+      //           },
+      //           { new: true } // This option returns the updated document
+      //         );
+      //           }
+
         product?._id
          ? res.json({
             status: "success",

@@ -11,7 +11,6 @@ export type jwtReturnType =
   | { phone: string; iat: number; exp: number }
   | undefined;
 
-
 declare global {
   namespace Express {
     interface Request {

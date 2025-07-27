@@ -12,6 +12,7 @@ import due from '../router/due.router'
 // import contractManagement from '../router/contractManagement.router'
 import jobs from '../router/jobs.router'
 import jobCategory from './jobCategories.router'
+import productComboOffer from './productComboOffer.router'
 
 const mongoosShopRoutes = process.env.MONGO_URI.includes("shah_kirana_pasal")
 const router = express.Router()
@@ -28,5 +29,6 @@ router.use("/due", due)
 // router.use("/contractManagement", contractManagement)
 router.use("/jobs", jobs)
 router.use("/jobCategory", jobCategory)
+router.use("/productComboOffer", productComboOffer)
 mongoosShopRoutes && router.use("/shop", shop)
 export default router

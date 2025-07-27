@@ -245,6 +245,7 @@ const PickerAccess = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.PickerAccess = PickerAccess;
 const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { authorization } = req.headers;
         if (!authorization) {
@@ -282,6 +283,7 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             if (user === null || user === void 0 ? void 0 : user._id) {
                 user.password = undefined;
                 const accessJWT = yield (0, jwt_1.createAccessJWT)(decoded.phone);
+                user.refreshJWT = (_a = user.refreshJWT) === null || _a === void 0 ? void 0 : _a.filter((refreshToken) => refreshToken === token);
                 return res.json({
                     status: "success",
                     message: "Authorized",

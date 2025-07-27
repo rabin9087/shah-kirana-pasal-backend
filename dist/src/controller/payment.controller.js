@@ -20,22 +20,67 @@ const ZIP_API_URL = process.env.ZIP_ENVIRONMENT === 'sandbox'
     : 'https://api.zip.co/checkout';
 const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { amount, currency } = req.body;
+        const { amount, currency, paymentIntentId } = req.body;
         const stripe = new stripe_1.default(process.env.STRIP_SECRET);
-        const paymentIntents = yield stripe.paymentIntents.create({
-            amount: parseInt(amount) * 100,
-            currency,
-            payment_method_types: [
-                "card",
-                "afterpay_clearpay",
-                "zip",
-            ],
-        });
+        let paymentIntent;
+        if (paymentIntentId) {
+            try {
+                paymentIntent = yield stripe.paymentIntents.retrieve(paymentIntentId);
+                if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'canceled') {
+                    console.warn(`Attempted to update PaymentIntent ${paymentIntentId} which is in status: ${paymentIntent.status}. Creating a new one.`);
+                    paymentIntent = yield stripe.paymentIntents.create({
+                        amount: amount * 100,
+                        currency: currency || 'aud',
+                        payment_method_types: [
+                            "card",
+                            "afterpay_clearpay",
+                            "zip",
+                        ],
+                    });
+                }
+                else {
+                    paymentIntent = yield stripe.paymentIntents.update(paymentIntentId, {
+                        amount: amount * 100,
+                        currency: currency || 'aud',
+                    });
+                }
+            }
+            catch (error) {
+                if (error.type === 'StripeInvalidRequestError') {
+                    console.warn(`PaymentIntent ${paymentIntentId} not found or invalid. Creating a new one.`);
+                    paymentIntent = yield stripe.paymentIntents.create({
+                        amount: amount * 100,
+                        currency: currency || 'aud',
+                        payment_method_types: [
+                            "card",
+                            "afterpay_clearpay",
+                            "zip",
+                        ],
+                    });
+                }
+                else {
+                    throw error;
+                }
+            }
+        }
+        else {
+            paymentIntent = yield stripe.paymentIntents.create({
+                amount: amount * 100,
+                currency: currency || 'aud',
+                payment_method_types: [
+                    "card",
+                    "afterpay_clearpay",
+                    "zip",
+                ],
+            });
+        }
         return res.json({
-            clientSecret: paymentIntents.client_secret,
+            clientSecret: paymentIntent.client_secret,
+            paymentIntentId: paymentIntent.id,
         });
     }
     catch (error) {
+        console.error("Error in createPayment:", error);
         next(error);
     }
 });

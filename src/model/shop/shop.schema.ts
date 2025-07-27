@@ -31,7 +31,7 @@ export interface IShop extends Document {
             postalCode: { type: String},
         },
         logo: { type: String, default: "" },
-        slogan:  { type: String, required: true },
+        slogan:  { type: String},
         isActive: { type: Boolean, default: true },
     },
     { timestamps: true }

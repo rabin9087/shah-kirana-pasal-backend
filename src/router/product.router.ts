@@ -6,7 +6,6 @@ import { PickerAccess, adminAccess } from "../middleware/auth";
 
 const router = Router();
 
-// Multer middleware for handling uploads
 const uploadMiddleware = upload.fields([
   { name: "images", maxCount: 10 },
   { name: "thumbnail", maxCount: 1 },
@@ -36,4 +35,5 @@ router.get("/", getAllActiveProducts);
 router.delete("/:_id", adminAccess, deleteProductByID);
 router.put("/:_id", updateUploadMiddleware, updateAProductController);
 router.patch("/:_id", PickerAccess, updateAProductStatusController);
+
 export default router;

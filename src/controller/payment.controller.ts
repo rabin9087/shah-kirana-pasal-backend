@@ -11,67 +11,82 @@ export const createPayment = async(
     req: Request,
     res: Response,
   next: NextFunction) => {
-  try {
-     const {amount, currency} = req.body
-    const stripe = new Stripe(process.env.STRIP_SECRET)
+   try {
+        const { amount, currency, paymentIntentId } = req.body; // Use paymentIntentId
+        const stripe = new Stripe(process.env.STRIP_SECRET as string);
 
-    const paymentIntents = await stripe.paymentIntents.create({
-     amount: parseInt(amount) * 100, // convert to cents
-      currency,
-      payment_method_types: [
-        "card",              // Google Pay & Apple Pay use card tokens
-        "afterpay_clearpay",
-        "zip",
-      ],
-      // customer: req.body.customer
-      // automatic_payment_methods: { enabled: true },
-      // shipping: {
-      //   name: req.body.name,
-      //   address: req.body.address,
-      //   phone: req.body.phone,
-      // }
-    });
+        let paymentIntent;
 
-    // const customerSession = await stripe.customerSessions.create({
-    //   customer: req.body.customer,
-    //   components: {
-    //     payment_element: {
-    //       enabled: true,
-    //       features: {
-    //         payment_method_redisplay: "enabled",
-    //         payment_method_save: "enabled",
-    //         payment_method_save_usage: "on_session",
-    //         payment_method_remove: "enabled",
-    //       }
-    //     }
-    //   }
-    // })
-    // const session = await stripe.checkout.sessions.create({
-    //   line_items: [
-    //     {
-    //       price_data: {
-    //         currency: currency,
-    //         product_data: {
-    //           name: 'Test Product',
-    //         },
-    //         unit_amount: parseInt(amount) * 100,
-    //       },
-    //       quantity: 1,
-    //     },
-    //   ],
-    //   mode: 'payment',
-    //   success_url: 'https://example.com/success',
-    //   cancel_url: 'https://example.com/cancel',
+        if (paymentIntentId) { // If a paymentIntentId is provided, try to update it
+            try {
+                paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-    // })
-    
-    return res.json({
-      clientSecret: paymentIntents.client_secret,
-      // customer_session_client_secret: customerSession.client_secret
-    })
-  } catch (error) {
-    next(error)
-  }
+                // Check if the paymentIntent is in a state that allows modification
+                if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'canceled') {
+                    // If it's already succeeded or canceled, create a new one
+                    console.warn(`Attempted to update PaymentIntent ${paymentIntentId} which is in status: ${paymentIntent.status}. Creating a new one.`);
+                    paymentIntent = await stripe.paymentIntents.create({
+                        amount: amount * 100,
+                        currency: currency || 'aud', // Ensure currency is passed or default
+                        payment_method_types: [
+                            "card",
+                            "afterpay_clearpay",
+                            "zip",
+                        ],
+                        // You might want to add customer, description, or other metadata here
+                    });
+                } else {
+                    // Update the existing PaymentIntent
+                    paymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
+                        amount: amount * 100, // cents
+                        currency: currency || 'aud', // Ensure currency is consistent
+                        // You can also update description, metadata, shipping, etc.
+                        // payment_method_types: [
+                        //     "card",
+                        //     "afterpay_clearpay",
+                        //     "zip",
+                        // ], // Only update if you specifically want to change allowed payment methods
+                    });
+                }
+            } catch (error: any) {
+                // If retrieve fails (e.g., ID not found), create a new one
+                if (error.type === 'StripeInvalidRequestError') {
+                    console.warn(`PaymentIntent ${paymentIntentId} not found or invalid. Creating a new one.`);
+                    paymentIntent = await stripe.paymentIntents.create({
+                        amount: amount * 100,
+                        currency: currency || 'aud',
+                        payment_method_types: [
+                            "card",
+                            "afterpay_clearpay",
+                            "zip",
+                        ],
+                    });
+                } else {
+                    throw error; // Re-throw other errors
+                }
+            }
+        } else {
+            // Create new PaymentIntent if no ID is provided (first time)
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: amount * 100,
+                currency: currency || 'aud',
+                payment_method_types: [
+                    "card",
+                    "afterpay_clearpay",
+                    "zip",
+                ],
+                // customer: req.body.customer // Consider linking to a Stripe Customer ID
+            });
+        }
+
+        return res.json({
+            clientSecret: paymentIntent.client_secret,
+            paymentIntentId: paymentIntent.id, // Send back the ID
+        });
+    } catch (error) {
+        console.error("Error in createPayment:", error);
+        next(error);
+    }
 }
 
 export const createZipCheckout = async (

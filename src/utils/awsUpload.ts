@@ -19,7 +19,6 @@ const s3Client = new S3Client({
   },
 });
 
-
 // Multer S3 Storage Configuration
 export const upload = multer({
   storage: multerS3({

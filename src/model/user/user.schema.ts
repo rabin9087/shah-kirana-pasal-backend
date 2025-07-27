@@ -19,13 +19,15 @@ export interface IUser extends Document {
   profile: string | null;
   cart: IAddToCartTypes[]; // Current active cart
   cartHistory: ICartHistory[]; 
+  searchHistory?: string[]; // Store search history
+  searchedItemsQrCode?: string[]; // Store searched items
   createdAt?: Date;
   updatedAt?: Date;
 
 }
 
 export interface IProductTypes {
-  productId: mongoose.ObjectId;
+  productId: mongoose.Schema.Types.ObjectId;
   price: string;
 }
 
@@ -126,6 +128,14 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     cartHistory: {
       type: [CartHistorySchema],
+      default: [],
+    },
+    searchHistory: {
+      type: [String],
+      default: [],
+    },
+    searchedItemsQrCode: {
+      type: [String],
       default: [],
     },
   },

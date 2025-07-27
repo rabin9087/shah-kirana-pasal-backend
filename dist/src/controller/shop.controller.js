@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createNewShopController = void 0;
+exports.getAllShopController = exports.createNewShopController = void 0;
 const shop_model_1 = require("../model/shop/shop.model");
 const createNewShopController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -36,3 +36,22 @@ const createNewShopController = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 exports.createNewShopController = createNewShopController;
+const getAllShopController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const shop = yield (0, shop_model_1.getAllShop)();
+        (shop === null || shop === void 0 ? void 0 : shop.length)
+            ? res.json({
+                status: "success",
+                message: "New shop has been created successfully!",
+                allShop: shop
+            })
+            : res.json({
+                status: "error",
+                message: "Error creating new shop.",
+            });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getAllShopController = getAllShopController;

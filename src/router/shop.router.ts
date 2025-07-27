@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { createNewShopController } from "../controller/shop.controller";
+import { createNewShopController, getAllShopController } from "../controller/shop.controller";
 import { upload } from "../utils/awsUpload";
+import { adminAccess } from "../middleware/auth";
 
 const router = Router();
 const uploadMiddlewareLogo = upload.fields([
@@ -8,6 +9,7 @@ const uploadMiddlewareLogo = upload.fields([
 ])
 
 router.post("/", uploadMiddlewareLogo, createNewShopController)
+router.get("/", getAllShopController)
 // router.post(`=?}`, );
 
 export default router;

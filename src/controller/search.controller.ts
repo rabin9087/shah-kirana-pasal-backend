@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getSearchProductResults, getSearchUserResults } from "../model/search/search.model";
 import { getAllProductListByCategory } from "./product.controller";
+import userSchema from "../model/user/user.schema";
 
 export const searchProductItem = async (
     req: Request,
@@ -14,6 +15,7 @@ export const searchProductItem = async (
     if (!searchTerm) {
       return res.status(400).json({ message: "Search term is required" });
     }
+
 
     // Perform a case-insensitive search in the 'name' field
     const products = await getSearchProductResults(searchTerm as string);
