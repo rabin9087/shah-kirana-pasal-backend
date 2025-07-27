@@ -1,0 +1,103 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const mongoose_2 = __importDefault(require("mongoose"));
+const orderSchema = new mongoose_1.default.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    items: {
+        type: [{
+                productId: {
+                    type: mongoose_2.default.Schema.Types.ObjectId,
+                    ref: 'product',
+                    required: true,
+                },
+                quantity: {
+                    type: Number,
+                    required: true,
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                },
+                costPrice: {
+                    type: Number,
+                },
+                supplied: {
+                    type: Number,
+                    default: 0,
+                },
+                note: {
+                    type: String,
+                },
+            },],
+        required: true
+    },
+    orderNumber: {
+        type: Number,
+        required: true,
+        unique: true,
+        index: 1,
+    },
+    deliveryStatus: {
+        type: String,
+        required: true
+    },
+    deliveryDate: {
+        date: {
+            type: String,
+        },
+        time: {
+            type: String,
+        }
+    },
+    requestDeliveryDate: {
+        type: String,
+        index: true
+    },
+    orderType: {
+        type: String,
+        required: true
+    },
+    paymentType: {
+        type: String,
+        required: true
+    },
+    paymentStatus: {
+        type: String,
+        required: true
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    picker: {
+        userId: {
+            type: String,
+            default: ""
+        },
+        name: {
+            type: String,
+            default: ""
+        }
+    },
+    startPickingTime: { type: Date },
+    endPickingTime: { type: Date },
+}, { timestamps: true });
+exports.default = mongoose_1.default.model("order", orderSchema);
