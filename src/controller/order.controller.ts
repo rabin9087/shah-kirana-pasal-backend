@@ -270,7 +270,7 @@ export const updateMultipleOrderController = async (
       }
 
       // Update the order
-      await updateAOrder(existingOrder._id.toString(), {
+      await updateAOrder(existingOrder?._id as string, {
         orderNumber,
         items: updatedItems,
         deliveryStatus

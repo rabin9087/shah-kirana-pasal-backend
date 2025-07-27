@@ -233,7 +233,7 @@ const updateMultipleOrderController = (req, res, next) => __awaiter(void 0, void
                 console.warn(`Order with number ${orderNumber} not found`);
                 continue;
             }
-            yield (0, order_model_1.updateAOrder)(existingOrder._id.toString(), {
+            yield (0, order_model_1.updateAOrder)(existingOrder === null || existingOrder === void 0 ? void 0 : existingOrder._id, {
                 orderNumber,
                 items: updatedItems,
                 deliveryStatus
