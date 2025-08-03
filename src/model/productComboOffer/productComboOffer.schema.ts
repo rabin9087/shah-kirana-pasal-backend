@@ -11,7 +11,7 @@ export interface IProductComboOffer extends Document {
     thumbnail: string,
     totalAmount: number,
     discountAmount: number,
-    offerPrice: number,
+    price: number,
     offerStartDate?: Date,
     offerEndDate?: Date,
     description?: string,
@@ -61,7 +61,7 @@ const productComboOfferSchema = new mongoose.Schema<IProductComboOffer>(
             type: Number,
             required: true,
         },
-        offerPrice: {
+        price: {
             type: Number,
             required: true,
         },

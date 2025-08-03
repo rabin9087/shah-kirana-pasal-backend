@@ -26,7 +26,14 @@ const orderSchema = new mongoose_1.default.Schema({
                 productId: {
                     type: mongoose_2.default.Schema.Types.ObjectId,
                     ref: 'product',
-                    required: true,
+                    required: true
+                },
+                comboId: {
+                    type: mongoose_2.default.Schema.Types.ObjectId,
+                    ref: 'productComboOffer',
+                },
+                offerName: {
+                    type: String,
                 },
                 quantity: {
                     type: Number,

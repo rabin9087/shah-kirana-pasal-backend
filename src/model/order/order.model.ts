@@ -7,7 +7,9 @@ export const createOrder = (OrderObj: IOrder) => {
 }
 
 export const getAllOrders = () => {
-    return orderSchema.find().populate('items.productId');
+    return orderSchema.find()
+        .populate('items.productId')
+        .populate('items.comboId');
 };
 
 

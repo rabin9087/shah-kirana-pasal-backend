@@ -30,7 +30,9 @@ const createOrder = (OrderObj) => {
 };
 exports.createOrder = createOrder;
 const getAllOrders = () => {
-    return order_schema_1.default.find().populate('items.productId');
+    return order_schema_1.default.find()
+        .populate('items.productId')
+        .populate('items.comboId');
 };
 exports.getAllOrders = getAllOrders;
 const getOrderListByName = (name) => {

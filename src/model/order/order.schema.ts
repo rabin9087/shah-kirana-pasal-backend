@@ -8,6 +8,8 @@ export interface IItemTypes {
     costPrice?: number,
     supplied: number,
     note?: string,
+    offerName?: string,
+    comboId?: mongose.Types.ObjectId
 }
 
 export interface IOrder extends Document {
@@ -56,7 +58,14 @@ const orderSchema = new mongose.Schema<IOrder>(
                 productId: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'product',
-                    required: true,
+                    required: true
+                },
+                comboId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'productComboOffer',
+                },
+                offerName: {
+                    type: String,
                 },
                 quantity: {
                     type: Number,

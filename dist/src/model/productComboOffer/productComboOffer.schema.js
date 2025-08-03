@@ -45,7 +45,7 @@ const productComboOfferSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true,
     },
-    offerPrice: {
+    price: {
         type: Number,
         required: true,
     },
