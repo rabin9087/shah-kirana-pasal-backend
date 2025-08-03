@@ -40,9 +40,26 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 req.body.thumbnail = files["thumbnail"][0].location;
             }
         }
-        req.body.slug = (0, slugify_1.default)(req.body.name, {
+        const requiredFields = [
+            { field: 'name', type: 'string', message: 'Product name is required and must be a string' },
+            { field: 'sku', type: 'string', message: 'SKU is required and must be a string' },
+            { field: 'qrCodeNumber', type: 'string', message: 'QR Code number is required and must be a string' },
+            { field: 'price', type: 'string', message: 'Price is required' },
+            { field: 'quantity', type: 'string', message: 'Quantity is required' },
+            { field: 'parentCategoryID', type: 'string', message: 'Category is required' }
+        ];
+        for (const { field, type, message } of requiredFields) {
+            if (!req.body[field] || typeof req.body[field] !== type) {
+                return res.status(400).json({
+                    status: "error",
+                    message,
+                });
+            }
+        }
+        req.body.slug = (0, slugify_1.default)(req.body.name.trim(), {
             replacement: '-',
             lower: true,
+            strict: true,
             trim: true
         });
         const { sku, qrCodeNumber, slug } = req.body;
@@ -55,34 +72,38 @@ const createNewProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             newSku = generateRandomSKU().toString();
             skuExists = yield (0, product_model_1.getAProductBySKU)(newSku);
         }
+        req.body.sku = newSku;
         const qrCode = yield (0, product_model_1.getAProductByQRCodeNumber)(qrCodeNumber);
-        const slugValue = yield (0, product_model_1.getAProductByQRCodeNumber)(slug);
+        const slugValue = yield (0, product_model_1.getAProductBySlug)(slug);
         if (qrCode === null || qrCode === void 0 ? void 0 : qrCode._id) {
-            return res.json({
+            return res.status(400).json({
                 status: "error",
-                message: "QRCode value already exist! \n Enter different QRCode value",
+                message: "QRCode value already exists! Enter different QRCode value",
             });
         }
-        else if (slugValue === null || slugValue === void 0 ? void 0 : slugValue._id) {
-            return res.json({
+        if (slugValue === null || slugValue === void 0 ? void 0 : slugValue._id) {
+            return res.status(400).json({
                 status: "error",
-                message: "Slug already exist! \n Enter different Slug value",
+                message: "Slug already exists! Enter different product name",
+            });
+        }
+        const product = yield (0, product_model_1.createProduct)(req.body);
+        if (product === null || product === void 0 ? void 0 : product._id) {
+            res.status(201).json({
+                status: "success",
+                message: "New Product has been created successfully!",
+                data: product
             });
         }
         else {
-            const product = yield (0, product_model_1.createProduct)(req.body);
-            (product === null || product === void 0 ? void 0 : product._id)
-                ? res.json({
-                    status: "success",
-                    message: "New Product has been created successfully!",
-                })
-                : res.json({
-                    status: "error",
-                    message: "Error creating new product.",
-                });
+            res.status(500).json({
+                status: "error",
+                message: "Error creating new product.",
+            });
         }
     }
     catch (error) {
+        console.error('Error in createNewProduct:', error);
         next(error);
     }
 });

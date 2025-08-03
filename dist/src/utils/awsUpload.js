@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploatImageS3 = exports.upload = void 0;
+exports.upload = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const multer_s3_1 = __importDefault(require("multer-s3"));
 const multer_1 = __importDefault(require("multer"));
@@ -30,12 +30,20 @@ exports.upload = (0, multer_1.default)({
         key: (req, file, cb) => {
             const fileName = Date.now() + "_" + file.fieldname + "_" + file.originalname;
             cb(null, fileName);
-        }
+        },
+        contentType: multer_s3_1.default.AUTO_CONTENT_TYPE,
     }),
-    limits: {},
+    limits: {
+        fileSize: 10 * 1024 * 1024,
+        files: 11
+    },
     fileFilter: function (req, file, cb) {
-        cb(null, true);
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        }
+        else {
+            cb(new Error('Only image files are allowed'));
+        }
     },
 });
-const storage = multer_1.default.memoryStorage();
-exports.uploatImageS3 = (0, multer_1.default)({ storage });

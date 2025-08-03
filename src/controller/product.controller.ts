@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createProduct, deleteAProductByID, getAllProducts, 
-  getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getProductListByCategory,
+  getAProductByFilter, getAProductByID, getAProductByQRCodeNumber, getAProductBySKU, getAProductBySlug, getProductListByCategory,
   updateAProduct, updateAProductByID, updateAProductStatusByID, updateAProductThumbnailByID
 } from "../model/product/product.model";
 import slugify from 'slugify'
@@ -9,69 +9,106 @@ import productSchema from "../model/product/product.schema";
 import { redisClient } from "../utils/redis";
 
 export const createNewProduct = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-  
+    // Process uploaded files
     if (req.files) {
-      const files = req.files as { [fieldname: string]: Express.MulterS3.File[] }
+      const files = req.files as { [fieldname: string]: Express.MulterS3.File[] };
+      
       if (files["images"]) {
-        req.body.images = files["images"].map(item => item.location)
+        req.body.images = files["images"].map(item => item.location);
       }
-
+      
       if (files["thumbnail"]) {
-        req.body.thumbnail = files["thumbnail"][0].location
+        req.body.thumbnail = files["thumbnail"][0].location;
       }
     }
-      req.body.slug = slugify(req.body.name, {
-      replacement: '-', 
-        lower: true,
-      trim: true
-    })
-    const { sku, qrCodeNumber, slug } = req.body
 
+    // Validate required fields with better error messages
+    const requiredFields = [
+      { field: 'name', type: 'string', message: 'Product name is required and must be a string' },
+      { field: 'sku', type: 'string', message: 'SKU is required and must be a string' },
+      { field: 'qrCodeNumber', type: 'string', message: 'QR Code number is required and must be a string' },
+      { field: 'price', type: 'string', message: 'Price is required' },
+      { field: 'quantity', type: 'string', message: 'Quantity is required' },
+      { field: 'parentCategoryID', type: 'string', message: 'Category is required' }
+    ];
+
+    for (const { field, type, message } of requiredFields) {
+      if (!req.body[field] || typeof req.body[field] !== type) {
+        return res.status(400).json({
+          status: "error",
+          message,
+        });
+      }
+    }
+
+    // Generate slug
+    req.body.slug = slugify(req.body.name.trim(), {
+      replacement: '-',
+      lower: true,
+      strict: true,
+      trim: true
+    });
+
+    const { sku, qrCodeNumber, slug } = req.body;
+
+    // Check for existing SKU and generate new one if needed
     const generateRandomSKU = () => {
-      return Math.floor(Math.random() * (9999999 - 100 + 1)) + 100; // Generates a number between 100 and 9999999
+      return Math.floor(Math.random() * (9999999 - 100 + 1)) + 100;
     };
 
-  let newSku = sku;
-  let skuExists = await getAProductBySKU(newSku);
+    let newSku = sku;
+    let skuExists = await getAProductBySKU(newSku);
 
-// Check if SKU already exists and generate a new one if necessary
     while (skuExists?._id) {
       newSku = generateRandomSKU().toString();
       skuExists = await getAProductBySKU(newSku);
     }
-      const qrCode  = await getAProductByQRCodeNumber(qrCodeNumber)
-    const slugValue = await getAProductByQRCodeNumber(slug)
-    
-     if (qrCode?._id) {
-        return res.json({
+
+    req.body.sku = newSku;
+
+    // Check for existing QR code and slug
+    const qrCode = await getAProductByQRCodeNumber(qrCodeNumber);
+    const slugValue = await getAProductBySlug(slug); // FIXED: Use correct function
+
+    if (qrCode?._id) {
+      return res.status(400).json({
         status: "error",
-        message: "QRCode value already exist! \n Enter different QRCode value",
-        })
-      } else if (slugValue?._id) {
-        return res.json({
-        status: "error",
-        message: "Slug already exist! \n Enter different Slug value",
-        })
-      }
-      else {
-        const product = await createProduct(req.body)
-        product?._id
-        ? res.json({
-            status: "success",
-            message: "New Product has been created successfully!",
-          })
-        : res.json({
-            status: "error",
-            message: "Error creating new product.",
-          });}
-    } catch (error) {
-      next(error);
+        message: "QRCode value already exists! Enter different QRCode value",
+      });
     }
+    
+    if (slugValue?._id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Slug already exists! Enter different product name",
+      });
+    }
+
+    // Create the product
+    const product = await createProduct(req.body);
+    
+    if (product?._id) {
+      res.status(201).json({
+        status: "success",
+        message: "New Product has been created successfully!",
+        data: product
+      });
+    } else {
+      res.status(500).json({
+        status: "error",
+        message: "Error creating new product.",
+      });
+    }
+
+  } catch (error) {
+    console.error('Error in createNewProduct:', error);
+    next(error);
+  }
 };
   
 export const updateProductThumbnail = async (
