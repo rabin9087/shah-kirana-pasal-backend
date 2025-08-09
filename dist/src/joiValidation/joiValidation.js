@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JoiValidationProcess = exports.DATEREQUIRED = exports.DATE = exports.BOOLEAN = exports.PASSWORDREQUIRED = exports.PHONEREQUIRED = exports.PHONE = exports.EMAILREQUIRED = exports.EMAIL = exports.NUMBERREQUIRED = exports.NUMBER = exports.LONGSTRREQUIRED = exports.LONGSTR = exports.SORTSTRREQUIRED = exports.SORTSTR = void 0;
+exports.AuthHeaderSchema = exports.JoiValidationProcess = exports.DATEREQUIRED = exports.DATE = exports.BOOLEAN = exports.PASSWORDREQUIRED = exports.PHONEREQUIRED = exports.PHONE = exports.EMAILREQUIRED = exports.EMAIL = exports.NUMBERREQUIRED = exports.NUMBER = exports.LONGSTRREQUIRED = exports.LONGSTR = exports.SORTSTRREQUIRED = exports.SORTSTR = void 0;
 const joi_1 = __importDefault(require("joi"));
 exports.SORTSTR = joi_1.default.string().allow("", null);
 exports.SORTSTRREQUIRED = joi_1.default.string().max(200).required();
@@ -37,3 +37,12 @@ const JoiValidationProcess = ({ schemaObj, req, res, next }) => {
     }
 };
 exports.JoiValidationProcess = JoiValidationProcess;
+exports.AuthHeaderSchema = joi_1.default.object({
+    authorization: joi_1.default.string()
+        .pattern(/^Bearer\s+[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+        .required()
+        .messages({
+        "string.empty": "Authorization header is required.",
+        "string.pattern.base": "Invalid Authorization token format. Expected: Bearer <token>",
+    }),
+}).unknown(true);

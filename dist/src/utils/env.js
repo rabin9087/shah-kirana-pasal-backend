@@ -22,4 +22,6 @@ exports.envVariables = zod_1.z.object({
     ZAPIER_WEBHOOK_URL_OTP: zod_1.z.string(),
     ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: zod_1.z.string(),
     ZAPIER_WEBHOOK_URL_ORDER_PACKED: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_Signup_user: zod_1.z.string(),
+    ZAPIER_WEBHOOK_URL_productSuggestUser: zod_1.z.string(),
 });

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { EMAILREQUIRED, JoiValidationProcess, PHONEREQUIRED, SORTSTR, SORTSTRREQUIRED } from "../joiValidation";
+import { AuthHeaderSchema, EMAILREQUIRED, JoiValidationProcess, PHONEREQUIRED, SORTSTR, SORTSTRREQUIRED } from "../joiValidation";
 
 export const signupValidation = (
     req: Request,
@@ -42,3 +42,14 @@ export const verifyEmailValidation = (
     return JoiValidationProcess({ schemaObj, req, res, next });
 
 }
+
+export const validateAuthHeader = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = AuthHeaderSchema.validate(req.headers);
+  if (error) {
+    return res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+  next();
+};

@@ -18,7 +18,7 @@ router.post("/sign-up/admin", auth_1.newAdminSignUpAuth, user_controller_1.creat
 router.post("/login", userValidation_1.loginValidation, user_controller_1.loginUser);
 router.get("/logout", user_controller_1.signOutUser);
 router.get("/userDetails/:phone", auth_1.adminAccess, user_controller_1.getAUserByPhoneController);
-router.get("/get-accessjwt", auth_1.refreshAuth);
+router.get("/get-accessjwt", userValidation_1.validateAuthHeader, auth_1.refreshAuth);
 router.post("/forget-password", user_controller_1.OTPRequest);
 router.post("/otp-verify", user_controller_1.OTPVerification);
 router.post("/new-password", user_controller_1.updatePassword);

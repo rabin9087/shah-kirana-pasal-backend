@@ -20,5 +20,7 @@ export const envVariables = z.object({
   ZAPIER_WEBHOOK_URL_OTP: z.string(),
   ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: z.string(),
   ZAPIER_WEBHOOK_URL_ORDER_PACKED: z.string(),
+  ZAPIER_WEBHOOK_URL_Signup_user: z.string(),
+  ZAPIER_WEBHOOK_URL_productSuggestUser: z.string(),
 });
 

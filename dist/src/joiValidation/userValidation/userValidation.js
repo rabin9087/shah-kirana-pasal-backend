@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyEmailValidation = exports.loginValidation = exports.signupValidation = void 0;
+exports.validateAuthHeader = exports.verifyEmailValidation = exports.loginValidation = exports.signupValidation = void 0;
 const joiValidation_1 = require("../joiValidation");
 const signupValidation = (req, res, next) => {
     const schemaObj = {
@@ -30,3 +30,14 @@ const verifyEmailValidation = (req, res, next) => {
     return (0, joiValidation_1.JoiValidationProcess)({ schemaObj, req, res, next });
 };
 exports.verifyEmailValidation = verifyEmailValidation;
+const validateAuthHeader = (req, res, next) => {
+    const { error } = joiValidation_1.AuthHeaderSchema.validate(req.headers);
+    if (error) {
+        return res.status(400).json({
+            status: "error",
+            message: error.message,
+        });
+    }
+    next();
+};
+exports.validateAuthHeader = validateAuthHeader;

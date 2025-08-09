@@ -378,6 +378,7 @@ export const getUserController = async (
 ) => {
 
   try {
+    
      res.json({
     status: "success",
     user: req.userInfo,
@@ -492,6 +493,11 @@ export const verifyEmailController = async (
         message: "Email verified successfully!",
       });
     }
+
+    return res.status(400).json({
+      status: "error",
+      message: "Failed to verify email",
+    });
   } catch (error) {
     next(error);
   }

@@ -319,7 +319,6 @@ export const refreshAuth = async (req: Request, res: Response, next: NextFunctio
         const userToken = await CheckUserByToken({ associate: accessDecoded.phone, token });
         if (userToken?._id) {
           const user = await getUserByPhoneOrEmail(accessDecoded.phone);
-
           if (user?._id) {
             user.password = undefined; // Remove password from response
             user.verificationCode = undefined; // Remove password from response
@@ -348,9 +347,12 @@ export const refreshAuth = async (req: Request, res: Response, next: NextFunctio
 
       if (user?._id) {
         user.password = undefined; // Remove password before sending response
+        // user.cartHistory = undefined; // Remove password before sending response
         // 5. Generate a new access JWT
         const accessJWT = await createAccessJWT(decoded.phone);
-        user.refreshJWT = user.refreshJWT?.filter((refreshToken) =>  refreshToken === token)
+        user.refreshJWT = user.refreshJWT?.filter((refreshToken) => refreshToken === token)
+        req.userInfo = user
+        
         return res.json({
           status: "success",
           message: "Authorized",

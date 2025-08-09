@@ -75,8 +75,12 @@ const CartHistorySchema = new mongoose_1.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED'],
+        enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'NotPaid'],
         default: 'PENDING',
+        index: true,
+    },
+    orderType: {
+        type: String,
         index: true,
     },
     deliveryStatus: {
@@ -191,7 +195,7 @@ const userSchema = new mongoose_1.Schema({
     cartHistory: {
         type: [CartHistorySchema],
         default: [],
-        select: false,
+        select: true,
     },
     searchHistory: {
         type: [String],

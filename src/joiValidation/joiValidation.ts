@@ -44,3 +44,13 @@ export const JoiValidationProcess = ({ schemaObj, req, res, next }: IJoiValidati
         next(error)
     }
 }
+
+export const AuthHeaderSchema = Joi.object({
+  authorization: Joi.string()
+    .pattern(/^Bearer\s+[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
+    .required()
+    .messages({
+      "string.empty": "Authorization header is required.",
+      "string.pattern.base": "Invalid Authorization token format. Expected: Bearer <token>",
+    }),
+}).unknown(true); // allow other headers

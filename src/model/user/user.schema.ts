@@ -95,8 +95,13 @@ const CartHistorySchema = new Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED'],
+    enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'NotPaid'],
     default: 'PENDING',
+    index: true,
+  },
+   orderType: {
+    type: String,
+    // enum: ['pickup' , 'delivery'],
     index: true,
   },
   deliveryStatus: {
@@ -217,7 +222,7 @@ const userSchema = new Schema<IUser>(
     cartHistory: {
       type: [CartHistorySchema],
       default: [],
-      select: false, // Heavy field, exclude by default
+      select: true, // Heavy field, exclude by default
     },
     searchHistory: {
       type: [String],

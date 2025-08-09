@@ -433,6 +433,10 @@ const verifyEmailController = (req, res, next) => __awaiter(void 0, void 0, void
                 message: "Email verified successfully!",
             });
         }
+        return res.status(400).json({
+            status: "error",
+            message: "Failed to verify email",
+        });
     }
     catch (error) {
         next(error);

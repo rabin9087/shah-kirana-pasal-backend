@@ -15,6 +15,7 @@ declare global {
   namespace Express {
     interface Request {
       userInfo?: IUser | IUser[];
+      accessJWT?: string;
     }
   }
 }
@@ -41,6 +42,7 @@ interface ImportMetaEnv {
   readonly ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: string;
   readonly ZAPIER_WEBHOOK_URL_ORDER_STATUS: string;
   readonly ZAPIER_WEBHOOK_URL_Signup_user: string;
+  readonly ZAPIER_WEBHOOK_URL_productSuggestUser: string;
   // Add other environment variables here...
 }
 

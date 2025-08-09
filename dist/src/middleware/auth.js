@@ -284,6 +284,7 @@ const refreshAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 user.password = undefined;
                 const accessJWT = yield (0, jwt_1.createAccessJWT)(decoded.phone);
                 user.refreshJWT = (_a = user.refreshJWT) === null || _a === void 0 ? void 0 : _a.filter((refreshToken) => refreshToken === token);
+                req.userInfo = user;
                 return res.json({
                     status: "success",
                     message: "Authorized",
