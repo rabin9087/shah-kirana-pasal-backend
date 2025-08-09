@@ -135,39 +135,39 @@ const updateProductThumbnail = (req, res, next) => __awaiter(void 0, void 0, voi
 });
 exports.updateProductThumbnail = updateProductThumbnail;
 const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 30;
-        const search = req.query.search;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 30));
+        const search = (_a = req.query.search) === null || _a === void 0 ? void 0 : _a.trim();
         const sortBy = req.query.sortBy || "createdAt";
-        const order = req.query.order === "asc" ? -1 : 1;
-        const query = {};
+        const order = req.query.order === "asc" ? 1 : -1;
+        const query = { status: "ACTIVE" };
         if (search) {
             query.name = { $regex: search, $options: "i" };
         }
-        const cacheKey = `products:page=${page}&limit=${limit}&search=${search || ""}&sortBy=${sortBy}&order=${order}`;
+        const cacheKey = `products:${page}:${limit}:${search || ""}:${sortBy}:${order}`;
         const cachedData = yield redis_1.redisClient.get(cacheKey);
         if (cachedData) {
             const parsed = JSON.parse(cachedData);
             return res.status(200).json(parsed);
         }
-        const total = yield product_schema_1.default.countDocuments(query);
-        const products = yield product_schema_1.default
-            .find(query)
-            .sort({ [sortBy]: order })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
-        const filteredProducts = products
-            .map((_a) => {
-            var { costPrice } = _a, rest = __rest(_a, ["costPrice"]);
-            return rest;
-        })
-            .filter((item) => item.status === "ACTIVE");
+        const [total, products] = yield Promise.all([
+            product_schema_1.default.countDocuments(query),
+            product_schema_1.default
+                .find(query, {
+                costPrice: 0,
+                __v: 0,
+            })
+                .sort({ [sortBy]: order })
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .lean()
+        ]);
         const responseData = {
             status: "success",
             message: "Products fetched successfully!",
-            products: filteredProducts,
+            products,
             pagination: {
                 total,
                 page,
@@ -175,7 +175,8 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
                 totalPages: Math.ceil(total / limit),
             },
         };
-        yield redis_1.redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+        const ttl = search ? 30 : 300;
+        redis_1.redisClient.setEx(cacheKey, ttl, JSON.stringify(responseData)).catch(console.error);
         return res.status(200).json(responseData);
     }
     catch (error) {

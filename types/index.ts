@@ -40,6 +40,7 @@ interface ImportMetaEnv {
   readonly ZAPIER_WEBHOOK_URL_OTP: string;
   readonly ZAPIER_WEBHOOK_URL_ORDER_START_PICKING: string;
   readonly ZAPIER_WEBHOOK_URL_ORDER_STATUS: string;
+  readonly ZAPIER_WEBHOOK_URL_Signup_user: string;
   // Add other environment variables here...
 }
 

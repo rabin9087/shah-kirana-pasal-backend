@@ -12,29 +12,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateAUserProfile = exports.updateUserProfile = exports.createNewUser = void 0;
+exports.verifyEmailController = exports.sendLinkController = exports.getAUserByPhoneController = exports.getAllUsersController = exports.getUserController = exports.updatePassword = exports.OTPVerification = exports.OTPRequest = exports.signOutUser = exports.loginUser = exports.updateUserCartHistoryController = exports.updateUserCartController = exports.updateAUserProfile = exports.updateUserProfile = exports.createNewUser = void 0;
 const user_model_1 = require("../model/user/user.model");
 const bcrypt_1 = require("../utils/bcrypt");
 const jwt_1 = require("../utils/jwt");
 const nodemailer_1 = require("../utils/nodemailer");
 const randomGenerator_1 = require("../utils/randomGenerator");
 const axios_1 = __importDefault(require("axios"));
+const session_schema_1 = __importDefault(require("../model/session/session.schema"));
+const session_model_1 = require("../model/session/session.model");
 const createNewUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { password } = req.body;
         req.body.password = (0, bcrypt_1.hashPassword)(password);
         const newUser = yield (0, user_model_1.createUser)(req.body);
         newUser.password = undefined;
-        (newUser === null || newUser === void 0 ? void 0 : newUser._id)
-            ? res.json({
+        if (newUser === null || newUser === void 0 ? void 0 : newUser._id) {
+            const token = yield (0, jwt_1.createAccessJWT)(newUser === null || newUser === void 0 ? void 0 : newUser.email);
+            const ZAPIER_WEBHOOK_URL_Signup_user = process.env.ZAPIER_WEBHOOK_URL_Signup_user;
+            if (!ZAPIER_WEBHOOK_URL_Signup_user) {
+                return res.status(500).json({
+                    status: "error",
+                    message: "Zapier webhook URL not configured.",
+                });
+            }
+            const url = process.env.ENVIRONMENT === "Development" ? "https://shahkiranapasal.shop" : "http://localhost:5173";
+            const verify = yield axios_1.default.post(ZAPIER_WEBHOOK_URL_Signup_user, {
+                name: `${newUser.fName} ${newUser.lName}`,
+                email: newUser.email,
+                verifyEmail: `${url}/verify-email?token=${token}&email=${newUser.email}`,
+            });
+            if (!verify.data) {
+                return res.status(500).json({
+                    status: "error",
+                    message: "Failed to send OTP.",
+                });
+            }
+            res.json({
                 status: "success",
                 message: "Please check your email to verify your account",
                 data: newUser,
-            })
-            : res.json({
+            });
+        }
+        else {
+            res.json({
                 status: "error",
                 message: "Error creating the account.",
             });
+        }
     }
     catch (error) {
         next(error);
@@ -386,3 +411,31 @@ const sendLinkController = (req, res, next) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.sendLinkController = sendLinkController;
+const verifyEmailController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, token } = req.body;
+        const decoded = yield (0, jwt_1.verifyAccessJWT)(token);
+        if (!decoded || decoded.phone !== email) {
+            return res.status(400).json({
+                status: "error",
+                message: "Invalid or expired token",
+            });
+        }
+        const verify = yield (0, session_model_1.findOneByTokenAndEmail)(token, email);
+        if (verify === null || verify === void 0 ? void 0 : verify._id) {
+            yield session_schema_1.default.findOneAndDelete({ associate: email, token });
+            const user = yield (0, user_model_1.getUserByPhoneOrEmail)(email);
+            if (user === null || user === void 0 ? void 0 : user._id) {
+                yield (0, user_model_1.UpdateUserByPhone)(user === null || user === void 0 ? void 0 : user.phone, { isVerified: true });
+            }
+            return res.json({
+                status: "success",
+                message: "Email verified successfully!",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.verifyEmailController = verifyEmailController;

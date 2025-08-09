@@ -3,12 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findOneAndDelete = exports.CheckUserByToken = exports.findOneByFilterAndDelete = exports.insertNewSession = void 0;
+exports.findOneAndDelete = exports.CheckUserByToken = exports.findOneByFilterAndDelete = exports.findOneByTokenAndEmail = exports.insertNewSession = void 0;
 const session_schema_1 = __importDefault(require("./session.schema"));
 const insertNewSession = (obj) => {
     return new session_schema_1.default(obj).save();
 };
 exports.insertNewSession = insertNewSession;
+const findOneByTokenAndEmail = (token, email) => {
+    return session_schema_1.default.findOne({ token, associate: email });
+};
+exports.findOneByTokenAndEmail = findOneByTokenAndEmail;
 const findOneByFilterAndDelete = (filter) => {
     return session_schema_1.default.findOneAndDelete(filter);
 };

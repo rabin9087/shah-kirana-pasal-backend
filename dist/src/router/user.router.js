@@ -4,16 +4,18 @@ const express_1 = require("express");
 const user_controller_1 = require("../controller/user.controller");
 const auth_1 = require("../middleware/auth");
 const awsUpload_1 = require("../utils/awsUpload");
+const userValidation_1 = require("../joiValidation/userValidation/userValidation");
 const router = (0, express_1.Router)();
 const updateUploadMiddleware = awsUpload_1.upload.fields([
     { name: "profile", maxCount: 1 },
 ]);
-router.post("/sign-up", user_controller_1.createNewUser);
+router.post("/sign-up", userValidation_1.signupValidation, user_controller_1.createNewUser);
 router.patch("/profile", auth_1.auth, updateUploadMiddleware, user_controller_1.updateUserProfile);
 router.patch("/cart", auth_1.auth, user_controller_1.updateUserCartController);
 router.patch("/cartHistory", auth_1.auth, user_controller_1.updateUserCartHistoryController);
+router.patch("/verify-email", userValidation_1.verifyEmailValidation, user_controller_1.verifyEmailController);
 router.post("/sign-up/admin", auth_1.newAdminSignUpAuth, user_controller_1.createNewUser);
-router.post("/login", user_controller_1.loginUser);
+router.post("/login", userValidation_1.loginValidation, user_controller_1.loginUser);
 router.get("/logout", user_controller_1.signOutUser);
 router.get("/userDetails/:phone", auth_1.adminAccess, user_controller_1.getAUserByPhoneController);
 router.get("/get-accessjwt", auth_1.refreshAuth);

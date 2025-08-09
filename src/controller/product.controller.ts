@@ -146,25 +146,31 @@ try {
 
 }
 
+
 export const getAllProductListByLimit = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 30;
-    const search = req.query.search as string;
+    // Parse and validate query parameters with defaults
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 30)); // Cap at 100
+    const search = (req.query.search as string)?.trim();
     const sortBy = (req.query.sortBy as string) || "createdAt";
-    const order = req.query.order === "asc" ? -1 : 1;
+    const order = req.query.order === "asc" ? 1 : -1; // Fixed: asc should be 1, desc should be -1
 
-    const query: any = {};
+    // Build optimized query
+    const query: any = { status: "ACTIVE" }; // Filter active products at DB level
     if (search) {
+      // Use text index for better performance if available
+      // If you have a text index: query.$text = { $search: search };
+      // Otherwise, use regex on indexed field
       query.name = { $regex: search, $options: "i" };
     }
 
-    // Generate a unique cache key based on the query
-    const cacheKey = `products:page=${page}&limit=${limit}&search=${search || ""}&sortBy=${sortBy}&order=${order}`;
+    // Generate cache key with consistent ordering
+    const cacheKey = `products:${page}:${limit}:${search || ""}:${sortBy}:${order}`;
 
     // Check Redis cache first
     const cachedData = await redisClient.get(cacheKey);
@@ -173,23 +179,27 @@ export const getAllProductListByLimit = async (
       return res.status(200).json(parsed);
     }
 
-    // If not cached, fetch from DB
-    const total = await productSchema.countDocuments(query);
-    const products = await productSchema
-      .find(query)
-      .sort({ [sortBy]: order })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+    // Use Promise.all for parallel execution
+    const [total, products] = await Promise.all([
+      productSchema.countDocuments(query),
+      productSchema
+        .find(query, { 
+          costPrice: 0, // Exclude costPrice at DB level
+          __v: 0,       // Exclude version field
+          // Include only needed fields for better performance:
+          // name: 1, price: 1, status: 1, createdAt: 1, etc.
+        })
+        .sort({ [sortBy]: order })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean() // Already present, good for performance
+    ]);
 
-    const filteredProducts = products
-      .map(({ costPrice, ...rest }) => rest)
-      .filter((item) => item.status === "ACTIVE");
-
+    // No need to filter again since we filtered at DB level
     const responseData = {
       status: "success",
       message: "Products fetched successfully!",
-      products: filteredProducts,
+      products, // Already filtered and without costPrice
       pagination: {
         total,
         page,
@@ -198,15 +208,79 @@ export const getAllProductListByLimit = async (
       },
     };
 
-    // Cache the response for 60 seconds
-    await redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+    // Cache with longer TTL for better hit rate, but shorter for search results
+    const ttl = search ? 30 : 300; // 30s for search, 5min for regular queries
+    
+    // Fire and forget caching to avoid blocking response
+    redisClient.setEx(cacheKey, ttl, JSON.stringify(responseData)).catch(console.error);
 
-    // Send the response
     return res.status(200).json(responseData);
   } catch (error) {
     next(error);
   }
 };
+
+// export const getAllProductListByLimit = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const page = parseInt(req.query.page as string) || 1;
+//     const limit = parseInt(req.query.limit as string) || 30;
+//     const search = req.query.search as string;
+//     const sortBy = (req.query.sortBy as string) || "createdAt";
+//     const order = req.query.order === "asc" ? -1 : 1;
+
+//     const query: any = {};
+//     if (search) {
+//       query.name = { $regex: search, $options: "i" };
+//     }
+
+//     // Generate a unique cache key based on the query
+//     const cacheKey = `products:page=${page}&limit=${limit}&search=${search || ""}&sortBy=${sortBy}&order=${order}`;
+
+//     // Check Redis cache first
+//     const cachedData = await redisClient.get(cacheKey);
+//     if (cachedData) {
+//       const parsed = JSON.parse(cachedData);
+//       return res.status(200).json(parsed);
+//     }
+
+//     // If not cached, fetch from DB
+//     const total = await productSchema.countDocuments(query);
+//     const products = await productSchema
+//       .find(query)
+//       .sort({ [sortBy]: order })
+//       .skip((page - 1) * limit)
+//       .limit(limit)
+//       .lean();
+
+//     const filteredProducts = products
+//       .map(({ costPrice, ...rest }) => rest)
+//       .filter((item) => item.status === "ACTIVE");
+
+//     const responseData = {
+//       status: "success",
+//       message: "Products fetched successfully!",
+//       products: filteredProducts,
+//       pagination: {
+//         total,
+//         page,
+//         limit,
+//         totalPages: Math.ceil(total / limit),
+//       },
+//     };
+
+//     // Cache the response for 60 seconds
+//     await redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+
+//     // Send the response
+//     return res.status(200).json(responseData);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const getAllProductList = async (
     req: Request,

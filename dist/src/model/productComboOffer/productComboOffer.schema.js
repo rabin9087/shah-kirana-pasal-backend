@@ -30,6 +30,11 @@ const productComboOfferSchema = new mongoose_1.default.Schema({
             price: {
                 type: String,
                 required: true
+            },
+            qty: {
+                type: String,
+                required: true,
+                min: 1
             }
         }],
     thumbnail: {

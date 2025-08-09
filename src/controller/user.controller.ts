@@ -5,12 +5,15 @@ import { hashPassword, validatePassword } from "../utils/bcrypt";
 import {
   createAccessJWT,
   createRefreshJWT,
+  verifyAccessJWT,
   verifyRefreshJWT,
 } from "../utils/jwt";
 import { sendRegisterationLink } from "../utils/nodemailer";
 import { randomOTPGenerator } from "../utils/randomGenerator";
 import { IUser } from '../model/user/user.schema';
 import axios from 'axios';
+import sessionSchema from '../model/session/session.schema';
+import { findOneByTokenAndEmail } from '../model/session/session.model';
 
 
 export const createNewUser = async (
@@ -23,16 +26,44 @@ export const createNewUser = async (
     req.body.password = hashPassword(password);
     const newUser = await createUser(req.body);
     newUser.password = undefined;
-    newUser?._id
-      ? res.json({
+    if (newUser?._id) {
+      // Send registration link to the user's email
+      const token = await createAccessJWT(newUser?.email as string);
+
+        const ZAPIER_WEBHOOK_URL_Signup_user = process.env.ZAPIER_WEBHOOK_URL_Signup_user;
+        
+    if (!ZAPIER_WEBHOOK_URL_Signup_user) {
+      return res.status(500).json({
+        status: "error",
+        message: "Zapier webhook URL not configured.",
+      });
+    }
+      const url = process.env.ENVIRONMENT === "Development" ? "https://shahkiranapasal.shop" : "http://localhost:5173";
+       // Send VerifyEmail request to Zapier
+    const verify = await axios.post(ZAPIER_WEBHOOK_URL_Signup_user, {
+      name: `${newUser.fName} ${newUser.lName}`,
+      email: newUser.email,
+      verifyEmail: `${url}/verify-email?token=${token}&email=${newUser.email}`,
+    });
+
+    if (!verify.data) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to send OTP.",
+      });
+    }
+
+       res.json({
           status: "success",
           message: "Please check your email to verify your account",
           data: newUser,
         })
-      : res.json({
-          status: "error",
-          message: "Error creating the account.",
-        });
+      } else {
+  res.json({
+    status: "error",
+    message: "Error creating the account.",
+  });
+}
   } catch (error) {
     next(error);
   }
@@ -150,7 +181,6 @@ export const loginUser = async (
     if (!email_phone || !password) throw new Error("Missing credentials.");
     // Find a user with the provided email  address or phone number
     const user = await getUserByPhoneOrEmail(email_phone);
-    
     //if not user found, response not user found with requested email or phone
     if (!user) {
       return res
@@ -429,6 +459,39 @@ export const sendLinkController = async (
           status: "error",
           message: "Failed To Send Message",
         });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyEmailController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, token } = req.body;
+    // Validate the token
+    const decoded = await verifyAccessJWT(token);
+    if (!decoded || decoded.phone !== email) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid or expired token",
+      });
+    }
+    // Update the user to set email as verified
+    const verify = await findOneByTokenAndEmail(token, email);
+    if (verify?._id) {
+      await sessionSchema.findOneAndDelete({ associate: email, token });
+      const user = await getUserByPhoneOrEmail(email);
+      if (user?._id) {
+              await UpdateUserByPhone(user?.phone, { isVerified: true });
+      }
+      return res.json({
+        status: "success",
+        message: "Email verified successfully!",
+      });
+    }
   } catch (error) {
     next(error);
   }

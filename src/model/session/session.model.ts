@@ -7,6 +7,10 @@ export const insertNewSession = (obj: {
   return new sessionSchema(obj).save();
 };
 
+export const findOneByTokenAndEmail = (token: string, email: string) => {
+  return sessionSchema.findOne({ token, associate: email });
+};
+
 export const findOneByFilterAndDelete = (filter: {
   associate: string;
   token: string;
