@@ -22,6 +22,9 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const { amount, currency, paymentIntentId } = req.body;
         const stripe = new stripe_1.default(process.env.STRIP_SECRET);
+        const amountInCents = Math.round(parseFloat(amount) * 100);
+        console.log("Original amount:", amount);
+        console.log("Amount in cents:", amountInCents);
         let paymentIntent;
         if (paymentIntentId) {
             try {
@@ -29,7 +32,7 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'canceled') {
                     console.warn(`Attempted to update PaymentIntent ${paymentIntentId} which is in status: ${paymentIntent.status}. Creating a new one.`);
                     paymentIntent = yield stripe.paymentIntents.create({
-                        amount: amount * 100,
+                        amount: amountInCents,
                         currency: currency || 'aud',
                         payment_method_types: [
                             "card",
@@ -40,7 +43,7 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 }
                 else {
                     paymentIntent = yield stripe.paymentIntents.update(paymentIntentId, {
-                        amount: amount * 100,
+                        amount: amountInCents,
                         currency: currency || 'aud',
                     });
                 }
@@ -49,7 +52,7 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 if (error.type === 'StripeInvalidRequestError') {
                     console.warn(`PaymentIntent ${paymentIntentId} not found or invalid. Creating a new one.`);
                     paymentIntent = yield stripe.paymentIntents.create({
-                        amount: amount * 100,
+                        amount: amountInCents,
                         currency: currency || 'aud',
                         payment_method_types: [
                             "card",
@@ -65,7 +68,7 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         }
         else {
             paymentIntent = yield stripe.paymentIntents.create({
-                amount: amount * 100,
+                amount: amountInCents,
                 currency: currency || 'aud',
                 payment_method_types: [
                     "card",

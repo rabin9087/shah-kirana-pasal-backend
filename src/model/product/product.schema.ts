@@ -38,10 +38,15 @@ const productSchema = new mongose.Schema<IProduct>(
         status: {
             type: String,
             default: "ACTIVE",
+            enum: ['ACTIVE', 'INACTIVE'],
+            index: true,
         },
         name: {
             type: String,
             required: true,
+            trim: true,
+            index: true,    
+
         },
         //this name should be in Nepali
         alternateName: {
@@ -55,6 +60,7 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         description: {
             type: String,
+            index: 1,
         },
         parentCategoryID: {
             type: mongose.Types.ObjectId,
@@ -86,10 +92,12 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         images: [{
             type: String,
+            index: 1
         }],
         thumbnail: {
             type: String,
-            default: ""
+            default: "",
+            index: 1,
         },
         brand: {
             type: String,

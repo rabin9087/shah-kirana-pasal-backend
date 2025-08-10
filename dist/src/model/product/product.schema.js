@@ -8,10 +8,14 @@ const productSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
         default: "ACTIVE",
+        enum: ['ACTIVE', 'INACTIVE'],
+        index: true,
     },
     name: {
         type: String,
         required: true,
+        trim: true,
+        index: true,
     },
     alternateName: {
         type: String,
@@ -24,6 +28,7 @@ const productSchema = new mongoose_1.default.Schema({
     },
     description: {
         type: String,
+        index: 1,
     },
     parentCategoryID: {
         type: mongoose_1.default.Types.ObjectId,
@@ -55,10 +60,12 @@ const productSchema = new mongoose_1.default.Schema({
     },
     images: [{
             type: String,
+            index: 1
         }],
     thumbnail: {
         type: String,
-        default: ""
+        default: "",
+        index: 1,
     },
     brand: {
         type: String,
