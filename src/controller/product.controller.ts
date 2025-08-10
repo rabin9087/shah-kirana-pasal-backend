@@ -158,7 +158,7 @@ export const getAllProductListByLimit = async (
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 30)); // Cap at 100
     const search = (req.query.search as string)?.trim();
     const sortBy = (req.query.sortBy as string) || "createdAt";
-    const order = req.query.order === "asc" ? 1 : -1; // Fixed: asc should be 1, desc should be -1
+    const order = req.query.order === "desc" ? -1 : 1; // Fixed: asc should be 1, desc should be -1
 
     // Build optimized query
     const query: any = { status: "ACTIVE" }; // Filter active products at DB level

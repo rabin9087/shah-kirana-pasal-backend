@@ -141,7 +141,7 @@ const getAllProductListByLimit = (req, res, next) => __awaiter(void 0, void 0, v
         const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 30));
         const search = (_a = req.query.search) === null || _a === void 0 ? void 0 : _a.trim();
         const sortBy = req.query.sortBy || "createdAt";
-        const order = req.query.order === "asc" ? 1 : -1;
+        const order = req.query.order === "desc" ? -1 : 1;
         const query = { status: "ACTIVE" };
         if (search) {
             query.name = { $regex: search, $options: "i" };
