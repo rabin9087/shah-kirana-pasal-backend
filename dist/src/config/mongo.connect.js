@@ -18,13 +18,26 @@ const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const URI = process.env.MONGO_URI;
         if (!URI) {
-            console.error("MONGO_URI is not defined in environment variables.");
+            throw new Error("MONGO_URI is not defined in environment variables.");
         }
-        const conn = yield mongoose_1.default.connect(URI);
-        console.log("mongo connect success");
+        const mongoOptions = {
+            maxPoolSize: 20,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            autoIndex: false,
+        };
+        yield mongoose_1.default.connect(URI, mongoOptions);
+        console.log("✅ MongoDB connected successfully");
+        mongoose_1.default.connection.on("error", (err) => {
+            console.error("MongoDB connection error:", err);
+        });
+        mongoose_1.default.connection.on("disconnected", () => {
+            console.warn("⚠️ MongoDB disconnected");
+        });
     }
     catch (error) {
-        console.error("MongoDB connection error:", error);
+        console.error("❌ MongoDB connection failed:", error);
+        process.exit(1);
     }
 });
 exports.connectMongo = connectMongo;

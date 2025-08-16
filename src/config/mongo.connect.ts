@@ -1,24 +1,33 @@
 import mongoose from "mongoose";
 
-// const mongoOptions = {
-//   maxPoolSize: 10, // Maintain up to 10 socket connections
-//   serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-//   socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-//   bufferMaxEntries: 0, // Disable mongoose buffering
-//   bufferCommands: false, // Disable mongoose buffering
-// };
-
 export const connectMongo = async () => {
-   try {
-  const URI = process.env.MONGO_URI
-  if (!URI) {
-     console.error("MONGO_URI is not defined in environment variables.");
-  }
- 
-    const conn = await mongoose.connect(URI as string);
-    console.log("mongo connect success")
-     
-  } catch (error: any) {
-    console.error("MongoDB connection error:", error);
+  try {
+    const URI = process.env.MONGO_URI;
+    if (!URI) {
+      throw new Error("MONGO_URI is not defined in environment variables.");
+    }
+
+    // Recommended connection options for performance & stability
+    const mongoOptions: mongoose.ConnectOptions = {
+      maxPoolSize: 20, // allow more concurrent connections
+      serverSelectionTimeoutMS: 5000, // fail fast if DB server is unavailable
+      socketTimeoutMS: 45000, // close idle sockets
+      autoIndex: false, // disable auto-indexing in production for faster startup
+    };
+
+    await mongoose.connect(URI, mongoOptions);
+    console.log("✅ MongoDB connected successfully");
+
+    // Optional: Log connection events
+    mongoose.connection.on("error", (err) => {
+      console.error("MongoDB connection error:", err);
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      console.warn("⚠️ MongoDB disconnected");
+    });
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error);
+    process.exit(1); // exit app if DB is unavailable
   }
 };

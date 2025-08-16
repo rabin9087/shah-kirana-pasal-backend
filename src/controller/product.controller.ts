@@ -146,7 +146,6 @@ try {
 
 }
 
-
 export const getAllProductListByLimit = async (
   req: Request,
   res: Response,

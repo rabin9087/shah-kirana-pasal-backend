@@ -22,7 +22,7 @@ const searchProductItem = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             ? res.json({
                 status: "success",
                 message: "Here are all searched products",
-                result: products.map(({ _id, name, alternateName, parentCategoryID, qrCodeNumber }) => ({ name, _id, alternateName, parentCategoryID, qrCodeNumber }))
+                result: products.map(({ _id, name, alternateName, parentCategoryID, qrCodeNumber, price, salesPrice, thumbnail }) => ({ name, _id, alternateName, parentCategoryID, qrCodeNumber, price, salesPrice, thumbnail }))
             })
             : res.json({
                 status: "success",

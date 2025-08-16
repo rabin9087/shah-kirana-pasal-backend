@@ -14,7 +14,7 @@ const getAllProductComboOffers = () => {
 };
 exports.getAllProductComboOffers = getAllProductComboOffers;
 const getProductComboOfferById = (id) => {
-    return productComboOffer_schema_1.default.findById(id).populate("items");
+    return productComboOffer_schema_1.default.findById(id).populate("items.productId");
 };
 exports.getProductComboOfferById = getProductComboOfferById;
 const updateProductComboOffer = (id, offerObj) => {

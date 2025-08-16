@@ -9,7 +9,7 @@ export const getAllProductComboOffers = () => {
 };
 
 export const getProductComboOfferById = (id: string) => {
-    return ProductComboOfferSchema.findById(id).populate("items");
+    return ProductComboOfferSchema.findById(id).populate("items.productId");
 }
 export const updateProductComboOffer = (id: string, offerObj: IProductComboOffer) => {
     return ProductComboOfferSchema.findByIdAndUpdate(id, offerObj, { new: true }).populate("items");
