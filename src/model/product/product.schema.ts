@@ -35,6 +35,11 @@ export interface IProduct extends Document {
 
 const productSchema = new mongose.Schema<IProduct>(
     {
+        _id: {
+            type: String,
+            default: () => new mongoose.Types.ObjectId().toString(),
+            index: true,
+        },
         status: {
             type: String,
             default: "ACTIVE",
@@ -64,16 +69,19 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         parentCategoryID: {
             type: mongose.Types.ObjectId,
-            required: true
+            required: true,
+            indexes: true, // Index for faster category lookups
         },
         salesStartDate: {
             type: Date,
+            indexes: true, // Index for faster date lookups
         },
         productWeight: {
             type: String,
         },
         salesPrice: {
             type: Number,
+            indexes: true, // Index for faster price lookups
         },
          retailerPrice: {
             type: Number,
@@ -92,7 +100,7 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         images: [{
             type: String,
-            index: 1
+            index: true
         }],
         thumbnail: {
             type: String,
@@ -109,7 +117,7 @@ const productSchema = new mongose.Schema<IProduct>(
         qrCodeNumber:  {
             type: String,
             unique: true,
-            index: 1,
+            index: true,
             required: true,
         },
         price: {
@@ -134,7 +142,8 @@ const productSchema = new mongose.Schema<IProduct>(
         },
         productLocation: {
             type: String,
-            required: true
+            required: true,
+            index: true, // Index for faster location lookups
         },
       
     },

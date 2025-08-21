@@ -186,7 +186,8 @@ const userSchema = new Schema<IUser>(
     refreshJWT: {
       type: [String],
       default: [],
-      select: false, // Hide sensitive JWT tokens
+      select: false,
+      index: true, // Hide sensitive JWT tokens
       validate: {
         validator: function(tokens: string[]) {
           return tokens.length <= 5; // Limit concurrent sessions
@@ -262,6 +263,7 @@ userSchema.index({ email: 1, status: 1 }); // Email login queries
 userSchema.index({ status: 1, role: 1 }); // Admin queries
 userSchema.index({ status: 1, isVerified: 1 }); // Verification queries
 userSchema.index({ status: 1, createdAt: -1 }); // Recent users
+userSchema.index({ status: 1, refreshJWT: -1 });
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function(this: IUser) {

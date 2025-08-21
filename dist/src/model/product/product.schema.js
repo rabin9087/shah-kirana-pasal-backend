@@ -4,7 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const mongoose_2 = __importDefault(require("mongoose"));
 const productSchema = new mongoose_1.default.Schema({
+    _id: {
+        type: String,
+        default: () => new mongoose_2.default.Types.ObjectId().toString(),
+        index: true,
+    },
     status: {
         type: String,
         default: "ACTIVE",
@@ -32,16 +38,19 @@ const productSchema = new mongoose_1.default.Schema({
     },
     parentCategoryID: {
         type: mongoose_1.default.Types.ObjectId,
-        required: true
+        required: true,
+        indexes: true,
     },
     salesStartDate: {
         type: Date,
+        indexes: true,
     },
     productWeight: {
         type: String,
     },
     salesPrice: {
         type: Number,
+        indexes: true,
     },
     retailerPrice: {
         type: Number,
@@ -60,7 +69,7 @@ const productSchema = new mongoose_1.default.Schema({
     },
     images: [{
             type: String,
-            index: 1
+            index: true
         }],
     thumbnail: {
         type: String,
@@ -77,7 +86,7 @@ const productSchema = new mongoose_1.default.Schema({
     qrCodeNumber: {
         type: String,
         unique: true,
-        index: 1,
+        index: true,
         required: true,
     },
     price: {
@@ -102,7 +111,8 @@ const productSchema = new mongoose_1.default.Schema({
     },
     productLocation: {
         type: String,
-        required: true
+        required: true,
+        index: true,
     },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("product", productSchema);

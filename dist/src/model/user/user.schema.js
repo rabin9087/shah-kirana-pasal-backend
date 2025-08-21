@@ -160,6 +160,7 @@ const userSchema = new mongoose_1.Schema({
         type: [String],
         default: [],
         select: false,
+        index: true,
         validate: {
             validator: function (tokens) {
                 return tokens.length <= 5;
@@ -230,6 +231,7 @@ userSchema.index({ email: 1, status: 1 });
 userSchema.index({ status: 1, role: 1 });
 userSchema.index({ status: 1, isVerified: 1 });
 userSchema.index({ status: 1, createdAt: -1 });
+userSchema.index({ status: 1, refreshJWT: -1 });
 userSchema.virtual('fullName').get(function () {
     return `${this.fName} ${this.lName}`.trim();
 });
