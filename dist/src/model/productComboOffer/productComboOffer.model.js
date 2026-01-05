@@ -10,11 +10,12 @@ const createProductOfferCombo = (offerObj) => {
 };
 exports.createProductOfferCombo = createProductOfferCombo;
 const getAllProductComboOffers = () => {
-    return productComboOffer_schema_1.default.find().populate("items.productId");
+    return productComboOffer_schema_1.default.find().populate("items.productId", "name price thumbnail qrCodeNumber parentCategoryID");
 };
 exports.getAllProductComboOffers = getAllProductComboOffers;
-const getProductComboOfferById = (id) => {
-    return productComboOffer_schema_1.default.findById(id).populate("items.productId");
+const getProductComboOfferById = (offerName) => {
+    console.log(offerName);
+    return productComboOffer_schema_1.default.findOne({ offerName }).populate("items.productId");
 };
 exports.getProductComboOfferById = getProductComboOfferById;
 const updateProductComboOffer = (id, offerObj) => {

@@ -7,9 +7,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const mongoose_2 = __importDefault(require("mongoose"));
 const productSchema = new mongoose_1.default.Schema({
     _id: {
-        type: String,
-        default: () => new mongoose_2.default.Types.ObjectId().toString(),
-        index: true,
+        type: mongoose_2.default.Schema.Types.ObjectId,
+        default: () => new mongoose_2.default.Types.ObjectId()
     },
     status: {
         type: String,
@@ -39,18 +38,18 @@ const productSchema = new mongoose_1.default.Schema({
     parentCategoryID: {
         type: mongoose_1.default.Types.ObjectId,
         required: true,
-        indexes: true,
+        index: true,
     },
     salesStartDate: {
         type: Date,
-        indexes: true,
+        index: true,
     },
     productWeight: {
         type: String,
     },
     salesPrice: {
         type: Number,
-        indexes: true,
+        index: true,
     },
     retailerPrice: {
         type: Number,

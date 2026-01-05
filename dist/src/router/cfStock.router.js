@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const cfStock_controller_1 = require("../controller/cfStock.controller");
+const router = (0, express_1.Router)();
+router.post("/", cfStock_controller_1.createCfStockController);
+router.post("/bulkStock", cfStock_controller_1.uploadBulkStockController);
+router.get("/sku/:sku", cfStock_controller_1.getStockBySKUController);
+router.get("/location/:location", cfStock_controller_1.getStockByLocationController);
+router.get("/identifier/:identifier", cfStock_controller_1.getStockByIdentifierController);
+router.patch("/identifier/:identifier", cfStock_controller_1.UpdateStockByIdentifierController);
+router.patch("/:_id");
+exports.default = router;

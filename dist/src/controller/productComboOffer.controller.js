@@ -41,11 +41,11 @@ const getAllProductComboOfferController = (req, res, next) => __awaiter(void 0, 
                 productComboOffers
             });
         }
-        else { }
-        return res.status(400).json({
-            status: "error",
-            message: "Failed to create product combo offer."
-        });
+        else
+            return res.status(400).json({
+                status: "error",
+                message: "Failed to find all product combo offer."
+            });
     }
     catch (error) {
         next(error);
@@ -56,17 +56,16 @@ const getAProductComboOfferController = (req, res, next) => __awaiter(void 0, vo
     try {
         const { _id } = req.params;
         const productComboOffer = yield (0, productComboOffer_model_1.getProductComboOfferById)(_id);
-        if (productComboOffer === null || productComboOffer === void 0 ? void 0 : productComboOffer.id) {
-            return res.status(200).json({
-                status: "success",
-                message: "Here is a product combo offer.",
-                productComboOffer
+        if (!productComboOffer) {
+            return res.status(404).json({
+                status: "error",
+                message: "Product combo offer not found.",
             });
         }
-        else { }
-        return res.status(400).json({
-            status: "error",
-            message: "Failed to create product combo offer."
+        return res.status(200).json({
+            status: "success",
+            message: "Here is the product combo offer.",
+            productComboOffer,
         });
     }
     catch (error) {

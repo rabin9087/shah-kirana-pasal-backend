@@ -7,9 +7,7 @@ import mongoose from "mongoose";
 export interface CustomError extends Error {
   statusCode: number;
 }
-export type jwtReturnType =
-  | { phone: string; iat: number; exp: number }
-  | undefined;
+export type jwtReturnType = { phone: string; iat: number; exp: number } | undefined;
 
 declare global {
   namespace Express {

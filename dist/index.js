@@ -20,6 +20,8 @@ const mongo_connect_1 = require("./src/config/mongo.connect");
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const redis_1 = require("./src/utils/redis");
 const dotenv_1 = __importDefault(require("dotenv"));
+const http_1 = __importDefault(require("http"));
+const socket_io_1 = require("socket.io");
 dotenv_1.default.config();
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 1 * 60 * 1000,
@@ -31,8 +33,25 @@ app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)("short"));
 app.use(express_1.default.json());
 app.use(limiter);
+const server = http_1.default.createServer(app);
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: ["http://localhost:5173"],
+        methods: ["GET", "POST"],
+    }
+});
+io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
+    socket.on("message", (data) => {
+        console.log("Message:", data);
+        io.emit("message", data);
+    });
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
 app.get("/", (req, res) => {
-    res.cookie("test", "thisistest", { httpOnly: true, });
+    res.cookie("test", "test", { httpOnly: true, });
     res.json({
         status: "success",
         message: "Welcome to Content Management System API",
@@ -51,13 +70,14 @@ app.use((error, req, res, next) => {
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, mongo_connect_1.connectMongo)();
     yield (0, redis_1.connectRedis)();
-    process.env.ENVIRONMENT === "Development"
-        ? app.listen(port, () => {
-            console.log(`Server is running on http://192.168.20.4:${port}`);
-        })
-        : app.listen(port, () => {
-            console.log(`Server is running on http://localhost:${port}`);
-        });
+    server.listen(port, () => {
+        if (process.env.ENVIRONMENT === "Development") {
+            console.log(`Server running at http://192.168.20.4:${port}`);
+        }
+        else {
+            console.log(`Server running at http://localhost:${port}`);
+        }
+    });
 });
 startServer().catch((error) => {
     console.error("Failed to start server:", error);

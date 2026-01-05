@@ -13,7 +13,8 @@ import { connectMongo } from "./src/config/mongo.connect";
 import rateLimit from "express-rate-limit";
 import { connectRedis } from "./src/utils/redis";
 import dotenv from "dotenv";
-
+import http from "http";
+import { Server } from "socket.io";
 dotenv.config();
 
 //For env File
@@ -37,9 +38,31 @@ app.use(limiter);
 //     },
 //   })
 // );
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST"],
+  }
+});
+// Run when client connects
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("message", (data) => {
+    console.log("Message:", data);
+
+    // Send to all clients
+    io.emit("message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
 
 app.get("/", (req: Request, res: Response) => {
-  res.cookie("test","thisistest",{httpOnly:true,})
+  res.cookie("test","test",{httpOnly:true,})
   res.json({
     status: "success",
     message: "Welcome to Content Management System API",
@@ -62,13 +85,21 @@ app.use(
 const startServer = async () => { 
   await connectMongo();
   await connectRedis();
-process.env.ENVIRONMENT === "Development"  
-  ? app.listen(port, () => {
-    console.log(`Server is running on http://192.168.20.4:${port}`);
-    })
-  : app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
-    });
+// process.env.ENVIRONMENT === "Development"  
+//   ? app.listen(port, () => {
+//     console.log(`Server is running on http://192.168.20.4:${port}`);
+//     })
+//   : app.listen(port, () => {
+//       console.log(`Server is running on http://localhost:${port}`);
+  //     });
+  
+  server.listen(port, () => {
+    if (process.env.ENVIRONMENT === "Development") {
+      console.log(`Server running at http://192.168.20.4:${port}`);
+    } else {
+      console.log(`Server running at http://localhost:${port}`);
+    }
+  });
 }
 
 startServer().catch((error) => {

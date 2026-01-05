@@ -27,7 +27,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const types_1 = require("../../../types");
 const CartItemSchema = new mongoose_1.Schema({
     productId: {
-        type: mongoose_1.Schema.Types.ObjectId,
+        type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "product",
         required: true,
         index: true,
@@ -91,6 +91,10 @@ const CartHistorySchema = new mongoose_1.Schema({
     }
 }, { _id: true });
 const userSchema = new mongoose_1.Schema({
+    _id: {
+        type: String,
+        index: true,
+    },
     status: {
         type: String,
         enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
@@ -121,6 +125,7 @@ const userSchema = new mongoose_1.Schema({
         required: [true, 'Phone number is required'],
         unique: true,
         trim: true,
+        indexes: true,
         validate: {
             validator: function (v) {
                 return /^[+]?[\d\s\-\(\)]+$/.test(v);
@@ -133,6 +138,8 @@ const userSchema = new mongoose_1.Schema({
         unique: true,
         sparse: true,
         trim: true,
+        indexes: true,
+        maxlength: [100, 'Email cannot exceed 100 characters'],
         validate: {
             validator: function (v) {
                 return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);

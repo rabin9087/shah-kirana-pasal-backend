@@ -13,11 +13,13 @@ const sessionSchema = new mongoose.Schema(
     token: {
       type: String,
       required: true,
+      index: true,
     },
     associate: {
       type: String,
       required: true,
       default: "",
+      index: true,
     },
   },
   { timestamps: true }

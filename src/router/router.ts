@@ -12,6 +12,7 @@ import due from '../router/due.router'
 import jobs from '../router/jobs.router'
 import jobCategory from './jobCategories.router'
 import productComboOffer from './productCombo.router'
+import cfStock from './cfStock.router'
 
 const router = express.Router()
 
@@ -28,5 +29,6 @@ router.use("/jobs", jobs)
 router.use("/jobCategory", jobCategory)
 router.use("/productComboOffer", productComboOffer)
 router.use("/shop", shop)
+router.use("/stock", cfStock)
 
 export default router

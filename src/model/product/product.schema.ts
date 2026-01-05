@@ -2,9 +2,10 @@ import mongose, { Document } from 'mongoose'
 import { IReviews, IStoredAt } from '../../../types';
 import { getAllShop } from '../shop/shop.model';
 import mongoose from 'mongoose';
+import { string } from 'zod';
 
 export interface IProduct extends Document {
-    _id: string,
+    _id: mongoose.Schema.Types.ObjectId | string,
     status: 'ACTIVE' | 'INACTIVE',
     name: string,
     alternateName?: string,
@@ -36,9 +37,8 @@ export interface IProduct extends Document {
 const productSchema = new mongose.Schema<IProduct>(
     {
         _id: {
-            type: String,
-            default: () => new mongoose.Types.ObjectId().toString(),
-            index: true,
+            type: mongoose.Schema.Types.ObjectId,
+            default: () => new mongoose.Types.ObjectId()
         },
         status: {
             type: String,
@@ -51,7 +51,7 @@ const productSchema = new mongose.Schema<IProduct>(
             required: true,
             trim: true,
             index: true,    
-
+             
         },
         //this name should be in Nepali
         alternateName: {
@@ -70,18 +70,18 @@ const productSchema = new mongose.Schema<IProduct>(
         parentCategoryID: {
             type: mongose.Types.ObjectId,
             required: true,
-            indexes: true, // Index for faster category lookups
+            index: true, // Index for faster category lookups
         },
         salesStartDate: {
             type: Date,
-            indexes: true, // Index for faster date lookups
+            index: true, // Index for faster date lookups
         },
         productWeight: {
             type: String,
         },
         salesPrice: {
             type: Number,
-            indexes: true, // Index for faster price lookups
+            index: true, // Index for faster price lookups
         },
          retailerPrice: {
             type: Number,

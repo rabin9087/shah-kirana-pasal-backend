@@ -1,13 +1,18 @@
-import mongoose from "mongoose";
-import { IProductTypes } from "../user/user.schema";
+import mongoose, { Schema } from "mongoose";
 import { IStatus } from "../../../types";
 
+// Define item type inline for clarity
+export interface IComboItem {
+  productId: mongoose.Schema.Types.ObjectId;
+  price: string;
+  qty: string;
+}
 
 export interface IProductComboOffer extends Document {
-    _id?: string,
+    // _id: mongoose.Schema.Types.ObjectId | string,
     offerName: string,
     status?: IStatus,
-    items: IProductTypes[],
+    items: IComboItem[],
     thumbnail: string,
     totalAmount: number,
     discountAmount: number,
@@ -21,27 +26,27 @@ export interface IProductComboOffer extends Document {
 
 const productComboOfferSchema = new mongoose.Schema<IProductComboOffer>(
     {
-        _id: {
-            type: String,
-            default: () => new mongoose.Types.ObjectId().toString(),
-            indexes: true,
-        },
+        // _id: {
+        //     type: mongoose.Schema.Types.ObjectId || String,
+        //     index: true,
+        // },
         offerName: {
             type: String,
             required: true,
             trim: true,
-            indexes: true,
+            index: true,
         },
         status: {
             type: String,
             default: 'ACTIVE',
-            indexes: true,
+            index: true,
         },
         items: [{
             productId: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId || String,
                 ref: 'product',
-                required: true
+                required: true,
+                // select: true,
             },
             price: {
                 type: String,

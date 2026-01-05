@@ -8,11 +8,13 @@ const sessionSchema = new mongoose_1.default.Schema({
     token: {
         type: String,
         required: true,
+        index: true,
     },
     associate: {
         type: String,
         required: true,
         default: "",
+        index: true,
     },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("session", sessionSchema);

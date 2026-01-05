@@ -8,6 +8,6 @@ const router = Router();
 router.post("/", adminAccess, createProductComboOfferController)
 router.get("/comboOffer", getAllProductComboOfferController)
 router.get("/:_id", getAProductComboOfferController)
-router.patch("/:_id", getAProductComboOfferController)
+router.patch("/:_id", adminAccess, getAProductComboOfferController)
 
 export default router;

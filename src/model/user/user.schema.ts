@@ -45,7 +45,7 @@ export interface ICartHistory {
 // Optimized subdocument schemas
 const CartItemSchema = new Schema({
   productId: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "product", // Capitalized for consistency
     required: true,
     index: true, // Index for faster lookups
@@ -116,6 +116,10 @@ const CartHistorySchema = new Schema({
 // Optimized main user schema
 const userSchema = new Schema<IUser>(
   {
+    _id: {
+      type: String,
+      index: true, // Index for filtering active users
+    },
     status: {
       type: String,
       enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
@@ -146,6 +150,7 @@ const userSchema = new Schema<IUser>(
       required: [true, 'Phone number is required'],
       unique: true,
       trim: true,
+      indexes: true, // Index for faster lookups
       validate: {
         validator: function(v: string) {
           return /^[+]?[\d\s\-\(\)]+$/.test(v);
@@ -158,6 +163,8 @@ const userSchema = new Schema<IUser>(
       unique: true,
       sparse: true, // Allow null values while maintaining uniqueness
       trim: true,
+      indexes: true, // Index for faster lookups
+      maxlength: [100, 'Email cannot exceed 100 characters'],
       // lowercase: true,
       validate: {
         validator: function(v: string) {

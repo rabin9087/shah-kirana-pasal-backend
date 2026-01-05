@@ -5,27 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const productComboOfferSchema = new mongoose_1.default.Schema({
-    _id: {
-        type: String,
-        default: () => new mongoose_1.default.Types.ObjectId().toString(),
-        indexes: true,
-    },
     offerName: {
         type: String,
         required: true,
         trim: true,
-        indexes: true,
+        index: true,
     },
     status: {
         type: String,
         default: 'ACTIVE',
-        indexes: true,
+        index: true,
     },
     items: [{
             productId: {
-                type: mongoose_1.default.Schema.Types.ObjectId,
+                type: mongoose_1.default.Schema.Types.ObjectId || String,
                 ref: 'product',
-                required: true
+                required: true,
             },
             price: {
                 type: String,

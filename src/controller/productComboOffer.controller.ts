@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { createProductOfferCombo, getAllProductComboOffers, getProductComboOfferById } from "../model/productComboOffer/productComboOffer.model";
 import { IProductComboOffer } from "../model/productComboOffer/productComboOffer.schema";
+import mongoose from "mongoose";
 
 export const createProductComboOfferController = async (req: Request, res: Response, next: NextFunction) => { 
     try {
@@ -30,10 +31,10 @@ export const getAllProductComboOfferController = async (req: Request, res: Respo
                 message: "Here are all product combo offer.",
                 productComboOffers
             })
-        } else { }
+        } else
         return res.status(400).json({
             status: "error",
-            message: "Failed to create product combo offer."
+            message: "Failed to find all product combo offer."
         });
 
     } catch (error) {
@@ -41,23 +42,23 @@ export const getAllProductComboOfferController = async (req: Request, res: Respo
     }
 }
 
-export const getAProductComboOfferController = async (req: Request, res: Response, next: NextFunction) => { 
-    try {
-        const { _id } = req.params;
-        const productComboOffer = await getProductComboOfferById(_id)
-        if (productComboOffer?.id) {
-            return res.status(200).json({
-                status: "success",
-                message: "Here is a product combo offer.",
-                productComboOffer
-            })
-        } else { }
-        return res.status(400).json({
-            status: "error",
-            message: "Failed to create product combo offer."
-        });
-
-    } catch (error) {
-       next(error)
+export const getAProductComboOfferController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { _id } = req.params;
+    const productComboOffer = await getProductComboOfferById(_id);
+    if (!productComboOffer) {
+      return res.status(404).json({
+        status: "error",
+        message: "Product combo offer not found.",
+      });
     }
-}
+
+    return res.status(200).json({
+      status: "success",
+      message: "Here is the product combo offer.",
+      productComboOffer,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
