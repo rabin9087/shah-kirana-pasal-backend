@@ -41,8 +41,8 @@ app.use(limiter);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
-    methods: ["GET", "POST"],
+    origin: ["http://localhost:5173", "https://shah-kirana-pasal-frontend-git-main-rabins-projects.vercel.app", "https://www.shahkiranapasal.online", "https://shah-kirana-pasal-frontend.vercel.app"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }
 });
 // Run when client connects

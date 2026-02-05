@@ -36,8 +36,8 @@ app.use(limiter);
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: ["http://localhost:5173"],
-        methods: ["GET", "POST"],
+        origin: ["http://localhost:5173", "https://shah-kirana-pasal-frontend-git-main-rabins-projects.vercel.app", "https://www.shahkiranapasal.online", "https://shah-kirana-pasal-frontend.vercel.app"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     }
 });
 io.on("connection", (socket) => {
